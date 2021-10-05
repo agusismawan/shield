@@ -1,12 +1,14 @@
+import { useRouter } from "next/router";
 import { Fragment, useState } from 'react'
 import { Dialog, Menu, Transition } from '@headlessui/react'
 import { ClockIcon, HomeIcon, MenuAlt1Icon, ViewListIcon, XIcon } from '@heroicons/react/outline'
 import { SearchIcon, SelectorIcon } from '@heroicons/react/solid'
 
 const navigation = [
-  { name: 'Home', href: '#', icon: HomeIcon, current: true },
-  { name: 'My tasks', href: '#', icon: ViewListIcon, current: false },
-  { name: 'Recent', href: '#', icon: ClockIcon, current: false },
+  { name: 'Dashboard', href: '/', icon: HomeIcon },
+  { name: 'Incidents', href: '/incidents', icon: ViewListIcon },
+  { name: 'Problem Management', href: '/problem', icon: ClockIcon },
+  { name: 'Service Request', href: '/service', icon: ClockIcon },
 ]
 const teams = [
   { name: 'Engineering', href: '#', bgColorClass: 'bg-indigo-500' },
@@ -18,7 +20,8 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function Sidebar({ children }) {
+export default function Layout({ children }) {
+  const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
@@ -74,8 +77,8 @@ export default function Sidebar({ children }) {
               <div className="flex-shrink-0 flex items-center px-4">
                 <img
                   className="h-8 w-auto"
-                  src="https://tailwindui.com/img/logos/workflow-logo-purple-500-mark-gray-700-text.svg"
-                  alt="Workflow"
+                  src="/shield-logo.png"
+                  alt="Shield"
                 />
               </div>
               <div className="mt-5 flex-1 h-0 overflow-y-auto">
@@ -86,16 +89,16 @@ export default function Sidebar({ children }) {
                         key={item.name}
                         href={item.href}
                         className={classNames(
-                          item.current
+                          router.pathname == item.href
                             ? 'bg-gray-100 text-gray-900'
                             : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50',
                           'group flex items-center px-2 py-2 text-base leading-5 font-medium rounded-md'
                         )}
-                        aria-current={item.current ? 'page' : undefined}
+                        aria-current={router.pathname == item.href ? 'page' : undefined}
                       >
                         <item.icon
                           className={classNames(
-                            item.current ? 'text-gray-500' : 'text-gray-400 group-hover:text-gray-500',
+                            router.pathname == item.href ? 'text-gray-500' : 'text-gray-400 group-hover:text-gray-500',
                             'mr-3 flex-shrink-0 h-6 w-6'
                           )}
                           aria-hidden="true"
@@ -143,8 +146,8 @@ export default function Sidebar({ children }) {
           <div className="flex items-center flex-shrink-0 px-6">
             <img
               className="h-8 w-auto"
-              src="https://tailwindui.com/img/logos/workflow-logo-purple-500-mark-gray-700-text.svg"
-              alt="Workflow"
+              src="/shield-logo.png"
+              alt="Shield"
             />
           </div>
           {/* Sidebar component, swap this element with another sidebar if you like */}
@@ -306,14 +309,14 @@ export default function Sidebar({ children }) {
                     key={item.name}
                     href={item.href}
                     className={classNames(
-                      item.current ? 'bg-gray-200 text-gray-900' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50',
+                      router.pathname == item.href ? 'bg-gray-200 text-gray-900' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50',
                       'group flex items-center px-2 py-2 text-sm font-medium rounded-md'
                     )}
                     aria-current={item.current ? 'page' : undefined}
                   >
                     <item.icon
                       className={classNames(
-                        item.current ? 'text-gray-500' : 'text-gray-400 group-hover:text-gray-500',
+                        router.pathname == item.href ? 'text-gray-500' : 'text-gray-400 group-hover:text-gray-500',
                         'mr-3 flex-shrink-0 h-6 w-6'
                       )}
                       aria-hidden="true"
