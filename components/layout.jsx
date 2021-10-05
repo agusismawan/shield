@@ -1,3 +1,4 @@
+import Meta from '../components/meta'
 import { useRouter } from "next/router";
 import { Fragment, useState } from 'react'
 import { Dialog, Menu, Transition } from '@headlessui/react'
@@ -25,6 +26,8 @@ export default function Layout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
+    <>
+    <Meta />
     <div className="relative h-screen flex overflow-hidden bg-white">
       <Transition.Root show={sidebarOpen} as={Fragment}>
         <Dialog
@@ -507,5 +510,6 @@ export default function Layout({ children }) {
         </main>
       </div>
     </div>
+    </>
   )
 }
