@@ -285,10 +285,9 @@ function IncidentDetail({ incident }) {
 export default IncidentDetail;
 
 export async function getServerSideProps(context) {
-  //console.log(context.id);
   // Fetch data from external API
   const res = await fetch(
-    "https://ularkadut.xyz/v1.0/incidents/${context.params}"
+    `https://ularkadut.xyz/v1.0/incidents/${context.params.id}`
   );
   const data = await res.json();
 
