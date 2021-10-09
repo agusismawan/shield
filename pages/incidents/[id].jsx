@@ -110,7 +110,14 @@ function IncidentDetail({ incident }) {
               </div>
 
               <div className="mt-6 flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-3">
-                <span className="inline-flex items-center justify-center px-3 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                <span
+                  className={classNames(
+                    incident.data.incidentStatus == "Open"
+                      ? "bg-red-100 text-red-800"
+                      : "bg-green-100 text-green-800",
+                    "inline-flex items-center justify-center px-3 py-0.5 rounded-full text-sm font-medium"
+                  )}
+                >
                   {incident.data.incidentStatus}
                 </span>
                 <button
@@ -135,7 +142,9 @@ function IncidentDetail({ incident }) {
                         Incident Report {incident.data.incidentNumber}
                       </h2>
                       <p className="mt-1 max-w-2xl text-sm text-gray-500">
-                        Duration {incident.data.resolvedIntervals} minutes.
+                        {incident.data.resolvedIntervals
+                          ? `Duration ${incident.data.resolvedIntervals} minutes`
+                          : `Started ${incident.data.startTime}`}
                       </p>
                     </div>
                     <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
@@ -145,7 +154,9 @@ function IncidentDetail({ incident }) {
                             Application
                           </dt>
                           <dd className="mt-1 text-sm text-gray-900">
-                            {incident.data.paramApps.name}
+                            {incident.data.paramApps.name
+                              ? incident.data.paramApps.name
+                              : "Not defined yet"}
                           </dd>
                         </div>
                         <div className="sm:col-span-1">
@@ -153,7 +164,9 @@ function IncidentDetail({ incident }) {
                             Incident Priority
                           </dt>
                           <dd className="mt-1 text-sm text-gray-900">
-                            {incident.data.paramPriorityMatrix.mapping}
+                            {incident.data.paramPriorityMatrix
+                              ? incident.data.paramPriorityMatrix.mapping
+                              : "Not defined yet"}
                           </dd>
                         </div>
                         <div className="sm:col-span-2">
@@ -161,7 +174,9 @@ function IncidentDetail({ incident }) {
                             Impacted Service
                           </dt>
                           <dd className="mt-1 text-sm text-gray-900">
-                            {incident.data.impactedSystem}
+                            {incident.data.impactedSystem
+                              ? incident.data.impactedSystem
+                              : "Not defined yet"}
                           </dd>
                         </div>
                         <div className="sm:col-span-2">
@@ -169,7 +184,9 @@ function IncidentDetail({ incident }) {
                             Impact
                           </dt>
                           <dd className="mt-1 text-sm text-gray-900">
-                            {incident.data.paramImpact.impact}
+                            {incident.data.paramImpact
+                              ? incident.data.paramImpact.impact
+                              : "Not defined yet"}
                           </dd>
                         </div>
                         <div className="sm:col-span-2">
@@ -177,7 +194,9 @@ function IncidentDetail({ incident }) {
                             Urgency
                           </dt>
                           <dd className="mt-1 text-sm text-gray-900">
-                            {incident.data.paramUrgency.urgency}
+                            {incident.data.paramUrgency.urgency
+                              ? incident.data.paramUrgency.urgency
+                              : "Not defined yet"}
                           </dd>
                         </div>
                         <div className="sm:col-span-2">
@@ -185,7 +204,9 @@ function IncidentDetail({ incident }) {
                             Root Cause
                           </dt>
                           <dd className="mt-1 text-sm text-gray-900">
-                            {incident.data.rootCause}
+                            {incident.data.rootCause
+                              ? incident.data.rootCause
+                              : "Not defined yet"}
                           </dd>
                         </div>
                         <div className="sm:col-span-2">
@@ -193,7 +214,9 @@ function IncidentDetail({ incident }) {
                             Action
                           </dt>
                           <dd className="mt-1 text-sm text-gray-900">
-                            {incident.data.actionItem}
+                            {incident.data.actionItem
+                              ? incident.data.actionItem
+                              : "Not defined yet"}
                           </dd>
                         </div>
                       </dl>
