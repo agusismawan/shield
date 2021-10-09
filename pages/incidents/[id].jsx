@@ -1,25 +1,7 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
 import Layout from "../../components/layout";
-import { Fragment } from "react";
-import { Menu, Transition } from "@headlessui/react";
-import {
-  ArrowNarrowLeftIcon,
-  CheckIcon,
-  HomeIcon,
-  PaperClipIcon,
-  QuestionMarkCircleIcon,
-  SearchIcon,
-  ThumbUpIcon,
-  UserIcon,
-} from "@heroicons/react/solid";
-
-const user = {
-  name: "Whitney Francis",
-  email: "whitney@example.com",
-  imageUrl:
-    "https://images.unsplash.com/photo-1517365830460-955ce3ccd263?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80",
-};
+import { CheckIcon, ThumbUpIcon, UserIcon } from "@heroicons/react/solid";
 
 const attachments = [
   { name: "resume_front_end_developer.pdf", href: "#" },
@@ -101,7 +83,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-export default function Detail() {
+function IncidentDetail({ incident }) {
   return (
     <>
       <Layout>
@@ -109,13 +91,13 @@ export default function Detail() {
           <title>Incident Report</title>
         </Head>
         <section>
-          {/* Page header */}
           <div className="py-6">
             <div className="max-w-full mx-auto px-4 sm:px-6 md:flex md:items-center md:justify-between md:space-x-5 lg:max-w-full lg:px-12">
+              {/* Page header, contain incident title */}
               <div className="flex items-center space-x-5">
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">
-                    MSGW Pada Brinets AS400
+                    {incident.data.incidentName}
                   </h1>
                   <p className="text-sm font-medium text-gray-500">
                     Reported by{" "}
@@ -126,9 +108,10 @@ export default function Detail() {
                   </p>
                 </div>
               </div>
+
               <div className="mt-6 flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-3">
                 <span className="inline-flex items-center justify-center px-3 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                  Resolved
+                  {incident.data.incidentStatus}
                 </span>
                 <button
                   type="button"
@@ -141,7 +124,7 @@ export default function Detail() {
 
             <div className="mt-8 max-w-full mx-auto grid grid-cols-1 gap-6 sm:px-6 lg:max-w-full lg:px-12 lg:grid-flow-col-dense lg:grid-cols-3">
               <div className="space-y-6 lg:col-start-1 lg:col-span-2">
-                {/* Description list*/}
+                {/* Incident Detail */}
                 <section aria-labelledby="applicant-information-title">
                   <div className="bg-white shadow sm:rounded-lg">
                     <div className="px-4 py-5 sm:px-6">
@@ -149,98 +132,71 @@ export default function Detail() {
                         id="applicant-information-title"
                         className="text-lg leading-6 font-medium text-gray-900"
                       >
-                        Incident Report IR-1-2021
+                        Incident Report {incident.data.incidentNumber}
                       </h2>
+                      <p className="mt-1 max-w-2xl text-sm text-gray-500">
+                        Duration {incident.data.resolvedIntervals} minutes.
+                      </p>
                     </div>
                     <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
                       <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
                         <div className="sm:col-span-1">
                           <dt className="text-sm font-medium text-gray-500">
-                            Application for
+                            Application
                           </dt>
                           <dd className="mt-1 text-sm text-gray-900">
-                            Backend Developer
+                            {incident.data.paramApps.name}
                           </dd>
                         </div>
                         <div className="sm:col-span-1">
                           <dt className="text-sm font-medium text-gray-500">
-                            Email address
+                            Incident Priority
                           </dt>
                           <dd className="mt-1 text-sm text-gray-900">
-                            ricardocooper@example.com
-                          </dd>
-                        </div>
-                        <div className="sm:col-span-1">
-                          <dt className="text-sm font-medium text-gray-500">
-                            Salary expectation
-                          </dt>
-                          <dd className="mt-1 text-sm text-gray-900">
-                            $120,000
-                          </dd>
-                        </div>
-                        <div className="sm:col-span-1">
-                          <dt className="text-sm font-medium text-gray-500">
-                            Phone
-                          </dt>
-                          <dd className="mt-1 text-sm text-gray-900">
-                            +1 555-555-5555
+                            {incident.data.paramPriorityMatrix.mapping}
                           </dd>
                         </div>
                         <div className="sm:col-span-2">
                           <dt className="text-sm font-medium text-gray-500">
-                            About
+                            Impacted Service
                           </dt>
                           <dd className="mt-1 text-sm text-gray-900">
-                            Fugiat ipsum ipsum deserunt culpa aute sint do
-                            nostrud anim incididunt cillum culpa consequat.
-                            Excepteur qui ipsum aliquip consequat sint. Sit id
-                            mollit nulla mollit nostrud in ea officia proident.
-                            Irure nostrud pariatur mollit ad adipisicing
-                            reprehenderit deserunt qui eu.
+                            {incident.data.impactedSystem}
                           </dd>
                         </div>
                         <div className="sm:col-span-2">
                           <dt className="text-sm font-medium text-gray-500">
-                            Attachments
+                            Impact
                           </dt>
                           <dd className="mt-1 text-sm text-gray-900">
-                            <ul className="border border-gray-200 rounded-md divide-y divide-gray-200">
-                              {attachments.map((attachment) => (
-                                <li
-                                  key={attachment.name}
-                                  className="pl-3 pr-4 py-3 flex items-center justify-between text-sm"
-                                >
-                                  <div className="w-0 flex-1 flex items-center">
-                                    <PaperClipIcon
-                                      className="flex-shrink-0 h-5 w-5 text-gray-400"
-                                      aria-hidden="true"
-                                    />
-                                    <span className="ml-2 flex-1 w-0 truncate">
-                                      {attachment.name}
-                                    </span>
-                                  </div>
-                                  <div className="ml-4 flex-shrink-0">
-                                    <a
-                                      href={attachment.href}
-                                      className="font-medium text-blue-600 hover:text-blue-500"
-                                    >
-                                      Download
-                                    </a>
-                                  </div>
-                                </li>
-                              ))}
-                            </ul>
+                            {incident.data.paramImpact.impact}
+                          </dd>
+                        </div>
+                        <div className="sm:col-span-2">
+                          <dt className="text-sm font-medium text-gray-500">
+                            Urgency
+                          </dt>
+                          <dd className="mt-1 text-sm text-gray-900">
+                            {incident.data.paramUrgency.urgency}
+                          </dd>
+                        </div>
+                        <div className="sm:col-span-2">
+                          <dt className="text-sm font-medium text-gray-500">
+                            Root Cause
+                          </dt>
+                          <dd className="mt-1 text-sm text-gray-900">
+                            {incident.data.rootCause}
+                          </dd>
+                        </div>
+                        <div className="sm:col-span-2">
+                          <dt className="text-sm font-medium text-gray-500">
+                            Action
+                          </dt>
+                          <dd className="mt-1 text-sm text-gray-900">
+                            {incident.data.actionItem}
                           </dd>
                         </div>
                       </dl>
-                    </div>
-                    <div>
-                      <a
-                        href="#"
-                        className="block bg-gray-50 text-sm font-medium text-gray-500 text-center px-4 py-4 hover:text-gray-700 sm:rounded-b-lg"
-                      >
-                        Read full application
-                      </a>
                     </div>
                   </div>
                 </section>
@@ -324,4 +280,22 @@ export default function Detail() {
       </Layout>
     </>
   );
+}
+
+export default IncidentDetail;
+
+export async function getServerSideProps(context) {
+  //console.log(context.id);
+  // Fetch data from external API
+  const res = await fetch(
+    "https://ularkadut.xyz/v1.0/incidents/${context.params}"
+  );
+  const data = await res.json();
+
+  // Pass data to the page via props
+  return {
+    props: {
+      incident: data,
+    },
+  };
 }
