@@ -1,83 +1,7 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
 import Layout from "../../components/layout";
-import { CheckIcon, ThumbUpIcon, UserIcon } from "@heroicons/react/solid";
-
-const attachments = [
-  { name: "resume_front_end_developer.pdf", href: "#" },
-  { name: "coverletter_front_end_developer.pdf", href: "#" },
-];
-const eventTypes = {
-  applied: { icon: UserIcon, bgColorClass: "bg-gray-400" },
-  advanced: { icon: ThumbUpIcon, bgColorClass: "bg-blue-500" },
-  completed: { icon: CheckIcon, bgColorClass: "bg-green-500" },
-};
-const timeline = [
-  {
-    id: 1,
-    type: eventTypes.applied,
-    content: "Applied to",
-    target: "Front End Developer",
-    date: "Sep 20",
-    datetime: "2020-09-20",
-  },
-  {
-    id: 2,
-    type: eventTypes.advanced,
-    content: "Advanced to phone screening by",
-    target: "Bethany Blake",
-    date: "Sep 22",
-    datetime: "2020-09-22",
-  },
-  {
-    id: 3,
-    type: eventTypes.completed,
-    content: "Completed phone screening with",
-    target: "Martha Gardner",
-    date: "Sep 28",
-    datetime: "2020-09-28",
-  },
-  {
-    id: 4,
-    type: eventTypes.advanced,
-    content: "Advanced to interview by",
-    target: "Bethany Blake",
-    date: "Sep 30",
-    datetime: "2020-09-30",
-  },
-  {
-    id: 5,
-    type: eventTypes.completed,
-    content: "Completed interview with",
-    target: "Katherine Snyder",
-    date: "Oct 4",
-    datetime: "2020-10-04",
-  },
-];
-
-const comments = [
-  {
-    id: 1,
-    name: "Leslie Alexander",
-    date: "4d ago",
-    imageId: "1494790108377-be9c29b29330",
-    body: "Ducimus quas delectus ad maxime totam doloribus reiciendis ex. Tempore dolorem maiores. Similique voluptatibus tempore non ut.",
-  },
-  {
-    id: 2,
-    name: "Michael Foster",
-    date: "4d ago",
-    imageId: "1519244703995-f4e0f30006d5",
-    body: "Et ut autem. Voluptatem eum dolores sint necessitatibus quos. Quis eum qui dolorem accusantium voluptas voluptatem ipsum. Quo facere iusto quia accusamus veniam id explicabo et aut.",
-  },
-  {
-    id: 3,
-    name: "Dries Vincent",
-    date: "4d ago",
-    imageId: "1506794778202-cad84cf45f1d",
-    body: "Expedita consequatur sit ea voluptas quo ipsam recusandae. Ab sint et voluptatem repudiandae voluptatem et eveniet. Nihil quas consequatur autem. Perferendis rerum et.",
-  },
-];
+import { CalendarIcon } from "@heroicons/react/solid";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -230,70 +154,67 @@ function IncidentDetail({ incident }) {
                 className="lg:col-start-3 lg:col-span-1"
               >
                 <div className="bg-white px-4 py-5 shadow sm:rounded-lg sm:px-6">
-                  <h2
-                    id="timeline-title"
-                    className="text-lg font-medium text-gray-900"
-                  >
-                    Timeline
-                  </h2>
-
-                  {/* Activity Feed */}
-                  <div className="mt-6 flow-root">
-                    <ul className="-mb-8">
-                      {timeline.map((item, itemIdx) => (
-                        <li key={item.id}>
-                          <div className="relative pb-8">
-                            {itemIdx !== timeline.length - 1 ? (
+                  {/* Incident Info */}
+                  <div className="space-y-4">
+                    <div>
+                      <h2 className="text-sm font-medium text-gray-500">
+                        Incident Type
+                      </h2>
+                      <ul className="mt-2 leading-8">
+                        <li className="inline">
+                          <a
+                            href="#"
+                            className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5"
+                          >
+                            <div className="absolute flex-shrink-0 flex items-center justify-center">
                               <span
-                                className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"
+                                className="h-1.5 w-1.5 rounded-full bg-rose-500"
                                 aria-hidden="true"
                               />
-                            ) : null}
-                            <div className="relative flex space-x-3">
-                              <div>
-                                <span
-                                  className={classNames(
-                                    item.type.bgColorClass,
-                                    "h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white"
-                                  )}
-                                >
-                                  <item.type.icon
-                                    className="w-5 h-5 text-white"
-                                    aria-hidden="true"
-                                  />
-                                </span>
-                              </div>
-                              <div className="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
-                                <div>
-                                  <p className="text-sm text-gray-500">
-                                    {item.content}{" "}
-                                    <a
-                                      href="#"
-                                      className="font-medium text-gray-900"
-                                    >
-                                      {item.target}
-                                    </a>
-                                  </p>
-                                </div>
-                                <div className="text-right text-sm whitespace-nowrap text-gray-500">
-                                  <time dateTime={item.datetime}>
-                                    {item.date}
-                                  </time>
-                                </div>
-                              </div>
                             </div>
-                          </div>
+                            <div className="ml-3.5 text-sm font-medium text-gray-900">
+                              {incident.data.incidentType
+                                ? incident.data.incidentType
+                                : "-"}
+                            </div>
+                          </a>{" "}
                         </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className="mt-6 flex flex-col justify-stretch">
-                    <button
-                      type="button"
-                      className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    >
-                      Advance to offer
-                    </button>
+                        <li className="inline">
+                          <a
+                            href="#"
+                            className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5"
+                          >
+                            <div className="absolute flex-shrink-0 flex items-center justify-center">
+                              <span
+                                className="h-1.5 w-1.5 rounded-full bg-indigo-500"
+                                aria-hidden="true"
+                              />
+                            </div>
+                            <div className="ml-3.5 text-sm font-medium text-gray-900">
+                              Critical Sev 1
+                            </div>
+                          </a>{" "}
+                        </li>
+                      </ul>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <CalendarIcon
+                        className="h-5 w-5 text-emerald-500"
+                        aria-hidden="true"
+                      />
+                      <span className="text-gray-900 text-sm">
+                        Started on {incident.data.startTime}
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <CalendarIcon
+                        className="h-5 w-5 text-rose-600"
+                        aria-hidden="true"
+                      />
+                      <span className="text-gray-900 text-sm">
+                        Ended on {incident.data.endTime}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </section>
