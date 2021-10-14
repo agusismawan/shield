@@ -144,7 +144,7 @@ function IncidentDetail({ incident }) {
                             Urgency
                           </dt>
                           <dd className="mt-1 text-sm text-gray-900">
-                            {incident.data.paramUrgency.urgency
+                            {incident.data.paramUrgency
                               ? incident.data.paramUrgency.urgency
                               : "Not defined yet"}
                           </dd>
@@ -238,7 +238,7 @@ function IncidentDetail({ incident }) {
                         aria-hidden="true"
                       />
                       <span className="text-gray-900 text-sm">
-                        Ended on {formatDate(incident.data.endTime)}
+                        Resolved on {formatDate(incident.data.endTime)}
                       </span>
                     </div>
                   </div>
