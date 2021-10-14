@@ -1,10 +1,30 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
 import Layout from "../../components/layout";
-import { CalendarIcon } from "@heroicons/react/solid";
+import {
+  PencilIcon,
+  DocumentTextIcon,
+  CalendarIcon,
+} from "@heroicons/react/solid";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
+}
+
+function formatDate(date) {
+  const setFormat = new Intl.DateTimeFormat("id-ID", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "Asia/Jakarta",
+    timeZoneName: "short",
+  });
+
+  return setFormat.format(new Date(date));
 }
 
 function IncidentDetail({ incident }) {
@@ -44,12 +64,18 @@ function IncidentDetail({ incident }) {
                 >
                   {incident.data.incidentStatus}
                 </span>
-                <button
-                  type="button"
-                  className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-blue-500"
-                >
-                  Edit
-                </button>
+                <span className="sm:ml-3">
+                  <button
+                    type="button"
+                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    <DocumentTextIcon
+                      className="-ml-1 mr-2 h-5 w-5"
+                      aria-hidden="true"
+                    />
+                    Edit Postmortem
+                  </button>
+                </span>
               </div>
             </div>
 
@@ -199,20 +225,20 @@ function IncidentDetail({ incident }) {
                     </div>
                     <div className="flex items-center space-x-2">
                       <CalendarIcon
-                        className="h-5 w-5 text-emerald-500"
-                        aria-hidden="true"
-                      />
-                      <span className="text-gray-900 text-sm">
-                        Started on {incident.data.startTime}
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <CalendarIcon
                         className="h-5 w-5 text-rose-600"
                         aria-hidden="true"
                       />
                       <span className="text-gray-900 text-sm">
-                        Ended on {incident.data.endTime}
+                        Started on {formatDate(incident.data.startTime)}
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <CalendarIcon
+                        className="h-5 w-5 text-emerald-600"
+                        aria-hidden="true"
+                      />
+                      <span className="text-gray-900 text-sm">
+                        Ended on {formatDate(incident.data.endTime)}
                       </span>
                     </div>
                   </div>
