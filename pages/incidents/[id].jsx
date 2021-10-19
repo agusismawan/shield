@@ -2,9 +2,12 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import Layout from "../../components/layout";
 import {
-  PencilIcon,
   DocumentTextIcon,
   CalendarIcon,
+  UserCircleIcon,
+  CashIcon,
+  ChevronRightIcon,
+  QuestionMarkCircleIcon,
 } from "@heroicons/react/solid";
 
 function classNames(...classes) {
@@ -13,9 +16,8 @@ function classNames(...classes) {
 
 function formatDate(date) {
   const setFormat = new Intl.DateTimeFormat("id-ID", {
-    weekday: "long",
     day: "2-digit",
-    month: "long",
+    month: "short",
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
@@ -26,6 +28,21 @@ function formatDate(date) {
 
   return setFormat.format(new Date(date));
 }
+
+const people = [
+  {
+    name: "Jane Cooper",
+    title: "Regional Paradigm Technician",
+    role: "Admin",
+    email: "jane.cooper@example.com",
+  },
+  {
+    name: "Jane Cooper",
+    title: "Regional Paradigm Technician",
+    role: "Admin",
+    email: "jane.cooper@example.com",
+  },
+];
 
 function IncidentDetail({ incident }) {
   return (
@@ -59,7 +76,7 @@ function IncidentDetail({ incident }) {
                     incident.data.incidentStatus == "Open"
                       ? "bg-red-100 text-red-800"
                       : "bg-green-100 text-green-800",
-                    "inline-flex items-center justify-center px-3 py-0.5 rounded-full text-sm font-medium"
+                    "inline-flex items-center justify-center px-3 py-0.5 rounded-md text-sm font-medium"
                   )}
                 >
                   {incident.data.incidentStatus}
@@ -94,7 +111,7 @@ function IncidentDetail({ incident }) {
                       <p className="mt-1 max-w-2xl text-sm text-gray-500">
                         {incident.data.resolvedIntervals
                           ? `Duration ${incident.data.resolvedIntervals} minutes`
-                          : `Started ${incident.data.startTime}`}
+                          : `Started ${formatDate(incident.data.startTime)}`}
                       </p>
                     </div>
                     <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
@@ -121,11 +138,11 @@ function IncidentDetail({ incident }) {
                         </div>
                         <div className="sm:col-span-2">
                           <dt className="text-sm font-medium text-gray-500">
-                            Impacted Service
+                            Urgency
                           </dt>
                           <dd className="mt-1 text-sm text-gray-900">
-                            {incident.data.impactedSystem
-                              ? incident.data.impactedSystem
+                            {incident.data.paramUrgency
+                              ? incident.data.paramUrgency.urgency
                               : "Not defined yet"}
                           </dd>
                         </div>
@@ -141,11 +158,11 @@ function IncidentDetail({ incident }) {
                         </div>
                         <div className="sm:col-span-2">
                           <dt className="text-sm font-medium text-gray-500">
-                            Urgency
+                            Impacted Service
                           </dt>
                           <dd className="mt-1 text-sm text-gray-900">
-                            {incident.data.paramUrgency
-                              ? incident.data.paramUrgency.urgency
+                            {incident.data.impactedSystem
+                              ? incident.data.impactedSystem
                               : "Not defined yet"}
                           </dd>
                         </div>
@@ -161,7 +178,7 @@ function IncidentDetail({ incident }) {
                         </div>
                         <div className="sm:col-span-2">
                           <dt className="text-sm font-medium text-gray-500">
-                            Action
+                            Action Items
                           </dt>
                           <dd className="mt-1 text-sm text-gray-900">
                             {incident.data.actionItem
@@ -173,15 +190,61 @@ function IncidentDetail({ incident }) {
                     </div>
                   </div>
                 </section>
+
+                <section aria-labelledby="notes-title">
+                  <div className="flex flex-col">
+                    <div className="mt-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                      <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                        <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                          <div className="bg-white px-4 py-5 border-b border-gray-200 sm:px-6">
+                            <h3 className="text-lg leading-6 font-medium text-gray-900">
+                              Timeline
+                            </h3>
+                          </div>
+                          <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                              <tr>
+                                <th
+                                  scope="col"
+                                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                >
+                                  Time
+                                </th>
+                                <th
+                                  scope="col"
+                                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                >
+                                  Activity
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                              {people.map((person) => (
+                                <tr key={person.email}>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    {person.name}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {person.title}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
               </div>
 
               <section
-                aria-labelledby="timeline-title"
+                aria-labelledby="incident-info"
                 className="lg:col-start-3 lg:col-span-1"
               >
-                <div className="bg-white px-4 py-5 shadow sm:rounded-lg sm:px-6">
+                <div className="bg-white shadow sm:rounded-lg">
                   {/* Incident Info */}
-                  <div className="space-y-4">
+                  <div className="space-y-4 px-4 py-5 sm:px-6">
                     <div>
                       <h2 className="text-sm font-medium text-gray-500">
                         Incident Type
@@ -239,6 +302,27 @@ function IncidentDetail({ incident }) {
                       />
                       <span className="text-gray-900 text-sm">
                         Resolved on {formatDate(incident.data.endTime)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="border-t border-gray-200 space-y-4 px-4 py-5 sm:px-6">
+                    <h2 className="text-sm font-medium text-gray-500">
+                      Reporter
+                    </h2>
+                    <div className="flex items-center space-x-2">
+                      <UserCircleIcon
+                        className="h-5 w-5 text-gray-700"
+                        aria-hidden="true"
+                      />
+                      <span className="text-gray-900 text-sm">
+                        Lord Commander
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-gray-900 text-sm">
+                        Last updated on {formatDate(incident.data.endTime)}{" "}
+                        <br />
+                        by Jon Snow
                       </span>
                     </div>
                   </div>
