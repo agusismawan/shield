@@ -1,33 +1,19 @@
 import Head from "next/head";
-import { useRouter } from "next/router";
+import Select from "react-select";
+import format from "date-fns/format";
 import Layout from "../../components/layout";
+import { CardTitle } from "../../components/ui/card-title";
+import { CardContent } from "../../components/ui/card-content";
+import { ButtonCircle } from "../../components/ui/button-circle";
+import { classNames } from "../../components/utils";
+import { useState } from "react";
 import {
-  DocumentTextIcon,
+  PencilIcon,
+  XIcon,
+  CheckIcon,
   CalendarIcon,
   UserCircleIcon,
-  CashIcon,
-  ChevronRightIcon,
-  QuestionMarkCircleIcon,
 } from "@heroicons/react/solid";
-
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
-
-function formatDate(date) {
-  const setFormat = new Intl.DateTimeFormat("id-ID", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-    timeZone: "Asia/Jakarta",
-    timeZoneName: "short",
-  });
-
-  return setFormat.format(new Date(date));
-}
 
 const people = [
   {
@@ -44,7 +30,34 @@ const people = [
   },
 ];
 
-function IncidentDetail({ incident }) {
+function IncidentDetail({ incident, urgency, impact }) {
+  const [editMode, setEditMode] = useState(false);
+  const [formData, setFormData] = useState({});
+
+  const urgencyList = [];
+  urgency.data.map((item) =>
+    urgencyList.push({
+      label: item.urgency,
+      value: item.id,
+    })
+  );
+
+  const impactList = [];
+  impact.data.map((item) =>
+    impactList.push({
+      label: item.impact,
+      value: item.id,
+    })
+  );
+
+  const handleFormChange = (name, value) => {
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+  console.log(formData);
+
   return (
     <>
       <Layout>
@@ -76,22 +89,10 @@ function IncidentDetail({ incident }) {
                     incident.data.incidentStatus == "Open"
                       ? "bg-red-100 text-red-800"
                       : "bg-green-100 text-green-800",
-                    "inline-flex items-center justify-center px-3 py-0.5 rounded-md text-sm font-medium"
+                    "sm:ml-3 inline-flex items-center justify-center px-3 py-0.5 rounded-md text-sm font-medium"
                   )}
                 >
                   {incident.data.incidentStatus}
-                </span>
-                <span className="sm:ml-3">
-                  <button
-                    type="button"
-                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                  >
-                    <DocumentTextIcon
-                      className="-ml-1 mr-2 h-5 w-5"
-                      aria-hidden="true"
-                    />
-                    Edit Postmortem
-                  </button>
                 </span>
               </div>
             </div>
@@ -99,23 +100,173 @@ function IncidentDetail({ incident }) {
             <div className="mt-8 max-w-full mx-auto grid grid-cols-1 gap-6 sm:px-6 lg:max-w-full lg:px-12 lg:grid-flow-col-dense lg:grid-cols-3">
               <div className="space-y-6 lg:col-start-1 lg:col-span-2">
                 {/* Incident Detail */}
-                <section aria-labelledby="applicant-information-title">
-                  <div className="bg-white shadow sm:rounded-lg">
-                    <div className="px-4 py-5 sm:px-6">
-                      <h2
-                        id="applicant-information-title"
-                        className="text-lg leading-6 font-medium text-gray-900"
+                {editMode ? (
+                  <section aria-labelledby="incident-detail">
+                    <div className="bg-white shadow sm:rounded-lg">
+                      <CardTitle
+                        title={`Incident Report ${incident.data.incidentNumber}`}
+                        subtitle={
+                          incident.data.resolvedIntervals
+                            ? `Duration ${incident.data.resolvedIntervals} minutes`
+                            : `Started ${formatDate(incident.data.startTime)}`
+                        }
                       >
-                        Incident Report {incident.data.incidentNumber}
-                      </h2>
-                      <p className="mt-1 max-w-2xl text-sm text-gray-500">
-                        {incident.data.resolvedIntervals
-                          ? `Duration ${incident.data.resolvedIntervals} minutes`
-                          : `Started ${formatDate(incident.data.startTime)}`}
-                      </p>
+                        <div className="px-4 flex">
+                          <ButtonCircle
+                            action={() => {
+                              setEditMode(false);
+                              setFormData({});
+                            }}
+                            className="border-transparent text-white bg-rose-600 hover:bg-rose-700"
+                          >
+                            <XIcon className="h-5 w-5" aria-hidden="true" />
+                          </ButtonCircle>
+                          <ButtonCircle
+                            action={() => {
+                              setEditMode(false);
+                            }}
+                            className="ml-3 border-transparent text-white bg-blue-600 hover:bg-blue-700"
+                          >
+                            <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                          </ButtonCircle>
+                        </div>
+                      </CardTitle>
+                      <CardContent>
+                        <div className="sm:col-span-1">
+                          <dt className="text-sm font-medium text-gray-500">
+                            Application
+                          </dt>
+                          <dd className="mt-1 text-sm text-gray-900">
+                            {incident.data.paramApps.name
+                              ? incident.data.paramApps.name
+                              : "Not defined yet"}
+                          </dd>
+                        </div>
+                        <div className="sm:col-span-1">
+                          <dt className="text-sm font-medium text-gray-500">
+                            Incident Priority
+                          </dt>
+                          <dd className="mt-1 text-sm text-gray-900">
+                            {incident.data.paramPriorityMatrix
+                              ? incident.data.paramPriorityMatrix.mapping
+                              : "Not defined yet"}
+                          </dd>
+                        </div>
+                        <div className="sm:col-span-2">
+                          <label
+                            htmlFor="urgency"
+                            className="block text-sm font-medium text-gray-500"
+                          >
+                            Urgency
+                          </label>
+                          <Select
+                            className="mt-1 block w-full pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                            value={
+                              formData.urgency || {
+                                label: incident.data.paramUrgency.urgency,
+                                value: incident.data.paramUrgency.id,
+                              }
+                            }
+                            options={urgencyList}
+                            onChange={(e) => handleFormChange("urgency", e)}
+                          />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <label
+                            htmlFor="impact"
+                            className="block text-sm font-medium text-gray-500"
+                          >
+                            Impact
+                          </label>
+                          <Select
+                            className="mt-1 block w-full pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                            value={
+                              formData.impact || {
+                                label: incident.data.paramImpact.impact,
+                                value: incident.data.paramImpact.id,
+                              }
+                            }
+                            options={impactList}
+                            onChange={(e) => handleFormChange("impact", e)}
+                          />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <dt className="text-sm font-medium text-gray-500">
+                            Impacted Service
+                          </dt>
+                          <textarea
+                            id="impact-service"
+                            name="impact-service"
+                            rows={4}
+                            className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                            defaultValue={
+                              incident.data.impactedSystem
+                                ? incident.data.impactedSystem
+                                : "Not defined yet"
+                            }
+                          />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <dt className="text-sm font-medium text-gray-500">
+                            Root Cause
+                          </dt>
+                          <textarea
+                            id="root-cause"
+                            name="root-cause"
+                            rows={4}
+                            className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                            defaultValue={
+                              incident.data.rootCause
+                                ? incident.data.rootCause
+                                : "Not defined yet"
+                            }
+                          />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <dt className="text-sm font-medium text-gray-500">
+                            Action Items
+                          </dt>
+                          <textarea
+                            id="action-items"
+                            name="action-items"
+                            rows={4}
+                            className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                            defaultValue={
+                              incident.data.actionItem
+                                ? incident.data.actionItem
+                                : "Not defined yet"
+                            }
+                          />
+                        </div>
+                      </CardContent>
                     </div>
-                    <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
-                      <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+                  </section>
+                ) : (
+                  <section aria-labelledby="incident-detail">
+                    <div className="bg-white shadow sm:rounded-lg">
+                      <CardTitle
+                        title={`Incident Report ${incident.data.incidentNumber}`}
+                        subtitle={
+                          incident.data.resolvedIntervals
+                            ? `Duration ${incident.data.resolvedIntervals} minutes`
+                            : `Started ${formatDate(incident.data.startTime)}`
+                        }
+                      >
+                        <div className="px-4 flex">
+                          <ButtonCircle
+                            action={() => {
+                              setEditMode(true);
+                            }}
+                            className="border-gray-300 text-gray-700 bg-gray-100 hover:bg-gray-50"
+                          >
+                            <PencilIcon
+                              className="h-5 w-5"
+                              aria-hidden="true"
+                            />
+                          </ButtonCircle>
+                        </div>
+                      </CardTitle>
+                      <CardContent>
                         <div className="sm:col-span-1">
                           <dt className="text-sm font-medium text-gray-500">
                             Application
@@ -186,12 +337,12 @@ function IncidentDetail({ incident }) {
                               : "Not defined yet"}
                           </dd>
                         </div>
-                      </dl>
+                      </CardContent>
                     </div>
-                  </div>
-                </section>
+                  </section>
+                )}
 
-                <section aria-labelledby="notes-title">
+                <section aria-labelledby="activity-timeline">
                   <div className="flex flex-col">
                     <div className="mt-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                       <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
@@ -262,8 +413,8 @@ function IncidentDetail({ incident }) {
                               />
                             </div>
                             <div className="ml-3.5 text-sm font-medium text-gray-900">
-                              {incident.data.incidentType
-                                ? incident.data.incidentType
+                              {incident.data.paramIncidentType
+                                ? incident.data.paramIncidentType.incidentType
                                 : "-"}
                             </div>
                           </a>{" "}
@@ -292,7 +443,12 @@ function IncidentDetail({ incident }) {
                         aria-hidden="true"
                       />
                       <span className="text-gray-900 text-sm">
-                        Started on {formatDate(incident.data.startTime)}
+                        Started on{" "}
+                        {format(
+                          new Date(incident.data.startTime),
+                          "dd MMM yyyy HH:mm",
+                          "id-ID"
+                        )}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -301,7 +457,12 @@ function IncidentDetail({ incident }) {
                         aria-hidden="true"
                       />
                       <span className="text-gray-900 text-sm">
-                        Resolved on {formatDate(incident.data.endTime)}
+                        Resolved on{" "}
+                        {format(
+                          new Date(incident.data.endTime),
+                          "dd MMM yyyy HH:mm",
+                          "id-ID"
+                        )}
                       </span>
                     </div>
                   </div>
@@ -320,7 +481,12 @@ function IncidentDetail({ incident }) {
                     </div>
                     <div className="flex items-center space-x-2">
                       <span className="text-gray-900 text-sm">
-                        Last updated on {formatDate(incident.data.endTime)}{" "}
+                        Last updated on{" "}
+                        {format(
+                          new Date(incident.data.endTime),
+                          "dd MMM yyyy HH:mm",
+                          "id-ID"
+                        )}{" "}
                         <br />
                         by Jon Snow
                       </span>
@@ -340,15 +506,23 @@ export default IncidentDetail;
 
 export async function getServerSideProps(context) {
   // Fetch data from external API
-  const res = await fetch(
-    `https://ularkadut.xyz/v1.0/incidents/${context.params.id}`
-  );
-  const data = await res.json();
+  const [insidentRes, urgencyRes, impactRes] = await Promise.all([
+    fetch(`https://ularkadut.xyz/v1.0/incidents/${context.params.id}`),
+    fetch(`https://ularkadut.xyz/v1.0/parameters/urgency?isActive=Y`),
+    fetch(`https://ularkadut.xyz/v1.0/parameters/impact?isActive=Y`),
+  ]);
+  const [incident, urgency, impact] = await Promise.all([
+    insidentRes.json(),
+    urgencyRes.json(),
+    impactRes.json(),
+  ]);
 
   // Pass data to the page via props
   return {
     props: {
-      incident: data,
+      incident,
+      urgency,
+      impact,
     },
   };
 }
