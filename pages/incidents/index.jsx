@@ -85,7 +85,7 @@ function IncidentList() {
                     {/* Page title & actions */}
                     <PageHeader title="Incident Report">
                         <Link href="/incidents/add" passHref>
-                            <ButtonSmall>
+                            <ButtonSmall type="button">
                                 <PlusSmIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
                                 New Incident
                             </ButtonSmall>

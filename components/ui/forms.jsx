@@ -1,4 +1,4 @@
-import { classNames } from "../utils"
+import { classNames } from "../utils";
 
 const Input = ({ label, name, placeholder, className, register, required }) => (
     <>

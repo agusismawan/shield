@@ -12,6 +12,7 @@ import {
   ChatAlt2Icon,
 } from "@heroicons/react/outline";
 import { SearchIcon, SelectorIcon } from "@heroicons/react/solid";
+import { ToastContainer } from 'react-toastify';
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: HomeIcon },
@@ -35,6 +36,7 @@ export default function Layout({ children }) {
 
   return (
     <>
+      <ToastContainer autoClose={3000} />
       <Meta />
       <div className="relative h-screen flex overflow-hidden bg-gray-100">
         <Transition.Root show={sidebarOpen} as={Fragment}>

@@ -1,17 +1,22 @@
 import { useState } from "react";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import Layout from "../../components/layout";
-import { Disclosure } from '@headlessui/react';
-import { ChevronDownIcon, MailIcon } from '@heroicons/react/outline';
+import { Disclosure, Switch } from '@headlessui/react';
+import { ChevronDownIcon } from '@heroicons/react/outline';
 import { QuestionMarkCircleIcon } from '@heroicons/react/solid';
 import { classNames, styledReactSelect } from "../../components/utils";
 import { Input } from "../../components/ui/forms";
 import { Controller, useForm, } from 'react-hook-form';
 import Select from "react-select";
-import ReactDatePicker from "react-datepicker";
+import DatePicker from "react-datepicker";
+import format from "date-fns/format";
 import "react-datepicker/dist/react-datepicker.css";
 import PageHeader from "../../components/incidents/page-header";
+import { ButtonSmall, ButtonSecondary } from "../../components/ui/button";
+import { Spinner } from "../../components/ui/spinner";
 import docs from "../../components/incidents/docs.json"
+import { toast } from 'react-toastify';
 
 const app = [
     { value: 1, label: "Brinets Web" },
@@ -20,12 +25,41 @@ const app = [
 ];
 
 function addIncident() {
-    const { register, handleSubmit, control, setError, formState: { errors } } = useForm();
+    const defaultValues = {
+        incidentName: "",
+        idApps: "",
+        idUrgency: "",
+        startTime: "",
+        impactedSystem: ""
+    }
+
+    const { register, handleSubmit, control, formState, reset } = useForm({ defaultValues });
+    const { errors, isSubmitting } = formState;
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    const router = useRouter();
+    const [enabled, setEnabled] = useState(false);
+    console.log(router);
+    console.log(enabled);
+
     console.log(errors);
 
-    const onSubmit = (data) => {
-        const result = Object.assign(data, { idApps: data.idApps.value, idUrgency: data.idUrgency.value })
-        console.log(result);
+
+    const onSubmit = async (data, e) => {
+        e.preventDefault();
+        await sleep(500);
+        const formData = Object.assign(data, { idApps: data.idApps.value, idUrgency: data.idUrgency.value })
+        formData["startTime"] = format(new Date(formData.startTime), 'yyyy-MM-dd HH:mm:ss');
+        console.log(formData);
+
+        const res = 201;
+        if (res === 201) {
+            !isSubmitting && toast.success("Incident successfully added");
+
+            await sleep(3000);
+            router.push('/');
+        } else {
+            toast.error("Warning: Invalid DOM property `stroke-width`.");
+        }
     }
 
     return (
@@ -36,7 +70,7 @@ function addIncident() {
                 </Head>
                 {/* Page title & actions */}
                 <PageHeader title="Create New Incident" />
-
+                {/* <ToastContainer /> */}
                 <div className="mt-8 max-w-full mx-auto grid grid-cols-1 gap-6 sm:px-6 lg:max-w-full lg:px-12 lg:grid-flow-col-dense lg:grid-cols-3">
                     <div className="space-y-6 lg:col-start-1 lg:col-span-2">
                         {/* Section Incident Detail */}
@@ -70,6 +104,7 @@ function addIncident() {
                                                             options={app}
                                                             styles={styledReactSelect}
                                                             className="text-sm"
+                                                            placeholder="Select Apps..."
                                                         />
                                                     )}
                                                 />
@@ -92,26 +127,33 @@ function addIncident() {
                                                             ]}
                                                             styles={styledReactSelect}
                                                             className="text-sm"
-                                                            rules={{ required: "This is required" }}
+                                                            placeholder="Select Urgency..."
                                                         />
                                                     )}
                                                 />
                                                 {errors.idUrgency && <p className="mt-2 text-sm text-red-600">{errors.idUrgency.message}</p>}
                                             </div>
-                                            <div className="col-span-6 sm:col-span-3">
+                                            <div className="col-span-6 sm:col-span-2">
                                                 <label className="mb-1 block text-sm font-medium text-gray-700">Start Time</label>
                                                 <Controller
                                                     control={control}
+                                                    rules={{ required: "This is required" }}
                                                     name="startTime"
                                                     render={({ field }) => (
-                                                        <ReactDatePicker
-                                                            className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
+                                                        <DatePicker
+                                                            className="focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
                                                             placeholderText="Select date"
                                                             onChange={(e) => field.onChange(e)}
                                                             selected={field.value}
+                                                            isClearable
+                                                            showTimeSelect
+                                                            // dateFormat="yyyy-MM-dd HH:mm"
+                                                            dateFormat="d MMMM yyyy HH:mm"
+                                                            timeFormat="HH:mm"
                                                         />
                                                     )}
                                                 />
+                                                {errors.startTime && <p className="mt-2 text-sm text-red-600">{errors.startTime.message}</p>}
                                             </div>
                                             <div className="col-span-6 sm:col-span-6">
                                                 <Input
@@ -124,34 +166,56 @@ function addIncident() {
                                                 />
                                                 {errors.impactedSystem && <p className="mt-2 text-sm text-red-600">{errors.impactedSystem.message}</p>}
                                             </div>
-                                            <div>
-                                                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                                    Email
-                                                </label>
-                                                <div className="mt-1 relative rounded-md shadow-sm">
-                                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                        <MailIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                                                    </div>
-                                                    <input
-                                                        type="text"
-                                                        name="email"
-                                                        id="email"
-                                                        className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
+                                            <div className="flex items-center space-x-3 col-span-6 sm:col-span-2">
+                                                <Switch
+                                                    checked={enabled}
+                                                    onChange={setEnabled}
+                                                    className={classNames(
+                                                        enabled ? 'bg-blue-600' : 'bg-gray-200',
+                                                        'relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+                                                    )}
+                                                >
+                                                    <span className="sr-only">Use setting</span>
+                                                    <span
+                                                        aria-hidden="true"
+                                                        className={classNames(
+                                                            enabled ? 'translate-x-5' : 'translate-x-0',
+                                                            'pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200'
+                                                        )}
+                                                    />
+                                                </Switch>
+                                                <label className="mb-1 block text-sm font-regular text-gray-700">Is the incident over ?</label>
+                                            </div>
+                                            {enabled === true &&
+                                                <div className="col-span-6 sm:col-span-6">
+                                                    <textarea
+                                                        id="about"
+                                                        name="about"
+                                                        rows={3}
+                                                        className="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
                                                         placeholder="you@example.com"
+                                                        defaultValue={''}
                                                     />
                                                 </div>
-                                            </div>
+                                            }
                                         </div>
                                     </div>
 
                                     {/* Card Footer */}
-                                    <div className="px-4 py-3 bg-gray-50 text-right sm:px-6">
-                                        <button
+                                    <div className="px-4 py-3 bg-gray-50 text-right sm:px-6 space-x-2">
+                                        <ButtonSmall
                                             type="submit"
-                                            className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                            className={isSubmitting ? 'disabled:opacity-50 cursor-not-allowed' : ''}
+                                            disabled={isSubmitting}
                                         >
+                                            {isSubmitting && <Spinner />}
                                             Save
-                                        </button>
+                                        </ButtonSmall>
+                                        <ButtonSecondary
+                                            onClick={() => reset()}
+                                        >
+                                            Reset
+                                        </ButtonSecondary>
                                     </div>
                                 </div>
                             </form>

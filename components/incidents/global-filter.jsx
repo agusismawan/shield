@@ -16,7 +16,7 @@ const GlobalFilter = ({ filter, setFilter, preGlobalFilteredRows }) => {
             </label>
             <div className="mt-1">
                 <input
-                    type="text"
+                    type="search"
                     value={value || ''}
                     onChange={(e) => {
                         setValue(e.target.value)
