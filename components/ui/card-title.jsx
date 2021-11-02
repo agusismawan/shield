@@ -1,6 +1,6 @@
 const CardTitle = ({ title, subtitle, children }) => {
   return (
-    <div className="sm:flex sm:justify-between sm:items-baseline">
+    <div className="flex justify-between items-baseline flex-wrap sm:flex-nowrap">
       <div className="px-4 py-5 sm:px-6 sm:flex-1">
         <h2
           id="card-title"

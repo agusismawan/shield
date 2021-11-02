@@ -5,7 +5,7 @@ import Layout from "../../components/layout";
 import { CardTitle } from "../../components/ui/card-title";
 import { CardContent } from "../../components/ui/card-content";
 import { ButtonCircle } from "../../components/ui/button-circle";
-import { classNames } from "../../components/utils";
+import { classNames, styledReactSelect } from "../../components/utils";
 import { useState } from "react";
 import {
   PencilIcon,
@@ -30,9 +30,17 @@ const people = [
   },
 ];
 
-function IncidentDetail({ incident, urgency, impact }) {
+function IncidentDetail({ incident, urgency, impact, type }) {
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({});
+
+  const typeList = [];
+  type.data.map((item) =>
+    typeList.push({
+      label: item.incidentType,
+      value: item.id,
+    })
+  );
 
   const urgencyList = [];
   urgency.data.map((item) =>
@@ -56,7 +64,6 @@ function IncidentDetail({ incident, urgency, impact }) {
       [name]: value,
     });
   };
-  console.log(formData);
 
   return (
     <>
@@ -105,11 +112,15 @@ function IncidentDetail({ incident, urgency, impact }) {
                     <div className="bg-white shadow sm:rounded-lg">
                       <CardTitle
                         title={`Incident Report ${incident.data.incidentNumber}`}
-                        subtitle={
+                        subtitle={`Priority ${
+                          incident.data.paramPriorityMatrix
+                            ? incident.data.paramPriorityMatrix.mapping
+                            : "Not defined yet"
+                        }, ${
                           incident.data.resolvedIntervals
                             ? `Duration ${incident.data.resolvedIntervals} minutes`
                             : `Started ${formatDate(incident.data.startTime)}`
-                        }
+                        }`}
                       >
                         <div className="px-4 flex">
                           <ButtonCircle
@@ -143,14 +154,25 @@ function IncidentDetail({ incident, urgency, impact }) {
                           </dd>
                         </div>
                         <div className="sm:col-span-1">
-                          <dt className="text-sm font-medium text-gray-500">
-                            Incident Priority
-                          </dt>
-                          <dd className="mt-1 text-sm text-gray-900">
-                            {incident.data.paramPriorityMatrix
-                              ? incident.data.paramPriorityMatrix.mapping
-                              : "Not defined yet"}
-                          </dd>
+                          <label
+                            htmlFor="incident-type"
+                            className="block text-sm font-medium text-gray-500"
+                          >
+                            Incident Type
+                          </label>
+                          <Select
+                            className="mt-1 block w-full pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                            value={
+                              formData.type || {
+                                label:
+                                  incident.data.paramIncidentType.incidentType,
+                                value: incident.data.paramIncidentType.id,
+                              }
+                            }
+                            options={typeList}
+                            styles={styledReactSelect}
+                            onChange={(e) => handleFormChange("urgency", e)}
+                          />
                         </div>
                         <div className="sm:col-span-2">
                           <label
@@ -168,6 +190,7 @@ function IncidentDetail({ incident, urgency, impact }) {
                               }
                             }
                             options={urgencyList}
+                            styles={styledReactSelect}
                             onChange={(e) => handleFormChange("urgency", e)}
                           />
                         </div>
@@ -187,6 +210,7 @@ function IncidentDetail({ incident, urgency, impact }) {
                               }
                             }
                             options={impactList}
+                            styles={styledReactSelect}
                             onChange={(e) => handleFormChange("impact", e)}
                           />
                         </div>
@@ -506,15 +530,17 @@ export default IncidentDetail;
 
 export async function getServerSideProps(context) {
   // Fetch data from external API
-  const [insidentRes, urgencyRes, impactRes] = await Promise.all([
+  const [insidentRes, urgencyRes, impactRes, typeRes] = await Promise.all([
     fetch(`https://ularkadut.xyz/v1.0/incidents/${context.params.id}`),
     fetch(`https://ularkadut.xyz/v1.0/parameters/urgency?isActive=Y`),
     fetch(`https://ularkadut.xyz/v1.0/parameters/impact?isActive=Y`),
+    fetch(`https://ularkadut.xyz/v1.0/parameters/incidenttype`),
   ]);
-  const [incident, urgency, impact] = await Promise.all([
+  const [incident, urgency, impact, type] = await Promise.all([
     insidentRes.json(),
     urgencyRes.json(),
     impactRes.json(),
+    typeRes.json(),
   ]);
 
   // Pass data to the page via props
@@ -523,6 +549,7 @@ export async function getServerSideProps(context) {
       incident,
       urgency,
       impact,
+      type,
     },
   };
 }
