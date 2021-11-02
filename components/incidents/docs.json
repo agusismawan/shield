@@ -1,0 +1,36 @@
+[
+    {
+        "id": 1,
+        "title": "Declaring an Incident",
+        "bodyHeader": "Declare an incident if:",
+        "bodyContent": [
+            {
+                "id": 1,
+                "text": "An issue is or may be impacting customers or services."
+            },
+            {
+                "no": 2,
+                "text": "You don't know if you should call an incident - notify other people and increase severity appropriately."
+            }
+        ]
+    },
+    {
+        "id": 2,
+        "title": "Severity Levels",
+        "bodyHeader": "",
+        "bodyContent": [
+            {
+                "id": 1,
+                "text": "SEV-1 (Critical) : \n Most critical issue affecting customers and users."
+            },
+            {
+                "id": 2,
+                "text": "SEV-2 (High) : \n Major issue affecting customers and users."
+            },
+            {
+                "id": 3,
+                "text": "SEV-3 (Moderate) : \n Internal issue requiring immediate action from service owners."
+            }
+        ]
+    }
+]

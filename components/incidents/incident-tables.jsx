@@ -33,8 +33,8 @@ const IncidentTables = ({ incidents }) => {
 
     return (
         <>
-            <button onClick={() => setPage(page + 1)}> Next </button>
-            <button onClick={() => setPage(page - 1)}> Prev </button>
+            {/* <button onClick={() => setPage(page + 1)}> Next </button>
+            <button onClick={() => setPage(page - 1)}> Prev </button> */}
             <table className="min-w-full">
                 <thead>
                     <tr className="border-t border-gray-200">

@@ -4,6 +4,7 @@ import NProgress from "nprogress";
 import "tailwindcss/tailwind.css";
 import "../styles/globals.css";
 import "nprogress/nprogress.css";
+import 'react-toastify/dist/ReactToastify.css';
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
