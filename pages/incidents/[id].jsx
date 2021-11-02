@@ -1,89 +1,70 @@
 import Head from "next/head";
-import { useRouter } from "next/router";
+import Select from "react-select";
+import format from "date-fns/format";
 import Layout from "../../components/layout";
-import { CheckIcon, ThumbUpIcon, UserIcon } from "@heroicons/react/solid";
+import { CardTitle } from "../../components/ui/card-title";
+import { CardContent } from "../../components/ui/card-content";
+import { ButtonCircle } from "../../components/ui/button-circle";
+import { classNames, styledReactSelect } from "../../components/utils";
+import { useState } from "react";
+import {
+  PencilIcon,
+  XIcon,
+  CheckIcon,
+  CalendarIcon,
+  UserCircleIcon,
+} from "@heroicons/react/solid";
 
-const attachments = [
-  { name: "resume_front_end_developer.pdf", href: "#" },
-  { name: "coverletter_front_end_developer.pdf", href: "#" },
-];
-const eventTypes = {
-  applied: { icon: UserIcon, bgColorClass: "bg-gray-400" },
-  advanced: { icon: ThumbUpIcon, bgColorClass: "bg-blue-500" },
-  completed: { icon: CheckIcon, bgColorClass: "bg-green-500" },
-};
-const timeline = [
+const people = [
   {
-    id: 1,
-    type: eventTypes.applied,
-    content: "Applied to",
-    target: "Front End Developer",
-    date: "Sep 20",
-    datetime: "2020-09-20",
+    name: "Jane Cooper",
+    title: "Regional Paradigm Technician",
+    role: "Admin",
+    email: "jane.cooper@example.com",
   },
   {
-    id: 2,
-    type: eventTypes.advanced,
-    content: "Advanced to phone screening by",
-    target: "Bethany Blake",
-    date: "Sep 22",
-    datetime: "2020-09-22",
-  },
-  {
-    id: 3,
-    type: eventTypes.completed,
-    content: "Completed phone screening with",
-    target: "Martha Gardner",
-    date: "Sep 28",
-    datetime: "2020-09-28",
-  },
-  {
-    id: 4,
-    type: eventTypes.advanced,
-    content: "Advanced to interview by",
-    target: "Bethany Blake",
-    date: "Sep 30",
-    datetime: "2020-09-30",
-  },
-  {
-    id: 5,
-    type: eventTypes.completed,
-    content: "Completed interview with",
-    target: "Katherine Snyder",
-    date: "Oct 4",
-    datetime: "2020-10-04",
+    name: "Jane Cooper",
+    title: "Regional Paradigm Technician",
+    role: "Admin",
+    email: "jane.cooper@example.com",
   },
 ];
 
-const comments = [
-  {
-    id: 1,
-    name: "Leslie Alexander",
-    date: "4d ago",
-    imageId: "1494790108377-be9c29b29330",
-    body: "Ducimus quas delectus ad maxime totam doloribus reiciendis ex. Tempore dolorem maiores. Similique voluptatibus tempore non ut.",
-  },
-  {
-    id: 2,
-    name: "Michael Foster",
-    date: "4d ago",
-    imageId: "1519244703995-f4e0f30006d5",
-    body: "Et ut autem. Voluptatem eum dolores sint necessitatibus quos. Quis eum qui dolorem accusantium voluptas voluptatem ipsum. Quo facere iusto quia accusamus veniam id explicabo et aut.",
-  },
-  {
-    id: 3,
-    name: "Dries Vincent",
-    date: "4d ago",
-    imageId: "1506794778202-cad84cf45f1d",
-    body: "Expedita consequatur sit ea voluptas quo ipsam recusandae. Ab sint et voluptatem repudiandae voluptatem et eveniet. Nihil quas consequatur autem. Perferendis rerum et.",
-  },
-];
+function IncidentDetail({ incident, urgency, impact, type }) {
+  const [editMode, setEditMode] = useState(false);
+  const [formData, setFormData] = useState({});
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
+  const typeList = [];
+  type.data.map((item) =>
+    typeList.push({
+      label: item.incidentType,
+      value: item.id,
+    })
+  );
 
-function IncidentDetail({ incident }) {
+  const urgencyList = [];
+  urgency.data.map((item) =>
+    urgencyList.push({
+      label: item.urgency,
+      value: item.id,
+    })
+  );
+
+  const impactList = [];
+  impact.data.map((item) =>
+    impactList.push({
+      label: item.impact,
+      value: item.id,
+    })
+  );
+
+  const handleFormChange = (name, value) => {
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
   return (
     <>
       <Layout>
@@ -115,40 +96,201 @@ function IncidentDetail({ incident }) {
                     incident.data.incidentStatus == "Open"
                       ? "bg-red-100 text-red-800"
                       : "bg-green-100 text-green-800",
-                    "inline-flex items-center justify-center px-3 py-0.5 rounded-full text-sm font-medium"
+                    "sm:ml-3 inline-flex items-center justify-center px-3 py-0.5 rounded-md text-sm font-medium"
                   )}
                 >
                   {incident.data.incidentStatus}
                 </span>
-                <button
-                  type="button"
-                  className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-blue-500"
-                >
-                  Edit
-                </button>
               </div>
             </div>
 
             <div className="mt-8 max-w-full mx-auto grid grid-cols-1 gap-6 sm:px-6 lg:max-w-full lg:px-12 lg:grid-flow-col-dense lg:grid-cols-3">
               <div className="space-y-6 lg:col-start-1 lg:col-span-2">
                 {/* Incident Detail */}
-                <section aria-labelledby="applicant-information-title">
-                  <div className="bg-white shadow sm:rounded-lg">
-                    <div className="px-4 py-5 sm:px-6">
-                      <h2
-                        id="applicant-information-title"
-                        className="text-lg leading-6 font-medium text-gray-900"
+                {editMode ? (
+                  <section aria-labelledby="incident-detail">
+                    <div className="bg-white shadow sm:rounded-lg">
+                      <CardTitle
+                        title={`Incident Report ${incident.data.incidentNumber}`}
+                        subtitle={`Priority ${
+                          incident.data.paramPriorityMatrix
+                            ? incident.data.paramPriorityMatrix.mapping
+                            : "Not defined yet"
+                        }, ${
+                          incident.data.resolvedIntervals
+                            ? `Duration ${incident.data.resolvedIntervals} minutes`
+                            : `Started ${formatDate(incident.data.startTime)}`
+                        }`}
                       >
-                        Incident Report {incident.data.incidentNumber}
-                      </h2>
-                      <p className="mt-1 max-w-2xl text-sm text-gray-500">
-                        {incident.data.resolvedIntervals
-                          ? `Duration ${incident.data.resolvedIntervals} minutes`
-                          : `Started ${incident.data.startTime}`}
-                      </p>
+                        <div className="px-4 flex">
+                          <ButtonCircle
+                            action={() => {
+                              setEditMode(false);
+                              setFormData({});
+                            }}
+                            className="border-transparent text-white bg-rose-600 hover:bg-rose-700"
+                          >
+                            <XIcon className="h-5 w-5" aria-hidden="true" />
+                          </ButtonCircle>
+                          <ButtonCircle
+                            action={() => {
+                              setEditMode(false);
+                            }}
+                            className="ml-3 border-transparent text-white bg-blue-600 hover:bg-blue-700"
+                          >
+                            <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                          </ButtonCircle>
+                        </div>
+                      </CardTitle>
+                      <CardContent>
+                        <div className="sm:col-span-1">
+                          <dt className="text-sm font-medium text-gray-500">
+                            Application
+                          </dt>
+                          <dd className="mt-1 text-sm text-gray-900">
+                            {incident.data.paramApps.name
+                              ? incident.data.paramApps.name
+                              : "Not defined yet"}
+                          </dd>
+                        </div>
+                        <div className="sm:col-span-1">
+                          <label
+                            htmlFor="incident-type"
+                            className="block text-sm font-medium text-gray-500"
+                          >
+                            Incident Type
+                          </label>
+                          <Select
+                            className="mt-1 block w-full pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                            value={
+                              formData.type || {
+                                label:
+                                  incident.data.paramIncidentType.incidentType,
+                                value: incident.data.paramIncidentType.id,
+                              }
+                            }
+                            options={typeList}
+                            styles={styledReactSelect}
+                            onChange={(e) => handleFormChange("urgency", e)}
+                          />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <label
+                            htmlFor="urgency"
+                            className="block text-sm font-medium text-gray-500"
+                          >
+                            Urgency
+                          </label>
+                          <Select
+                            className="mt-1 block w-full pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                            value={
+                              formData.urgency || {
+                                label: incident.data.paramUrgency.urgency,
+                                value: incident.data.paramUrgency.id,
+                              }
+                            }
+                            options={urgencyList}
+                            styles={styledReactSelect}
+                            onChange={(e) => handleFormChange("urgency", e)}
+                          />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <label
+                            htmlFor="impact"
+                            className="block text-sm font-medium text-gray-500"
+                          >
+                            Impact
+                          </label>
+                          <Select
+                            className="mt-1 block w-full pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                            value={
+                              formData.impact || {
+                                label: incident.data.paramImpact.impact,
+                                value: incident.data.paramImpact.id,
+                              }
+                            }
+                            options={impactList}
+                            styles={styledReactSelect}
+                            onChange={(e) => handleFormChange("impact", e)}
+                          />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <dt className="text-sm font-medium text-gray-500">
+                            Impacted Service
+                          </dt>
+                          <textarea
+                            id="impact-service"
+                            name="impact-service"
+                            rows={4}
+                            className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                            defaultValue={
+                              incident.data.impactedSystem
+                                ? incident.data.impactedSystem
+                                : "Not defined yet"
+                            }
+                          />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <dt className="text-sm font-medium text-gray-500">
+                            Root Cause
+                          </dt>
+                          <textarea
+                            id="root-cause"
+                            name="root-cause"
+                            rows={4}
+                            className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                            defaultValue={
+                              incident.data.rootCause
+                                ? incident.data.rootCause
+                                : "Not defined yet"
+                            }
+                          />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <dt className="text-sm font-medium text-gray-500">
+                            Action Items
+                          </dt>
+                          <textarea
+                            id="action-items"
+                            name="action-items"
+                            rows={4}
+                            className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                            defaultValue={
+                              incident.data.actionItem
+                                ? incident.data.actionItem
+                                : "Not defined yet"
+                            }
+                          />
+                        </div>
+                      </CardContent>
                     </div>
-                    <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
-                      <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+                  </section>
+                ) : (
+                  <section aria-labelledby="incident-detail">
+                    <div className="bg-white shadow sm:rounded-lg">
+                      <CardTitle
+                        title={`Incident Report ${incident.data.incidentNumber}`}
+                        subtitle={
+                          incident.data.resolvedIntervals
+                            ? `Duration ${incident.data.resolvedIntervals} minutes`
+                            : `Started ${formatDate(incident.data.startTime)}`
+                        }
+                      >
+                        <div className="px-4 flex">
+                          <ButtonCircle
+                            action={() => {
+                              setEditMode(true);
+                            }}
+                            className="border-gray-300 text-gray-700 bg-gray-100 hover:bg-gray-50"
+                          >
+                            <PencilIcon
+                              className="h-5 w-5"
+                              aria-hidden="true"
+                            />
+                          </ButtonCircle>
+                        </div>
+                      </CardTitle>
+                      <CardContent>
                         <div className="sm:col-span-1">
                           <dt className="text-sm font-medium text-gray-500">
                             Application
@@ -171,11 +313,11 @@ function IncidentDetail({ incident }) {
                         </div>
                         <div className="sm:col-span-2">
                           <dt className="text-sm font-medium text-gray-500">
-                            Impacted Service
+                            Urgency
                           </dt>
                           <dd className="mt-1 text-sm text-gray-900">
-                            {incident.data.impactedSystem
-                              ? incident.data.impactedSystem
+                            {incident.data.paramUrgency
+                              ? incident.data.paramUrgency.urgency
                               : "Not defined yet"}
                           </dd>
                         </div>
@@ -191,11 +333,11 @@ function IncidentDetail({ incident }) {
                         </div>
                         <div className="sm:col-span-2">
                           <dt className="text-sm font-medium text-gray-500">
-                            Urgency
+                            Impacted Service
                           </dt>
                           <dd className="mt-1 text-sm text-gray-900">
-                            {incident.data.paramUrgency.urgency
-                              ? incident.data.paramUrgency.urgency
+                            {incident.data.impactedSystem
+                              ? incident.data.impactedSystem
                               : "Not defined yet"}
                           </dd>
                         </div>
@@ -211,7 +353,7 @@ function IncidentDetail({ incident }) {
                         </div>
                         <div className="sm:col-span-2">
                           <dt className="text-sm font-medium text-gray-500">
-                            Action
+                            Action Items
                           </dt>
                           <dd className="mt-1 text-sm text-gray-900">
                             {incident.data.actionItem
@@ -219,81 +361,160 @@ function IncidentDetail({ incident }) {
                               : "Not defined yet"}
                           </dd>
                         </div>
-                      </dl>
+                      </CardContent>
+                    </div>
+                  </section>
+                )}
+
+                <section aria-labelledby="activity-timeline">
+                  <div className="flex flex-col">
+                    <div className="mt-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                      <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                        <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                          <div className="bg-white px-4 py-5 border-b border-gray-200 sm:px-6">
+                            <h3 className="text-lg leading-6 font-medium text-gray-900">
+                              Timeline
+                            </h3>
+                          </div>
+                          <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                              <tr>
+                                <th
+                                  scope="col"
+                                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                >
+                                  Time
+                                </th>
+                                <th
+                                  scope="col"
+                                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                >
+                                  Activity
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                              {people.map((person) => (
+                                <tr key={person.email}>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    {person.name}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {person.title}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </section>
               </div>
 
               <section
-                aria-labelledby="timeline-title"
+                aria-labelledby="incident-info"
                 className="lg:col-start-3 lg:col-span-1"
               >
-                <div className="bg-white px-4 py-5 shadow sm:rounded-lg sm:px-6">
-                  <h2
-                    id="timeline-title"
-                    className="text-lg font-medium text-gray-900"
-                  >
-                    Timeline
-                  </h2>
-
-                  {/* Activity Feed */}
-                  <div className="mt-6 flow-root">
-                    <ul className="-mb-8">
-                      {timeline.map((item, itemIdx) => (
-                        <li key={item.id}>
-                          <div className="relative pb-8">
-                            {itemIdx !== timeline.length - 1 ? (
+                <div className="bg-white shadow sm:rounded-lg">
+                  {/* Incident Info */}
+                  <div className="space-y-4 px-4 py-5 sm:px-6">
+                    <div>
+                      <h2 className="text-sm font-medium text-gray-500">
+                        Incident Type
+                      </h2>
+                      <ul className="mt-2 leading-8">
+                        <li className="inline">
+                          <a
+                            href="#"
+                            className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5"
+                          >
+                            <div className="absolute flex-shrink-0 flex items-center justify-center">
                               <span
-                                className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"
+                                className="h-1.5 w-1.5 rounded-full bg-rose-500"
                                 aria-hidden="true"
                               />
-                            ) : null}
-                            <div className="relative flex space-x-3">
-                              <div>
-                                <span
-                                  className={classNames(
-                                    item.type.bgColorClass,
-                                    "h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white"
-                                  )}
-                                >
-                                  <item.type.icon
-                                    className="w-5 h-5 text-white"
-                                    aria-hidden="true"
-                                  />
-                                </span>
-                              </div>
-                              <div className="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
-                                <div>
-                                  <p className="text-sm text-gray-500">
-                                    {item.content}{" "}
-                                    <a
-                                      href="#"
-                                      className="font-medium text-gray-900"
-                                    >
-                                      {item.target}
-                                    </a>
-                                  </p>
-                                </div>
-                                <div className="text-right text-sm whitespace-nowrap text-gray-500">
-                                  <time dateTime={item.datetime}>
-                                    {item.date}
-                                  </time>
-                                </div>
-                              </div>
                             </div>
-                          </div>
+                            <div className="ml-3.5 text-sm font-medium text-gray-900">
+                              {incident.data.paramIncidentType
+                                ? incident.data.paramIncidentType.incidentType
+                                : "-"}
+                            </div>
+                          </a>{" "}
                         </li>
-                      ))}
-                    </ul>
+                        <li className="inline">
+                          <a
+                            href="#"
+                            className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5"
+                          >
+                            <div className="absolute flex-shrink-0 flex items-center justify-center">
+                              <span
+                                className="h-1.5 w-1.5 rounded-full bg-indigo-500"
+                                aria-hidden="true"
+                              />
+                            </div>
+                            <div className="ml-3.5 text-sm font-medium text-gray-900">
+                              Critical Sev 1
+                            </div>
+                          </a>{" "}
+                        </li>
+                      </ul>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <CalendarIcon
+                        className="h-5 w-5 text-rose-600"
+                        aria-hidden="true"
+                      />
+                      <span className="text-gray-900 text-sm">
+                        Started on{" "}
+                        {format(
+                          new Date(incident.data.startTime),
+                          "dd MMM yyyy HH:mm",
+                          "id-ID"
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <CalendarIcon
+                        className="h-5 w-5 text-emerald-600"
+                        aria-hidden="true"
+                      />
+                      <span className="text-gray-900 text-sm">
+                        Resolved on{" "}
+                        {format(
+                          new Date(incident.data.endTime),
+                          "dd MMM yyyy HH:mm",
+                          "id-ID"
+                        )}
+                      </span>
+                    </div>
                   </div>
-                  <div className="mt-6 flex flex-col justify-stretch">
-                    <button
-                      type="button"
-                      className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    >
-                      Advance to offer
-                    </button>
+                  <div className="border-t border-gray-200 space-y-4 px-4 py-5 sm:px-6">
+                    <h2 className="text-sm font-medium text-gray-500">
+                      Reporter
+                    </h2>
+                    <div className="flex items-center space-x-2">
+                      <UserCircleIcon
+                        className="h-5 w-5 text-gray-700"
+                        aria-hidden="true"
+                      />
+                      <span className="text-gray-900 text-sm">
+                        Lord Commander
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-gray-900 text-sm">
+                        Last updated on{" "}
+                        {format(
+                          new Date(incident.data.endTime),
+                          "dd MMM yyyy HH:mm",
+                          "id-ID"
+                        )}{" "}
+                        <br />
+                        by Jon Snow
+                      </span>
+                    </div>
                   </div>
                 </div>
               </section>
@@ -309,15 +530,26 @@ export default IncidentDetail;
 
 export async function getServerSideProps(context) {
   // Fetch data from external API
-  const res = await fetch(
-    `https://ularkadut.xyz/v1.0/incidents/${context.params.id}`
-  );
-  const data = await res.json();
+  const [insidentRes, urgencyRes, impactRes, typeRes] = await Promise.all([
+    fetch(`https://ularkadut.xyz/v1.0/incidents/${context.params.id}`),
+    fetch(`https://ularkadut.xyz/v1.0/parameters/urgency?isActive=Y`),
+    fetch(`https://ularkadut.xyz/v1.0/parameters/impact?isActive=Y`),
+    fetch(`https://ularkadut.xyz/v1.0/parameters/incidenttype`),
+  ]);
+  const [incident, urgency, impact, type] = await Promise.all([
+    insidentRes.json(),
+    urgencyRes.json(),
+    impactRes.json(),
+    typeRes.json(),
+  ]);
 
   // Pass data to the page via props
   return {
     props: {
-      incident: data,
+      incident,
+      urgency,
+      impact,
+      type,
     },
   };
 }
