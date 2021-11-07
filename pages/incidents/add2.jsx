@@ -97,7 +97,7 @@ function addIncident() {
         }
     }
 
-    const onSubmit = async (data) => {
+    const onSubmit = async data => {
         // e.preventDefault();
         await sleep(500);
         // const formData = Object.assign(data, { idApps: data.idApps.value })
@@ -114,16 +114,6 @@ function addIncident() {
         //     toast.error("Warning: Invalid DOM property `stroke-width`.");
         // }
 
-        console.log(data);
-
-        const data2 = {
-            "incidentName": "coba post dari incident/add lagi ke 50xxxxxx",
-            "idApps": "1",
-            "idUrgency": "1",
-            "impactedSystem": "terkena cors",
-            "startTime": "2021-11-07T00:21"
-        };
-
         axios.post('https://ularkadut.xyz/v1.0/incidents', data)
             .then(function (response) {
                 response.status === 201 ? alert('Data berhasil disimpan') : alert(`Gagal Error Code : ${response.status}`)
@@ -131,6 +121,7 @@ function addIncident() {
             .catch(function (error) {
                 console.log(error);
             });
+
     }
 
     return (
@@ -161,7 +152,7 @@ function addIncident() {
                                                 />
                                                 {errors.incidentName && <p className="mt-2 text-sm text-red-600">{errors.incidentName.message}</p>}
                                             </div>
-                                            <div className="col-span-6 sm:col-span-3">
+                                            {/* <div className="col-span-6 sm:col-span-3">
                                                 <label className="mb-1 block text-sm font-medium text-gray-700">Application</label>
                                                 <Controller
                                                     name="idApps"
@@ -179,7 +170,7 @@ function addIncident() {
                                                     )}
                                                 />
                                                 {errors.idApps && <p className="mt-2 text-sm text-red-600">{errors.idApps.message}</p>}
-                                            </div>
+                                            </div> */}
 
                                             {/* <div className="col-span-6 sm:col-span-2">
                                                 <label className="mb-1 block text-sm font-medium text-gray-700">Start Time</label>

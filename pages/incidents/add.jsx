@@ -8,7 +8,7 @@ export default function App() {
     const onSubmit = async data => {
         console.log(data);
         await sleep(1000);
-        axios.post('https://ularkadut.xyz/v1.0/incidents', data)
+        axios.post('http://172.18.134.228/v1.0/incidents', data)
             .then(function (response) {
                 response.status === 201 ? alert('Data berhasil disimpan') : alert(`Gagal Error Code : ${response.status}`)
             })
