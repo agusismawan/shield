@@ -10,6 +10,7 @@ import AvatarCell from "../../components/incidents/avatar-cell";
 import PageHeader from "../../components/incidents/page-header";
 import { PlusSmIcon } from "@heroicons/react/outline";
 import { ButtonSmall } from '../../components/ui/button';
+import { toast } from "react-toastify";
 
 function IncidentList() {
     const [loadingData, setLoadingData] = useState(true);
@@ -25,10 +26,12 @@ function IncidentList() {
             filter: 'includes',
             Cell: props => {
                 return (
-                    <div>
-                        <div className="text-xs font-normal text-gray-900">{props.row.original.paramApps.name}</div>
-                        <div className="text-xs font-normal text-gray-500">{props.row.original.paramApps.criticalityApp}</div>
-                    </div>
+                    props.row.original.idApps ?
+                        <div>
+                            <div className="text-xs font-normal text-gray-900">{props.row.original.paramApps.name}</div>
+                            <div className="text-xs font-normal text-gray-500">{props.row.original.paramApps.criticalityApp}</div>
+                        </div>
+                        : '-'
                 )
             }
         },
@@ -69,6 +72,7 @@ function IncidentList() {
                     setData(result.data);
                     setLoadingData(false);
                 })
+                .catch((err) => toast.error(err))
         }
         if (loadingData) {
             getData();

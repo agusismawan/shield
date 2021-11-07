@@ -1,65 +1,136 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import Layout from "../../components/layout";
 import { Disclosure, Switch } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/outline';
 import { QuestionMarkCircleIcon } from '@heroicons/react/solid';
-import { classNames, styledReactSelect } from "../../components/utils";
-import { Input } from "../../components/ui/forms";
 import { Controller, useForm, } from 'react-hook-form';
 import Select from "react-select";
-import DatePicker from "react-datepicker";
+import AsyncSelect from 'react-select/async';
 import format from "date-fns/format";
-import "react-datepicker/dist/react-datepicker.css";
-import PageHeader from "../../components/incidents/page-header";
+// import DatePicker from "react-datepicker";
+// import "react-datepicker/dist/react-datepicker.css";
+import DatePicker from '../../components/ui/datepicker';
+import 'antd/dist/antd.css';
+import { toast } from 'react-toastify';
+import Layout from "../../components/layout";
+import { Input } from "../../components/ui/forms";
+import { classNames, styledReactSelect } from "../../components/utils";
 import { ButtonSmall, ButtonSecondary } from "../../components/ui/button";
 import { Spinner } from "../../components/ui/spinner";
+import PageHeader from "../../components/incidents/page-header";
 import docs from "../../components/incidents/docs.json"
-import { toast } from 'react-toastify';
-
-const app = [
-    { value: 1, label: "Brinets Web" },
-    { value: 2, label: "Proswitching JCB" },
-    { value: 3, label: "BI-ETP (BI-Electronic Trading Platform)" }
-];
 
 function addIncident() {
+    // Digunakan utuk fungsi reset form
     const defaultValues = {
         incidentName: "",
         idApps: "",
-        idUrgency: "",
         startTime: "",
-        impactedSystem: ""
+        endTime: "",
+        impactedSystem: "",
+        impact: "",
+        rootCause: "",
+        actionItem: "",
+        responsibleEngineer: ""
     }
-
-    const { register, handleSubmit, control, formState, reset } = useForm({ defaultValues });
+    const { register, handleSubmit, control, formState, reset, watch } = useForm({ defaultValues });
     const { errors, isSubmitting } = formState;
     const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     const router = useRouter();
     const [enabled, setEnabled] = useState(false);
-    console.log(router);
-    console.log(enabled);
+    const [urgencyOptions, setUrgencyOptions] = useState([]);
+    const watchStartTime = watch("startTime", false);
+    const watchEndTime = watch("endTime", false);
 
-    console.log(errors);
+    console.log(watchStartTime);
 
 
-    const onSubmit = async (data, e) => {
-        e.preventDefault();
-        await sleep(500);
-        const formData = Object.assign(data, { idApps: data.idApps.value, idUrgency: data.idUrgency.value })
-        formData["startTime"] = format(new Date(formData.startTime), 'yyyy-MM-dd HH:mm:ss');
-        console.log(formData);
+    // Get data urgency
+    useEffect(() => {
+        axios
+            .get("https://ularkadut.xyz/v1.0/parameters/urgency")
+            .then((response) => {
+                const data = response.data.data.map(d => ({ "value": d.id, "label": d.urgency }))
+                setUrgencyOptions(data)
+            })
+            .catch(err => toast.error(`Urgency ${err}`))
+    }, [])
 
-        const res = 201;
-        if (res === 201) {
-            !isSubmitting && toast.success("Incident successfully added");
+    // Get data applications
+    const loadApplications = (value, callback) => {
+        clearTimeout(timeoutId);
 
-            await sleep(3000);
-            router.push('/');
-        } else {
-            toast.error("Warning: Invalid DOM property `stroke-width`.");
+        if (value.length < 3) {
+            return callback([]);
         }
+
+        const timeoutId = setTimeout(() => {
+            axios
+                .get(`https://ularkadut.xyz/v1.0/parameters/app?name=${value}`)
+                .then((res) => {
+                    const cachedOptions = res.data.data.map(d => ({
+                        "value": d.id,
+                        "label": d.name
+                    }))
+
+                    callback(cachedOptions)
+                })
+                .catch(err => toast.error(`Application ${err}`))
+        }, 500);
+    }
+
+    const handleSwitch = () => {
+        if (enabled) {
+            reset({
+                endTime: "",
+                impactedSystem: '',
+                impact: "",
+                rootCause: "",
+                actionItem: "",
+                responsibleEngineer: ""
+            })
+            setEnabled(false);
+        } else {
+            setEnabled(true);
+        }
+    }
+
+    const onSubmit = async (data) => {
+        // e.preventDefault();
+        await sleep(500);
+        // const formData = Object.assign(data, { idApps: data.idApps.value })
+        // formData["startTime"] = format(new Date(formData.startTime), 'yyyy-MM-dd HH:mm:ss');
+        // console.log(formData);
+
+        // const res = 201;
+        // if (res === 201) {
+        //     !isSubmitting && toast.success("Incident successfully added");
+
+        //     await sleep(3000);
+        //     router.push('/');
+        // } else {
+        //     toast.error("Warning: Invalid DOM property `stroke-width`.");
+        // }
+
+        console.log(data);
+
+        const data2 = {
+            "incidentName": "coba post dari incident/add lagi ke 50xxxxxx",
+            "idApps": "1",
+            "idUrgency": "1",
+            "impactedSystem": "terkena cors",
+            "startTime": "2021-11-07T00:21"
+        };
+
+        axios.post('https://ularkadut.xyz/v1.0/incidents', data)
+            .then(function (response) {
+                response.status === 201 ? alert('Data berhasil disimpan') : alert(`Gagal Error Code : ${response.status}`)
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
     }
 
     return (
@@ -70,14 +141,13 @@ function addIncident() {
                 </Head>
                 {/* Page title & actions */}
                 <PageHeader title="Create New Incident" />
-                {/* <ToastContainer /> */}
-                <div className="mt-8 max-w-full mx-auto grid grid-cols-1 gap-6 sm:px-6 lg:max-w-full lg:px-12 lg:grid-flow-col-dense lg:grid-cols-3">
+                <div className="mt-8 max-w-full mx-auto grid grid-cols-1 gap-6 sm:px-6 lg:max-w-full lg:px-12 lg:grid-flow-col-dense lg:grid-cols-3 relative">
                     <div className="space-y-6 lg:col-start-1 lg:col-span-2">
                         {/* Section Incident Detail */}
                         <section aria-labelledby="create-new-incident">
                             <form onSubmit={handleSubmit(onSubmit)}>
                                 {/* Card Start */}
-                                <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+                                <div className="bg-white shadow overflow-hidden sm:rounded-lg static">
                                     <div className="border-gray-200 px-4 py-5 sm:px-6">
                                         <div className="grid grid-cols-6 gap-6">
                                             <div className="col-span-6 sm:col-span-6">
@@ -98,42 +168,20 @@ function addIncident() {
                                                     control={control}
                                                     rules={{ required: "This is required" }}
                                                     render={({ field }) => (
-                                                        <Select
-                                                            isClearable
+                                                        <AsyncSelect
                                                             {...field}
-                                                            options={app}
+                                                            isClearable
+                                                            loadOptions={loadApplications}
                                                             styles={styledReactSelect}
-                                                            className="text-sm"
-                                                            placeholder="Select Apps..."
+                                                            className="text-sm focus:ring-blue-500 focus:border-blue-500"
+                                                            placeholder="Type an Application"
                                                         />
                                                     )}
                                                 />
                                                 {errors.idApps && <p className="mt-2 text-sm text-red-600">{errors.idApps.message}</p>}
                                             </div>
-                                            <div className="col-span-6 sm:col-span-3">
-                                                <label className="mb-1 block text-sm font-medium text-gray-700">Urgency</label>
-                                                <Controller
-                                                    name="idUrgency"
-                                                    control={control}
-                                                    rules={{ required: "This is required" }}
-                                                    render={({ field }) => (
-                                                        <Select
-                                                            isClearable
-                                                            {...field}
-                                                            options={[
-                                                                { value: 1, label: "Low" },
-                                                                { value: 2, label: "High" },
-                                                                { value: 3, label: "Medium" }
-                                                            ]}
-                                                            styles={styledReactSelect}
-                                                            className="text-sm"
-                                                            placeholder="Select Urgency..."
-                                                        />
-                                                    )}
-                                                />
-                                                {errors.idUrgency && <p className="mt-2 text-sm text-red-600">{errors.idUrgency.message}</p>}
-                                            </div>
-                                            <div className="col-span-6 sm:col-span-2">
+
+                                            {/* <div className="col-span-6 sm:col-span-2">
                                                 <label className="mb-1 block text-sm font-medium text-gray-700">Start Time</label>
                                                 <Controller
                                                     control={control}
@@ -147,29 +195,42 @@ function addIncident() {
                                                             selected={field.value}
                                                             isClearable
                                                             showTimeSelect
-                                                            // dateFormat="yyyy-MM-dd HH:mm"
                                                             dateFormat="d MMMM yyyy HH:mm"
                                                             timeFormat="HH:mm"
                                                         />
                                                     )}
                                                 />
                                                 {errors.startTime && <p className="mt-2 text-sm text-red-600">{errors.startTime.message}</p>}
-                                            </div>
-                                            <div className="col-span-6 sm:col-span-6">
-                                                <Input
-                                                    name="impactedSystem"
-                                                    register={register}
-                                                    required="This is required"
-                                                    label="Impacted System"
-                                                    placeholder="Describe impact of the incident"
-                                                    className={errors.impactedSystem ? 'border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 ' : 'focus:ring-blue-500 focus:border-blue-500'}
+                                            </div> */}
+
+                                            {/* <div className="col-span-6 sm:col-span-3">
+                                                <label className="mb-1 block text-sm font-medium text-gray-700">Start Time</label>
+                                                <Controller
+                                                    control={control}
+                                                    rules={{ required: "This is required" }}
+                                                    name="startTime"
+                                                    render={({ field }) => (
+                                                        <DatePicker
+                                                            allowClear
+                                                            showTime={{ format: 'HH:mm' }}
+                                                            format="d MMMM yyyy HH:mm"
+                                                            onChange={(e) => field.onChange(e)}
+                                                            value={field.value}
+                                                            style={{
+                                                                borderRadius: "0.375rem",
+                                                                width: "100%",
+                                                                height: "38px"
+                                                            }}
+                                                        />
+                                                    )}
                                                 />
-                                                {errors.impactedSystem && <p className="mt-2 text-sm text-red-600">{errors.impactedSystem.message}</p>}
-                                            </div>
-                                            <div className="flex items-center space-x-3 col-span-6 sm:col-span-2">
+                                                {errors.startTime && <p className="mt-2 text-sm text-red-600">{errors.startTime.message}</p>}
+                                            </div> */}
+
+                                            <div className="flex items-center space-x-3 col-span-6 sm:col-span-6">
                                                 <Switch
                                                     checked={enabled}
-                                                    onChange={setEnabled}
+                                                    onChange={handleSwitch}
                                                     className={classNames(
                                                         enabled ? 'bg-blue-600' : 'bg-gray-200',
                                                         'relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
@@ -184,19 +245,99 @@ function addIncident() {
                                                         )}
                                                     />
                                                 </Switch>
-                                                <label className="mb-1 block text-sm font-regular text-gray-700">Is the incident over ?</label>
-                                            </div>
-                                            {enabled === true &&
-                                                <div className="col-span-6 sm:col-span-6">
-                                                    <textarea
-                                                        id="about"
-                                                        name="about"
-                                                        rows={3}
-                                                        className="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
-                                                        placeholder="you@example.com"
-                                                        defaultValue={''}
-                                                    />
+                                                <div>
+                                                    <label className="block text-sm font-regular text-gray-700">Is the incident over ?</label>
+                                                    <span className="inline-block align-top text-xs text-gray-400">Please switch the toggle if the incident is over</span>
                                                 </div>
+                                            </div>
+                                            {/* Jika kondisi incident sudah selesai */}
+                                            {enabled === true &&
+                                                <>
+                                                    <div className="col-span-6 sm:col-span-3">
+                                                        <label className="mb-1 block text-sm font-medium text-gray-700">End Time</label>
+                                                        <Controller
+                                                            name="endtTime"
+                                                            control={control}
+                                                            rules={{
+                                                                required: "This is required",
+                                                                validate: (endtTime) => endtTime > watch("startTime")
+                                                            }}
+                                                            render={({ field }) => (
+                                                                <DatePicker
+                                                                    allowClear
+                                                                    showTime={{ format: 'HH:mm' }}
+                                                                    format="d MMMM yyyy HH:mm"
+                                                                    onChange={(e) => field.onChange(e)}
+                                                                    value={field.value}
+                                                                    style={{
+                                                                        borderRadius: "0.375rem",
+                                                                        width: "100%",
+                                                                        height: "38px"
+                                                                    }}
+                                                                />
+                                                            )}
+                                                        // onChange={handleOnchange}
+                                                        />
+                                                        {errors.endtTime && <p className="mt-2 text-sm text-red-600">{errors.endtTime.message}</p>}
+                                                    </div>
+                                                    <div className="col-span-6 sm:col-span-6">
+                                                        <label className="mb-1 block text-sm font-medium text-gray-700">Impacted System</label>
+                                                        <textarea
+                                                            {...register("impactedSystem", { required: 'This is required' })}
+                                                            id="impactedSystem"
+                                                            name="impactedSystem"
+                                                            rows={3}
+                                                            className="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                                                            placeholder=""
+                                                            defaultValue={''}
+                                                        />
+                                                        {errors.impactedSystem && <p className="mt-2 text-sm text-red-600">{errors.impactedSystem.message}</p>}
+                                                    </div>
+                                                    <div className="col-span-6 sm:col-span-6">
+                                                        <label className="mb-1 block text-sm font-medium text-gray-700">Impact</label>
+                                                        <textarea
+                                                            {...register("impact", { required: 'This is required' })}
+                                                            id="impact"
+                                                            name="impact"
+                                                            rows={3}
+                                                            className="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                                                            placeholder="Describe the impact"
+                                                        />
+                                                    </div>
+                                                    <div className="col-span-6 sm:col-span-6">
+                                                        <label className="mb-1 block text-sm font-medium text-gray-700">Root Cause</label>
+                                                        <textarea
+                                                            {...register("rootCause", { required: 'This is required' })}
+                                                            id="rootCause"
+                                                            name="rootCause"
+                                                            rows={3}
+                                                            className="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                                                            placeholder="Describe the Root Cause Analysis (RCA)"
+                                                        />
+                                                    </div>
+                                                    <div className="col-span-6 sm:col-span-6">
+                                                        <label className="mb-1 block text-sm font-medium text-gray-700">Action Items</label>
+                                                        <textarea
+                                                            {...register("actionItem", { required: 'This is required' })}
+                                                            id="actionItem"
+                                                            name="actionItem"
+                                                            rows={3}
+                                                            className="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                                                            placeholder="Describe the Actions"
+                                                        />
+                                                    </div>
+                                                    <div className="col-span-6 sm:col-span-6">
+                                                        <label className="mb-1 block text-sm font-medium text-gray-700">Responsible Engineer</label>
+                                                        <textarea
+                                                            {...register("responsibleEngineer", { required: 'This is required' })}
+                                                            id="responsibleEngineer"
+                                                            name="responsibleEngineer"
+                                                            rows={3}
+                                                            className="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                                                            placeholder="Mention the engineer team. Example : SDK, CAO, etc."
+                                                        />
+                                                    </div>
+                                                </>
                                             }
                                         </div>
                                     </div>
@@ -212,7 +353,9 @@ function addIncident() {
                                             Save
                                         </ButtonSmall>
                                         <ButtonSecondary
-                                            onClick={() => reset()}
+                                            onClick={() => {
+                                                reset(defaultValues);
+                                            }}
                                         >
                                             Reset
                                         </ButtonSecondary>
