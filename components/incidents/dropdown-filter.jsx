@@ -1,57 +1,59 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import axios from "axios";
-import Select from "react-select";
+import AsyncSelect from 'react-select/async';
+import { toast } from "react-toastify";
+import { styledReactSelect } from "../utils";
 
-function SelectColumnFilter({ column: { filterValue, setFilter } }) {
-    const [options, setOptions] = useState([]);
-    const [application, setApplication] = useState(options[0]);
+function SelectColumnFilter({ column: { setFilter } }) {
+    const [selectedValue, setSelectedValue] = useState(null);
+    const [inputValue, setInputValue] = useState('');
 
-    useEffect(() => {
-        async function getData() {
-            try {
-                const res = await axios.get("https://ularkadut.xyz/v1.0/parameters/app");
-                const result = res.data;
-                const selectValue = result.data.map(d => ({
-                    "value": d.name,
-                    "label": d.name
-                }));
+    const loadApplications = (inputValue, callback) => {
+        clearTimeout(timeoutId);
 
-                setOptions(selectValue);
-            } catch (e) {
-                return e;
-            }
+        if (inputValue.length < 3) {
+            return callback([]);
         }
 
-        getData();
-    }, [])
+        const timeoutId = setTimeout(() => {
+            axios
+                .get(`https://ularkadut.xyz/v1.0/parameters/app?name=${inputValue}`)
+                .then((res) => {
+                    const cacheOptions = res.data.data.map(d => ({
+                        "value": d.name,
+                        "label": d.name
+                    }))
 
-    const handleOnchange = (chosenValue) => {
-        const item = chosenValue === null ? '' : chosenValue; // untuk menghandle nilai null
-        setApplication(item);
+                    callback(cacheOptions)
+                })
+                .catch(err => toast.error(`Application ${err}`))
+        }, 500);
+    }
+
+    const handleChange = (value) => {
+        const item = !value ? '' : value;
+        setSelectedValue(value);
         setFilter(item.value || undefined);
     }
 
-    // custom style untuk menghilangkan outline pada saat search input
-    const style = {
-        input: (base) => ({
-            ...base,
-            'input:focus': {
-                boxShadow: 'none',
-            },
-        }),
-    }
+    const handleInputChange = value => {
+        setInputValue(value);
+    };
 
     return (
         <div className="mt-1">
-            <Select
-                value={application}
-                options={options}
-                onChange={handleOnchange}
-                defaultValue={options}
-                isClearable
+            <AsyncSelect
+                styles={styledReactSelect}
                 className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-80 sm:text-sm border-gray-300 rounded-md"
-                styles={style}
-                placeholder={"Select Application"}
+                placeholder="Type an Application"
+                isClearable
+                cacheOptions
+                loadOptions={loadApplications}
+                getOptionLabel={e => e.label}
+                getOptionValue={e => e.value}
+                onChange={handleChange}
+                onInputChange={handleInputChange}
+                value={selectedValue}
             />
         </div>
     )

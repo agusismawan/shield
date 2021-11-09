@@ -1,47 +1,74 @@
 import Head from "next/head";
 import Link from "next/link";
 import Layout from "../../components/layout";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo } from "react";
 import Table from '../../components/incidents/table';
 import format from "date-fns/format";
-import axios from "axios";
 import SelectColumnFilter from "../../components/incidents/dropdown-filter";
+import { StatusPill, StatusText } from "../../components/incidents/status-pill";
 import AvatarCell from "../../components/incidents/avatar-cell";
 import PageHeader from "../../components/incidents/page-header";
 import { PlusSmIcon } from "@heroicons/react/outline";
 import { ButtonSmall } from '../../components/ui/button';
-import { toast } from "react-toastify";
+import { classNames } from "../../components/utils";
 
-function IncidentList() {
-    const [loadingData, setLoadingData] = useState(true);
+export const getServerSideProps = async () => {
+    const res = await fetch("https://ularkadut.xyz/v1.0/incidents");
+    const data = await res.json();
+
+    return {
+        props: {
+            data: data.data,
+        },
+    };
+};
+
+function IncidentList({ data }) {
     const columns = useMemo(() => [
+        {
+            Header: '#',
+            Cell: (row) => {
+                return <div>{Number(row.row.id) + 1}</div>;
+            }
+        },
         {
             Header: "Incident Name",
             accessor: "incidentName",
+            Cell: props => {
+                return (
+                    <div>
+                        <div>
+                            <Link href={`/incidents/${props.row.original.id}`} className="group inline-flex space-x-2 truncate text-sm">
+                                <a className="text-gray-500 truncate group-hover:text-gray-900">{props.value}</a>
+                            </Link>
+                        </div>
+                        <div>
+                            <span className={classNames("inline-flex items-center px-1.5 py-px rounded text-xs font-medium",
+                                props.row.original.incidentStatus === 'Open' ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800")}
+                            >
+                                {props.row.original.incidentStatus}
+                            </span>
+                        </div>
+                    </div>
+                )
+            }
         },
         {
             Header: "Application",
             accessor: "paramApps.name",
             Filter: SelectColumnFilter,
-            filter: 'includes',
-            Cell: props => {
-                return (
-                    props.row.original.idApps ?
-                        <div>
-                            <div className="text-xs font-normal text-gray-900">{props.row.original.paramApps.name}</div>
-                            <div className="text-xs font-normal text-gray-500">{props.row.original.paramApps.criticalityApp}</div>
-                        </div>
-                        : '-'
-                )
-            }
+            // filter: 'includes',
+            Cell: StatusText
         },
         {
             Header: "Priority",
             accessor: "paramPriorityMatrix.mapping",
+            Cell: StatusPill
         },
         {
             Header: "Duration",
             accessor: "resolvedIntervals",
+            Cell: props => props.row.original.resolvedIntervals ? props.row.original.resolvedIntervals : '-'
         },
         {
             Header: "Started At",
@@ -62,23 +89,6 @@ function IncidentList() {
         },
     ], [])
 
-    const [data, setData] = useState([]);
-    useEffect(() => {
-        async function getData() {
-            await axios.get("https://ularkadut.xyz/v1.0/incidents")
-                .then((response) => {
-                    console.log(response.data);
-                    const result = response.data;
-                    setData(result.data);
-                    setLoadingData(false);
-                })
-                .catch((err) => toast.error(err))
-        }
-        if (loadingData) {
-            getData();
-        }
-    }, [])
-
     return (
         <>
             <Layout>
@@ -95,16 +105,11 @@ function IncidentList() {
                             </ButtonSmall>
                         </Link>
                     </PageHeader>
-
-                    {loadingData ? (
-                        <p>Loading Please Wait ...</p>
-                    ) : (
-                        <div className="hidden sm:block mt-3">
-                            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
-                                <Table columns={columns} data={data} />
-                            </div>
+                    <div className="hidden sm:block mt-3">
+                        <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+                            <Table columns={columns} data={data} />
                         </div>
-                    )}
+                    </div>
                 </section>
             </Layout>
         </>
