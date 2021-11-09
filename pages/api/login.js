@@ -3,7 +3,6 @@ import withSession from "../../lib/session";
 
 export default withSession(async (req, res) => {
   const url = `${process.env.NEXT_PUBLIC_API_URL}/login`;
-  console.log("Body", req.body);
 
   try {
     // we check that the us""er exists on GitHub and store some data in session
@@ -15,7 +14,7 @@ export default withSession(async (req, res) => {
 
     const user = {
       isLoggedIn: true,
-      name: response.username,
+      username: response.data.username,
       accessToken: response.access_token,
     };
     req.session.set("user", user);

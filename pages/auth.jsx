@@ -19,7 +19,7 @@ export default function Login() {
         router.push("/");
       }
     } catch (error) {
-      console.error("An unexpected error happened:", error);
+      //console.error("An unexpected error happened:", error);
       setErrorMsg(error.data.message);
     }
   };

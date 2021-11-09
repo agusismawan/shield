@@ -20,7 +20,6 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
 });
 
 function Home({ user }) {
-  console.log(user);
   return (
     <>
       <Layout>
