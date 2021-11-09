@@ -2,7 +2,7 @@ import fetchJson from "../../lib/fetchJson";
 import withSession from "../../lib/session";
 
 export default withSession(async (req, res) => {
-  const url = `https://ularkadut.xyz/v1.0/login`;
+  const url = `${process.env.NEXT_PUBLIC_API_URL}/login`;
   console.log("Body", req.body);
 
   try {
