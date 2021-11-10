@@ -158,7 +158,7 @@ export default function Layout({ children }) {
                           <span className="flex min-w-0 items-center justify-between space-x-3">
                             <img
                               className="w-10 h-10 bg-gray-300 rounded-full flex-shrink-0"
-                              src="https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=3&w=256&h=256&q=80"
+                              src="/profpic.jpg"
                               alt=""
                             />
                             <span className="flex-1 flex flex-col min-w-0">
