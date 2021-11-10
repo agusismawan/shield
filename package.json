@@ -10,19 +10,20 @@
     "@heroicons/react": "^1.0.4",
     "@tailwindcss/forms": "^0.3.4",
     "@tailwindcss/typography": "github:tailwindcss/typography",
+    "antd": "^4.16.13",
     "axios": "^0.23.0",
     "date-fns": "^2.25.0",
     "next-iron-session": "4.1.7",
     "next": "latest",
     "nprogress": "^0.2.0",
     "react": "^17.0.2",
-    "react-datepicker": "^4.3.0",
     "react-dom": "^17.0.2",
     "react-hook-form": "^7.18.0",
     "react-select": "^5.1.0",
     "react-table": "^7.7.0",
     "react-toastify": "^8.0.3",
-    "regenerator-runtime": "^0.13.9"
+    "regenerator-runtime": "^0.13.9",
+    "next-iron-session": "4.1.7"
   },
   "devDependencies": {
     "@babel/core": "^7.16.0",
