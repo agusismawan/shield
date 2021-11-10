@@ -13,6 +13,7 @@
     "antd": "^4.16.13",
     "axios": "^0.23.0",
     "date-fns": "^2.25.0",
+    "next-iron-session": "4.1.7",
     "next": "latest",
     "nprogress": "^0.2.0",
     "react": "^17.0.2",

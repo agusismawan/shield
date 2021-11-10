@@ -1,7 +1,11 @@
 import Meta from "../components/meta";
 import Link from "next/link";
+import router from "next/router";
+import fetchJson, { FetchError } from "../lib/fetchJson";
 import { useRouter } from "next/router";
+import { classNames } from "./utils";
 import { Fragment, useState } from "react";
+import { ToastContainer } from "react-toastify";
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import {
   MenuAlt1Icon,
@@ -12,7 +16,6 @@ import {
   ChatAlt2Icon,
 } from "@heroicons/react/outline";
 import { SearchIcon, SelectorIcon } from "@heroicons/react/solid";
-import { ToastContainer } from 'react-toastify';
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: HomeIcon },
@@ -20,14 +23,16 @@ const navigation = [
   { name: "Problem Management", href: "/problem", icon: FireIcon },
   { name: "Tickets", href: "/ticket", icon: ChatAlt2Icon },
 ];
+
 const teams = [
   { name: "Engineering", href: "#", bgColorClass: "bg-indigo-500" },
   { name: "Human Resources", href: "#", bgColorClass: "bg-green-500" },
   { name: "Customer Success", href: "#", bgColorClass: "bg-yellow-500" },
 ];
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
+async function logout() {
+  await fetchJson("/api/logout");
+  router.push("/auth");
 }
 
 export default function Layout({ children }) {
@@ -154,7 +159,7 @@ export default function Layout({ children }) {
                 {({ open }) => (
                   <>
                     <div>
-                      <Menu.Button className="group w-full bg-white rounded-md px-3.5 py-2 text-sm text-left font-medium text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-purple-500">
+                      <Menu.Button className="group w-full bg-white rounded-md px-3.5 py-2 text-sm text-left font-medium text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-blue-500">
                         <span className="flex w-full justify-between items-center">
                           <span className="flex min-w-0 items-center justify-between space-x-3">
                             <img
@@ -276,6 +281,7 @@ export default function Layout({ children }) {
                             {({ active }) => (
                               <a
                                 href="#"
+                                onClick={logout}
                                 className={classNames(
                                   active
                                     ? "bg-gray-100 text-gray-900"
@@ -312,7 +318,7 @@ export default function Layout({ children }) {
                     type="text"
                     name="search"
                     id="search"
-                    className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-9 sm:text-sm border-gray-300 rounded-md"
+                    className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-9 sm:text-sm border-gray-300 rounded-md"
                     placeholder="Search"
                   />
                 </div>
@@ -355,7 +361,7 @@ export default function Layout({ children }) {
           {/* Search header */}
           <div className="relative z-10 flex-shrink-0 flex h-16 bg-white border-b border-gray-200 lg:hidden">
             <button
-              className="px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-purple-500 lg:hidden"
+              className="px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 lg:hidden"
               onClick={() => setSidebarOpen(true)}
             >
               <span className="sr-only">Open sidebar</span>
@@ -387,7 +393,7 @@ export default function Layout({ children }) {
                   {({ open }) => (
                     <>
                       <div>
-                        <Menu.Button className="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                        <Menu.Button className="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                           <span className="sr-only">Open user menu</span>
                           <img
                             className="h-8 w-8 rounded-full"

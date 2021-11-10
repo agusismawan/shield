@@ -1,12 +1,19 @@
-import Head from "next/head";
-import Select from "react-select";
-import format from "date-fns/format";
 import Layout from "../../components/layout";
+import Head from "next/head";
+import format from "date-fns/format";
+import axios from "axios";
+import Select from "react-select";
+import withSession from "../../lib/session";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { useRouter } from "next/router";
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import { CardTitle } from "../../components/ui/card-title";
 import { CardContent } from "../../components/ui/card-content";
 import { ButtonCircle } from "../../components/ui/button-circle";
 import { classNames, styledReactSelect } from "../../components/utils";
-import { useState } from "react";
 import {
   PencilIcon,
   XIcon,
@@ -23,16 +30,57 @@ const people = [
     email: "jane.cooper@example.com",
   },
   {
-    name: "Jane Cooper",
+    name: "Jane Marry",
     title: "Regional Paradigm Technician",
     role: "Admin",
-    email: "jane.cooper@example.com",
+    email: "jane.marry@example.com",
   },
 ];
 
-function IncidentDetail({ incident, urgency, impact, type }) {
+export const getServerSideProps = withSession(async function ({
+  req,
+  res,
+  params,
+}) {
+  const user = req.session.get("user");
+
+  if (!user) {
+    return {
+      redirect: {
+        destination: "/auth",
+        permanent: false,
+      },
+    };
+  }
+
+  // Fetch data from external API
+  const [incidentRes, typeRes, urgencyRes, impactRes] = await Promise.all([
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/incidents/${params.id}`),
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/parameters/urgency?isActive=Y`),
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/parameters/impact?isActive=Y`),
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/parameters/incidenttype`),
+  ]);
+  const [incident, urgency, impact, type] = await Promise.all([
+    incidentRes.json(),
+    typeRes.json(),
+    urgencyRes.json(),
+    impactRes.json(),
+  ]);
+  // Pass data to the page via props
+  return {
+    props: {
+      user: req.session.get("user"),
+      incident,
+      type,
+      urgency,
+      impact,
+    },
+  };
+});
+
+function IncidentDetail({ incident, type, urgency, impact }) {
+  const router = useRouter();
   const [editMode, setEditMode] = useState(false);
-  const [formData, setFormData] = useState({});
 
   const typeList = [];
   type.data.map((item) =>
@@ -58,12 +106,69 @@ function IncidentDetail({ incident, urgency, impact, type }) {
     })
   );
 
-  const handleFormChange = (name, value) => {
-    setFormData({
-      ...formData,
-      [name]: value,
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      idIncidentType: incident.data.paramIncidentType
+        ? {
+            label: incident.data.paramIncidentType.incidentType,
+            value: incident.data.paramIncidentType.id,
+          }
+        : {
+            label: "Select incident type...",
+            value: null,
+          },
+      idUrgency: incident.data.paramUrgency
+        ? {
+            label: incident.data.paramUrgency.urgency,
+            value: incident.data.paramUrgency.id,
+          }
+        : {
+            label: "Select urgency...",
+            value: null,
+          },
+      idImpact: incident.data.paramImpact
+        ? {
+            label: incident.data.paramImpact.impact,
+            value: incident.data.paramImpact.id,
+          }
+        : {
+            label: "Select impact...",
+            value: null,
+          },
+    },
+  });
+
+  const onSubmit = async (data) => {
+    console.log(data);
+    data = Object.assign(data, {
+      idIncidentType: data.idIncidentType.value,
+      idUrgency: data.idUrgency.value,
+      idImpact: data.idImpact.value,
     });
+    axios
+      .patch(
+        `${process.env.NEXT_PUBLIC_API_URL}/incidents/${incident.data.id}`,
+        data
+      )
+      .then(function (response) {
+        if (response.status === 200) {
+          toast.success("Incident updated.");
+          router.reload();
+        } else {
+          toast.error(`Failed to update ${response.status}`);
+        }
+      })
+      .catch(function (error) {
+        toast.error(error);
+      });
   };
+  console.log(errors);
 
   return (
     <>
@@ -108,163 +213,207 @@ function IncidentDetail({ incident, urgency, impact, type }) {
               <div className="space-y-6 lg:col-start-1 lg:col-span-2">
                 {/* Incident Detail */}
                 {editMode ? (
-                  <section aria-labelledby="incident-detail">
-                    <div className="bg-white shadow sm:rounded-lg">
-                      <CardTitle
-                        title={`Incident Report ${incident.data.incidentNumber}`}
-                        subtitle={`Priority ${
-                          incident.data.paramPriorityMatrix
-                            ? incident.data.paramPriorityMatrix.mapping
-                            : "Not defined yet"
-                        }, ${
-                          incident.data.resolvedIntervals
-                            ? `Duration ${incident.data.resolvedIntervals} minutes`
-                            : `Started ${formatDate(incident.data.startTime)}`
-                        }`}
-                      >
-                        <div className="px-4 flex">
-                          <ButtonCircle
-                            action={() => {
-                              setEditMode(false);
-                              setFormData({});
-                            }}
-                            className="border-transparent text-white bg-rose-600 hover:bg-rose-700"
-                          >
-                            <XIcon className="h-5 w-5" aria-hidden="true" />
-                          </ButtonCircle>
-                          <ButtonCircle
-                            action={() => {
-                              setEditMode(false);
-                            }}
-                            className="ml-3 border-transparent text-white bg-blue-600 hover:bg-blue-700"
-                          >
-                            <CheckIcon className="h-5 w-5" aria-hidden="true" />
-                          </ButtonCircle>
-                        </div>
-                      </CardTitle>
-                      <CardContent>
-                        <div className="sm:col-span-1">
-                          <dt className="text-sm font-medium text-gray-500">
-                            Application
-                          </dt>
-                          <dd className="mt-1 text-sm text-gray-900">
-                            {incident.data.paramApps.name
-                              ? incident.data.paramApps.name
-                              : "Not defined yet"}
-                          </dd>
-                        </div>
-                        <div className="sm:col-span-1">
-                          <label
-                            htmlFor="incident-type"
-                            className="block text-sm font-medium text-gray-500"
-                          >
-                            Incident Type
-                          </label>
-                          <Select
-                            className="mt-1 block w-full pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-                            value={
-                              formData.type || {
-                                label:
-                                  incident.data.paramIncidentType.incidentType,
-                                value: incident.data.paramIncidentType.id,
+                  <form onSubmit={handleSubmit(onSubmit)}>
+                    <section aria-labelledby="incident-detail">
+                      <div className="bg-white shadow sm:rounded-lg">
+                        <CardTitle
+                          title={`Incident Report ${incident.data.incidentNumber}`}
+                          subtitle={`Priority ${
+                            incident.data.paramPriorityMatrix
+                              ? incident.data.paramPriorityMatrix.mapping
+                              : "Not defined yet"
+                          }, ${
+                            incident.data.resolvedIntervals
+                              ? `Duration ${incident.data.resolvedIntervals} minutes`
+                              : `Started ${format(
+                                  new Date(incident.data.startTime),
+                                  "dd MMM yyyy HH:mm",
+                                  "id-ID"
+                                )}`
+                          }`}
+                        >
+                          <div className="px-4 flex">
+                            <ButtonCircle
+                              action={() => {
+                                setEditMode(false);
+                                reset();
+                              }}
+                              className="border-transparent text-white bg-rose-600 hover:bg-rose-700"
+                            >
+                              <XIcon className="h-5 w-5" aria-hidden="true" />
+                            </ButtonCircle>
+                            <ButtonCircle
+                              action={handleSubmit(onSubmit)}
+                              className="ml-3 border-transparent text-white bg-blue-600 hover:bg-blue-700"
+                            >
+                              <CheckIcon
+                                className="h-5 w-5"
+                                aria-hidden="true"
+                              />
+                            </ButtonCircle>
+                          </div>
+                        </CardTitle>
+                        <CardContent>
+                          <div className="sm:col-span-1">
+                            <dt className="text-sm font-medium text-gray-500">
+                              Application
+                            </dt>
+                            <dd className="mt-1 text-sm text-gray-900">
+                              {incident.data.paramApps.name
+                                ? incident.data.paramApps.name
+                                : "Not defined yet"}
+                            </dd>
+                          </div>
+                          <div className="sm:col-span-1">
+                            <label
+                              htmlFor="incident-type"
+                              className="block text-sm font-medium text-gray-500"
+                            >
+                              Incident Type
+                            </label>
+                            <Controller
+                              name="idIncidentType"
+                              control={control}
+                              rules={{ required: "This is required" }}
+                              render={({ field }) => (
+                                <Select
+                                  {...field}
+                                  className="block w-full pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                                  options={typeList}
+                                  styles={styledReactSelect}
+                                />
+                              )}
+                            />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <label
+                              htmlFor="urgency"
+                              className="block text-sm font-medium text-gray-500"
+                            >
+                              Urgency
+                            </label>
+                            <Controller
+                              name="idUrgency"
+                              control={control}
+                              rules={{ required: "This is required" }}
+                              render={({ field }) => (
+                                <Select
+                                  {...field}
+                                  className="block w-full pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                                  options={urgencyList}
+                                  styles={styledReactSelect}
+                                />
+                              )}
+                            />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <label
+                              htmlFor="impact"
+                              className="block text-sm font-medium text-gray-500"
+                            >
+                              Impact
+                            </label>
+                            <Controller
+                              name="idImpact"
+                              control={control}
+                              render={({ field }) => (
+                                <Select
+                                  {...field}
+                                  className="block w-full pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                                  options={impactList}
+                                  styles={styledReactSelect}
+                                />
+                              )}
+                            />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <dt className="text-sm font-medium text-gray-500">
+                              Impacted System
+                            </dt>
+                            <textarea
+                              id="impact-system"
+                              {...register("impactedSystem", {
+                                required: "This is required!",
+                              })}
+                              rows={4}
+                              className={classNames(
+                                errors.impactedSystem
+                                  ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
+                                  : "focus:ring-blue-500 focus:border-blue-500",
+                                "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                              )}
+                              defaultValue={
+                                incident.data.impactedSystem
+                                  ? incident.data.impactedSystem
+                                  : ""
                               }
-                            }
-                            options={typeList}
-                            styles={styledReactSelect}
-                            onChange={(e) => handleFormChange("urgency", e)}
-                          />
-                        </div>
-                        <div className="sm:col-span-2">
-                          <label
-                            htmlFor="urgency"
-                            className="block text-sm font-medium text-gray-500"
-                          >
-                            Urgency
-                          </label>
-                          <Select
-                            className="mt-1 block w-full pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-                            value={
-                              formData.urgency || {
-                                label: incident.data.paramUrgency.urgency,
-                                value: incident.data.paramUrgency.id,
+                            />
+                            {errors.impactedSystem && (
+                              <p className="mt-1 text-sm text-red-600">
+                                {errors.impactedSystem.message}
+                              </p>
+                            )}
+                          </div>
+                          <div className="sm:col-span-2">
+                            <dt className="text-sm font-medium text-gray-500">
+                              Root Cause
+                            </dt>
+                            <textarea
+                              id="root-cause"
+                              {...register("rootCause", {
+                                required: "This is required!",
+                              })}
+                              rows={4}
+                              className={classNames(
+                                errors.rootCause
+                                  ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
+                                  : "focus:ring-blue-500 focus:border-blue-500",
+                                "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                              )}
+                              defaultValue={
+                                incident.data.rootCause
+                                  ? incident.data.rootCause
+                                  : ""
                               }
-                            }
-                            options={urgencyList}
-                            styles={styledReactSelect}
-                            onChange={(e) => handleFormChange("urgency", e)}
-                          />
-                        </div>
-                        <div className="sm:col-span-2">
-                          <label
-                            htmlFor="impact"
-                            className="block text-sm font-medium text-gray-500"
-                          >
-                            Impact
-                          </label>
-                          <Select
-                            className="mt-1 block w-full pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-                            value={
-                              formData.impact || {
-                                label: incident.data.paramImpact.impact,
-                                value: incident.data.paramImpact.id,
+                            />
+                            {errors.rootCause && (
+                              <p className="mt-1 text-sm text-red-600">
+                                {errors.rootCause.message}
+                              </p>
+                            )}
+                          </div>
+                          <div className="sm:col-span-2">
+                            <dt className="text-sm font-medium text-gray-500">
+                              Action Items
+                            </dt>
+                            <textarea
+                              id="action-items"
+                              {...register("actionItem", {
+                                required: "This is required!",
+                              })}
+                              rows={4}
+                              className={classNames(
+                                errors.rootCause
+                                  ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
+                                  : "focus:ring-blue-500 focus:border-blue-500",
+                                "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                              )}
+                              defaultValue={
+                                incident.data.actionItem
+                                  ? incident.data.actionItem
+                                  : ""
                               }
-                            }
-                            options={impactList}
-                            styles={styledReactSelect}
-                            onChange={(e) => handleFormChange("impact", e)}
-                          />
-                        </div>
-                        <div className="sm:col-span-2">
-                          <dt className="text-sm font-medium text-gray-500">
-                            Impacted Service
-                          </dt>
-                          <textarea
-                            id="impact-service"
-                            name="impact-service"
-                            rows={4}
-                            className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
-                            defaultValue={
-                              incident.data.impactedSystem
-                                ? incident.data.impactedSystem
-                                : "Not defined yet"
-                            }
-                          />
-                        </div>
-                        <div className="sm:col-span-2">
-                          <dt className="text-sm font-medium text-gray-500">
-                            Root Cause
-                          </dt>
-                          <textarea
-                            id="root-cause"
-                            name="root-cause"
-                            rows={4}
-                            className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
-                            defaultValue={
-                              incident.data.rootCause
-                                ? incident.data.rootCause
-                                : "Not defined yet"
-                            }
-                          />
-                        </div>
-                        <div className="sm:col-span-2">
-                          <dt className="text-sm font-medium text-gray-500">
-                            Action Items
-                          </dt>
-                          <textarea
-                            id="action-items"
-                            name="action-items"
-                            rows={4}
-                            className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
-                            defaultValue={
-                              incident.data.actionItem
-                                ? incident.data.actionItem
-                                : "Not defined yet"
-                            }
-                          />
-                        </div>
-                      </CardContent>
-                    </div>
-                  </section>
+                            />
+                            {errors.actionItem && (
+                              <p className="mt-1 text-sm text-red-600">
+                                {errors.actionItem.message}
+                              </p>
+                            )}
+                          </div>
+                        </CardContent>
+                      </div>
+                    </section>
+                  </form>
                 ) : (
                   <section aria-labelledby="incident-detail">
                     <div className="bg-white shadow sm:rounded-lg">
@@ -273,7 +422,11 @@ function IncidentDetail({ incident, urgency, impact, type }) {
                         subtitle={
                           incident.data.resolvedIntervals
                             ? `Duration ${incident.data.resolvedIntervals} minutes`
-                            : `Started ${formatDate(incident.data.startTime)}`
+                            : `Started ${format(
+                                new Date(incident.data.startTime),
+                                "dd MMM yyyy HH:mm",
+                                "id-ID"
+                              )}`
                         }
                       >
                         <div className="px-4 flex">
@@ -333,7 +486,7 @@ function IncidentDetail({ incident, urgency, impact, type }) {
                         </div>
                         <div className="sm:col-span-2">
                           <dt className="text-sm font-medium text-gray-500">
-                            Impacted Service
+                            Impacted System
                           </dt>
                           <dd className="mt-1 text-sm text-gray-900">
                             {incident.data.impactedSystem
@@ -365,52 +518,6 @@ function IncidentDetail({ incident, urgency, impact, type }) {
                     </div>
                   </section>
                 )}
-
-                <section aria-labelledby="activity-timeline">
-                  <div className="flex flex-col">
-                    <div className="mt-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                      <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                        <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                          <div className="bg-white px-4 py-5 border-b border-gray-200 sm:px-6">
-                            <h3 className="text-lg leading-6 font-medium text-gray-900">
-                              Timeline
-                            </h3>
-                          </div>
-                          <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
-                              <tr>
-                                <th
-                                  scope="col"
-                                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                >
-                                  Time
-                                </th>
-                                <th
-                                  scope="col"
-                                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                >
-                                  Activity
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                              {people.map((person) => (
-                                <tr key={person.email}>
-                                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    {person.name}
-                                  </td>
-                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {person.title}
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </section>
               </div>
 
               <section
@@ -450,7 +557,7 @@ function IncidentDetail({ incident, urgency, impact, type }) {
                           >
                             <div className="absolute flex-shrink-0 flex items-center justify-center">
                               <span
-                                className="h-1.5 w-1.5 rounded-full bg-indigo-500"
+                                className="h-1.5 w-1.5 rounded-full bg-blue-500"
                                 aria-hidden="true"
                               />
                             </div>
@@ -527,29 +634,3 @@ function IncidentDetail({ incident, urgency, impact, type }) {
 }
 
 export default IncidentDetail;
-
-export async function getServerSideProps(context) {
-  // Fetch data from external API
-  const [insidentRes, urgencyRes, impactRes, typeRes] = await Promise.all([
-    fetch(`https://ularkadut.xyz/v1.0/incidents/${context.params.id}`),
-    fetch(`https://ularkadut.xyz/v1.0/parameters/urgency?isActive=Y`),
-    fetch(`https://ularkadut.xyz/v1.0/parameters/impact?isActive=Y`),
-    fetch(`https://ularkadut.xyz/v1.0/parameters/incidenttype`),
-  ]);
-  const [incident, urgency, impact, type] = await Promise.all([
-    insidentRes.json(),
-    urgencyRes.json(),
-    impactRes.json(),
-    typeRes.json(),
-  ]);
-
-  // Pass data to the page via props
-  return {
-    props: {
-      incident,
-      urgency,
-      impact,
-      type,
-    },
-  };
-}

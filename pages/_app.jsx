@@ -1,10 +1,10 @@
-import { useEffect } from "react";
 import { useRouter } from "next/router";
+import { useEffect } from "react";
 import NProgress from "nprogress";
 import "tailwindcss/tailwind.css";
 import "../styles/globals.css";
 import "nprogress/nprogress.css";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
