@@ -144,7 +144,7 @@ function addIncident() {
     }
 
     axios
-      .post("https://ularkadut.xyz/v1.0/incidents", data)
+      .post(`${process.env.NEXT_PUBLIC_API_URL}/incidents`, data)
       .then(function (response) {
         if (response.status === 201) {
           !isSubmitting && toast.success("Incident successfully added");
