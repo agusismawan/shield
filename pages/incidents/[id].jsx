@@ -4,8 +4,6 @@ import format from "date-fns/format";
 import axios from "axios";
 import Select from "react-select";
 import withSession from "../../lib/session";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
