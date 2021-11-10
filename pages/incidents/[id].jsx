@@ -257,7 +257,7 @@ function IncidentDetail({ incident, type, urgency, impact }) {
                               Application
                             </dt>
                             <dd className="mt-1 text-sm text-gray-900">
-                              {incident.data.paramApps.name
+                              {incident.data.paramApps
                                 ? incident.data.paramApps.name
                                 : "Not defined yet"}
                             </dd>
@@ -447,7 +447,7 @@ function IncidentDetail({ incident, type, urgency, impact }) {
                             Application
                           </dt>
                           <dd className="mt-1 text-sm text-gray-900">
-                            {incident.data.paramApps.name
+                            {incident.data.paramApps
                               ? incident.data.paramApps.name
                               : "Not defined yet"}
                           </dd>
