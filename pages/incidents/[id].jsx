@@ -52,26 +52,49 @@ export const getServerSideProps = withSession(async function ({
   }
 
   // Fetch data from external API
-  const [incidentRes, typeRes, urgencyRes, impactRes] = await Promise.all([
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/incidents/${params.id}`),
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/parameters/urgency?isActive=Y`),
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/parameters/impact?isActive=Y`),
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/parameters/incidenttype`),
+  const incidentReq = axios.get(
+    `${process.env.NEXT_PUBLIC_API_URL}/incidents/${params.id}`,
+    {
+      headers: { Authorization: `Bearer ${user.accessToken}` },
+    }
+  );
+
+  const typeReq = axios.get(
+    `${process.env.NEXT_PUBLIC_API_URL}/parameters/incidenttype`,
+    {
+      headers: { Authorization: `Bearer ${user.accessToken}` },
+    }
+  );
+
+  const urgencyReq = axios.get(
+    `${process.env.NEXT_PUBLIC_API_URL}/parameters/urgency?isActive=Y`,
+    {
+      headers: { Authorization: `Bearer ${user.accessToken}` },
+    }
+  );
+
+  const impactReq = axios.get(
+    `${process.env.NEXT_PUBLIC_API_URL}/parameters/impact?isActive=Y`,
+    {
+      headers: { Authorization: `Bearer ${user.accessToken}` },
+    }
+  );
+
+  const [incident, type, urgency, impact] = await Promise.all([
+    incidentReq,
+    typeReq,
+    urgencyReq,
+    impactReq,
   ]);
-  const [incident, urgency, impact, type] = await Promise.all([
-    incidentRes.json(),
-    typeRes.json(),
-    urgencyRes.json(),
-    impactRes.json(),
-  ]);
+
   // Pass data to the page via props
   return {
     props: {
       user: req.session.get("user"),
-      incident,
-      type,
-      urgency,
-      impact,
+      incident: incident.data,
+      type: type.data,
+      urgency: urgency.data,
+      impact: impact.data,
     },
   };
 });

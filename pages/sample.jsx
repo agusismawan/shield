@@ -25,6 +25,7 @@
 */
 import { Fragment, useState } from "react";
 import { Dialog, Menu, Transition } from "@headlessui/react";
+import withSession from "../lib/session";
 import {
   BellIcon,
   ClockIcon,
@@ -88,7 +89,26 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-export default function Example() {
+export const getServerSideProps = withSession(async function ({ req, res }) {
+  const user = req.session.get("user");
+
+  if (!user) {
+    return {
+      redirect: {
+        destination: "/auth",
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {
+      user: req.session.get("user"),
+    },
+  };
+});
+
+export default function Example({ user }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -310,7 +330,7 @@ export default function Example() {
                         />
                         <span className="hidden ml-3 text-gray-700 text-sm font-medium lg:block">
                           <span className="sr-only">Open user menu for </span>
-                          Emilia Birch
+                          {user.username}
                         </span>
                         <ChevronDownIcon
                           className="hidden flex-shrink-0 ml-1 h-5 w-5 text-gray-400 lg:block"

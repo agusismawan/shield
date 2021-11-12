@@ -5,6 +5,7 @@ import AvatarCell from "../../components/incidents/avatar-cell";
 import PageHeader from "../../components/incidents/page-header";
 import Table from "../../components/incidents/table";
 import SelectColumnFilter from "../../components/incidents/dropdown-filter";
+import axios from "axios";
 import withSession from "../../lib/session";
 import format from "date-fns/format";
 import { useMemo } from "react";
@@ -24,8 +25,10 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
     };
   }
 
-  res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/incidents`);
-  const data = await res.json();
+  res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/incidents`, {
+    headers: { Authorization: `Bearer ${user.accessToken}` },
+  });
+  const data = await res.data;
 
   return {
     props: {

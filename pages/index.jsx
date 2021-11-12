@@ -7,6 +7,7 @@ import {
   FireIcon,
   ChatAlt2Icon,
 } from "@heroicons/react/outline";
+import axios from "axios";
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
   const user = req.session.get("user");
@@ -19,8 +20,10 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
     };
   }
 
-  res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/incidents`);
-  const data = await res.json();
+  res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/incidents`, {
+    headers: { Authorization: `Bearer ${user.accessToken}` },
+  });
+  const data = await res.data;
 
   return {
     props: {

@@ -5,7 +5,7 @@ export default withSession(async (req, res) => {
   const url = `${process.env.NEXT_PUBLIC_API_URL}/login`;
 
   try {
-    // we check that the us""er exists on GitHub and store some data in session
+    // Call the API to check if the user exists and store some data in session
     const response = await fetchJson(url, {
       method: "POST",
       body: JSON.stringify(req.body),
