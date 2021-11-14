@@ -2,7 +2,6 @@ import Layout from "../components/layout"
 import Head from "next/head";
 import { OfficeBuildingIcon, DocumentSearchIcon, FireIcon, ChatAlt2Icon } from "@heroicons/react/outline";
 
-
 export const getServerSideProps = async () => {
   const res = await fetch("https://ularkadut.xyz/v1.0/incidents");
   const data = await res.json();
