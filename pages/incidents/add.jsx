@@ -35,7 +35,7 @@ function addIncident() {
     actionItem: "",
     responsibleEngineer: "",
   };
-  const { register, handleSubmit, control, formState, reset, watch } = useForm({
+  const { register, handleSubmit, control, formState, reset, getValues } = useForm({
     defaultValues,
   });
   const { errors, isSubmitting } = formState;
@@ -44,7 +44,6 @@ function addIncident() {
   const [enabled, setEnabled] = useState(false);
   const [urgencyOptions, setUrgencyOptions] = useState([]);
   const [impactOptions, setImpactOptions] = useState([]);
-  const watchAll = watch();
 
   // Get data urgency
   useEffect(() => {
@@ -97,6 +96,7 @@ function addIncident() {
     }, 500);
   };
 
+  // Handle switch button when incident is over
   const handleSwitch = () => {
     if (enabled) {
       reset({
@@ -113,6 +113,15 @@ function addIncident() {
       setEnabled(true);
     }
   };
+
+  // Handle validate datetime
+  const handleDatetime = () => {
+    const st = new Date(getValues('startTime'))
+    const et = new Date(getValues('endTime'))
+    const ls = new Date(getValues('logStartTime'))
+
+    return st.setSeconds(0, 0) < et.setSeconds(0, 0) && st.setSeconds(0, 0) < ls.setSeconds(0, 0)
+  }
 
   const onSubmit = async (data, e) => {
     e.preventDefault();
@@ -222,35 +231,6 @@ function addIncident() {
                       <div className="col-span-6 sm:col-span-3"></div>
                       <div className="col-span-6 sm:col-span-3">
                         <label className="mb-1 block text-sm font-medium text-gray-700">
-                          Start Time
-                        </label>
-                        <Controller
-                          control={control}
-                          rules={{ required: "This is required" }}
-                          name="startTime"
-                          render={({ field }) => (
-                            <DatePicker
-                              allowClear
-                              showTime={{ format: "HH:mm" }}
-                              format="d MMMM yyyy HH:mm"
-                              onChange={(e) => field.onChange(e)}
-                              value={field.value}
-                              style={{
-                                borderRadius: "0.375rem",
-                                width: "100%",
-                                height: "38px",
-                              }}
-                            />
-                          )}
-                        />
-                        {errors.startTime && (
-                          <p className="mt-2 text-sm text-red-600">
-                            {errors.startTime.message}
-                          </p>
-                        )}
-                      </div>
-                      <div className="col-span-6 sm:col-span-3">
-                        <label className="mb-1 block text-sm font-medium text-gray-700">
                           Log Start
                         </label>
                         <Controller
@@ -275,6 +255,35 @@ function addIncident() {
                         {errors.logStartTime && (
                           <p className="mt-2 text-sm text-red-600">
                             {errors.logStartTime.message}
+                          </p>
+                        )}
+                      </div>
+                      <div className="col-span-6 sm:col-span-3">
+                        <label className="mb-1 block text-sm font-medium text-gray-700">
+                          Start Time
+                        </label>
+                        <Controller
+                          control={control}
+                          rules={{ required: "This is required" }}
+                          name="startTime"
+                          render={({ field }) => (
+                            <DatePicker
+                              allowClear
+                              showTime={{ format: "HH:mm" }}
+                              format="d MMMM yyyy HH:mm"
+                              onChange={(e) => field.onChange(e)}
+                              value={field.value}
+                              style={{
+                                borderRadius: "0.375rem",
+                                width: "100%",
+                                height: "38px",
+                              }}
+                            />
+                          )}
+                        />
+                        {errors.startTime && (
+                          <p className="mt-2 text-sm text-red-600">
+                            {errors.startTime.message}
                           </p>
                         )}
                       </div>
@@ -317,7 +326,7 @@ function addIncident() {
                               control={control}
                               rules={{
                                 required: "This is required",
-                                validate: (date) => date > watchAll.startTime,
+                                validate: handleDatetime
                               }}
                               render={({ field }) => (
                                 <DatePicker
@@ -336,7 +345,7 @@ function addIncident() {
                             />
                             {errors.endTime?.type === "validate" && (
                               <p className="mt-2 text-sm text-red-600">
-                                End time must be greater than start time
+                                End time must be greater than log or start time
                               </p>
                             )}
                             {errors.endTime && (
