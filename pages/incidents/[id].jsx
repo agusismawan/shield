@@ -35,11 +35,7 @@ const people = [
   },
 ];
 
-export const getServerSideProps = withSession(async function ({
-  req,
-  res,
-  params,
-}) {
+export const getServerSideProps = withSession(async function ({ req, params }) {
   const user = req.session.get("user");
 
   if (!user) {
@@ -99,7 +95,7 @@ export const getServerSideProps = withSession(async function ({
   };
 });
 
-function IncidentDetail({ incident, type, urgency, impact }) {
+function IncidentDetail({ user, incident, type, urgency, impact }) {
   const router = useRouter();
   const [editMode, setEditMode] = useState(false);
 
@@ -140,28 +136,19 @@ function IncidentDetail({ incident, type, urgency, impact }) {
             label: incident.data.paramIncidentType.incidentType,
             value: incident.data.paramIncidentType.id,
           }
-        : {
-            label: "Select incident type...",
-            value: null,
-          },
+        : false,
       idUrgency: incident.data.paramUrgency
         ? {
             label: incident.data.paramUrgency.urgency,
             value: incident.data.paramUrgency.id,
           }
-        : {
-            label: "Select urgency...",
-            value: null,
-          },
+        : false,
       idImpact: incident.data.paramImpact
         ? {
             label: incident.data.paramImpact.impact,
             value: incident.data.paramImpact.id,
           }
-        : {
-            label: "Select impact...",
-            value: null,
-          },
+        : false,
     },
   });
 
@@ -175,7 +162,10 @@ function IncidentDetail({ incident, type, urgency, impact }) {
     axios
       .patch(
         `${process.env.NEXT_PUBLIC_API_URL}/incidents/${incident.data.id}`,
-        data
+        data,
+        {
+          headers: { Authorization: `Bearer ${user.accessToken}` },
+        }
       )
       .then(function (response) {
         if (response.status === 200) {
@@ -189,7 +179,6 @@ function IncidentDetail({ incident, type, urgency, impact }) {
         toast.error(error);
       });
   };
-  console.log(errors);
 
   return (
     <>
@@ -299,12 +288,23 @@ function IncidentDetail({ incident, type, urgency, impact }) {
                               render={({ field }) => (
                                 <Select
                                   {...field}
-                                  className="block w-full pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                                  className={classNames(
+                                    errors.idIncidentType
+                                      ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
+                                      : "focus:ring-blue-500 focus:border-blue-500",
+                                    "block w-full pr-10 py-2 text-base border-gray-300 sm:text-sm rounded-md"
+                                  )}
                                   options={typeList}
                                   styles={styledReactSelect}
+                                  placeholder="Select incident type..."
                                 />
                               )}
                             />
+                            {errors.idIncidentType && (
+                              <p className="text-sm text-red-600">
+                                {errors.idIncidentType.message}
+                              </p>
+                            )}
                           </div>
                           <div className="sm:col-span-2">
                             <label
@@ -320,12 +320,23 @@ function IncidentDetail({ incident, type, urgency, impact }) {
                               render={({ field }) => (
                                 <Select
                                   {...field}
-                                  className="block w-full pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                                  className={classNames(
+                                    errors.idUrgency
+                                      ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
+                                      : "focus:ring-blue-500 focus:border-blue-500",
+                                    "block w-full pr-10 py-2 text-base border-gray-300 sm:text-sm rounded-md"
+                                  )}
                                   options={urgencyList}
                                   styles={styledReactSelect}
+                                  placeholder="Select urgency..."
                                 />
                               )}
                             />
+                            {errors.idUrgency && (
+                              <p className="text-sm text-red-600">
+                                {errors.idUrgency.message}
+                              </p>
+                            )}
                           </div>
                           <div className="sm:col-span-2">
                             <label
@@ -337,15 +348,27 @@ function IncidentDetail({ incident, type, urgency, impact }) {
                             <Controller
                               name="idImpact"
                               control={control}
+                              rules={{ required: "This is required" }}
                               render={({ field }) => (
                                 <Select
                                   {...field}
-                                  className="block w-full pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                                  className={classNames(
+                                    errors.idImpact
+                                      ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
+                                      : "focus:ring-blue-500 focus:border-blue-500",
+                                    "block w-full pr-10 py-2 text-base border-gray-300 sm:text-sm rounded-md"
+                                  )}
                                   options={impactList}
                                   styles={styledReactSelect}
+                                  placeholder="Select impact..."
                                 />
                               )}
                             />
+                            {errors.idImpact && (
+                              <p className="text-sm text-red-600">
+                                {errors.idImpact.message}
+                              </p>
+                            )}
                           </div>
                           <div className="sm:col-span-2">
                             <dt className="text-sm font-medium text-gray-500">
