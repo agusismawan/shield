@@ -19,8 +19,28 @@ import { ButtonSmall, ButtonSecondary } from "../../components/ui/button";
 import { Spinner } from "../../components/ui/spinner";
 import PageHeader from "../../components/incidents/page-header";
 import docs from "../../components/incidents/docs.json";
+import withSession from "../../lib/session";
 
-function addIncident() {
+export const getServerSideProps = withSession(async function ({ req, params }) {
+  const user = req.session.get("user");
+
+  if (!user) {
+    return {
+      redirect: {
+        destination: "/auth",
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {
+      user: req.session.get("user"),
+    },
+  };
+});
+
+function addIncident({ user }) {
   // Digunakan utuk fungsi reset form
   const defaultValues = {
     incidentName: "",
@@ -35,9 +55,10 @@ function addIncident() {
     actionItem: "",
     responsibleEngineer: "",
   };
-  const { register, handleSubmit, control, formState, reset, getValues } = useForm({
-    defaultValues,
-  });
+  const { register, handleSubmit, control, formState, reset, getValues } =
+    useForm({
+      defaultValues,
+    });
   const { errors, isSubmitting } = formState;
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const router = useRouter();
@@ -116,12 +137,15 @@ function addIncident() {
 
   // Handle validate datetime
   const handleDatetime = () => {
-    const st = new Date(getValues('startTime'))
-    const et = new Date(getValues('endTime'))
-    const ls = new Date(getValues('logStartTime'))
+    const st = new Date(getValues("startTime"));
+    const et = new Date(getValues("endTime"));
+    const ls = new Date(getValues("logStartTime"));
 
-    return st.setSeconds(0, 0) < et.setSeconds(0, 0) && st.setSeconds(0, 0) < ls.setSeconds(0, 0)
-  }
+    return (
+      st.setSeconds(0, 0) < et.setSeconds(0, 0) &&
+      st.setSeconds(0, 0) < ls.setSeconds(0, 0)
+    );
+  };
 
   const onSubmit = async (data, e) => {
     e.preventDefault();
@@ -326,7 +350,7 @@ function addIncident() {
                               control={control}
                               rules={{
                                 required: "This is required",
-                                validate: handleDatetime
+                                validate: handleDatetime,
                               }}
                               render={({ field }) => (
                                 <DatePicker
