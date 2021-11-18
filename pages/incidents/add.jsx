@@ -142,8 +142,7 @@ function addIncident({ user }) {
     const ls = new Date(getValues("logStartTime"));
 
     return (
-      st.setSeconds(0, 0) < et.setSeconds(0, 0) &&
-      st.setSeconds(0, 0) < ls.setSeconds(0, 0)
+      st.setSeconds(0, 0) < et.setSeconds(0, 0) && ls.setSeconds(0, 0) < et.setSeconds(0, 0)
     );
   };
 

@@ -35,3 +35,6 @@ yarn-error.log*
 
 # env file
 .env
+
+# package-lock
+package-lock.json
