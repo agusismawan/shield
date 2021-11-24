@@ -1,0 +1,10 @@
+[
+  {
+  "status": "Open",
+  "description": "Incident still open"
+  },
+  {
+  "status": "Resolved",
+  "description": "Incident has been resolved"
+  }
+]

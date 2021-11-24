@@ -32,7 +32,7 @@ export default function Layout({ children }) {
 
   return (
     <>
-      <ToastContainer autoClose={3000} />
+      <ToastContainer position="bottom-right" autoClose={3000} />
       <Meta />
       <div className="relative h-screen flex overflow-hidden bg-gray-100">
         {/* Set sidebar overlay when on mobile screen */}

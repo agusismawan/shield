@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import NProgress from "nprogress";
 import "tailwindcss/tailwind.css";
 import "../styles/globals.css";
+import "../styles/antd.css";
 import "nprogress/nprogress.css";
 import "react-toastify/dist/ReactToastify.css";
 

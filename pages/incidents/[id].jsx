@@ -1,21 +1,26 @@
-import Layout from "../../components/layout";
+import Layout from "components/layout";
 import Head from "next/head";
-import format from "date-fns/format";
 import axios from "axios";
 import Select from "react-select";
-import withSession from "../../lib/session";
+import DatePicker from "components/ui/datepicker";
+import withSession from "lib/session";
+import incidentStatus from "public/incident-status.json";
+import { format, parseISO } from "date-fns";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { CardTitle } from "../../components/ui/card-title";
-import { CardContent } from "../../components/ui/card-content";
-import { ButtonCircle } from "../../components/ui/button-circle";
-import { classNames, styledReactSelect } from "../../components/utils";
+import { CardTitle } from "components/ui/card-title";
+import { CardContent } from "components/ui/card-content";
+import { ButtonCircle } from "components/ui/button-circle";
+import { classNames, styledReactSelect } from "components/utils";
+import { Spinner } from "../../components/ui/spinner";
+import { Listbox, Transition, Switch } from "@headlessui/react";
 import {
   PencilIcon,
   XIcon,
   CheckIcon,
+  ChevronDownIcon,
   CalendarIcon,
   UserCircleIcon,
 } from "@heroicons/react/solid";
@@ -47,40 +52,57 @@ export const getServerSideProps = withSession(async function ({ req, params }) {
     };
   }
 
-  // Fetch data from external API
+  // get data incident detail
   const incidentReq = axios.get(
     `${process.env.NEXT_PUBLIC_API_URL}/incidents/${params.id}`,
     {
       headers: { Authorization: `Bearer ${user.accessToken}` },
-    }
+    },
+    { timeout: 20 }
   );
 
+  // get data incident type list
   const typeReq = axios.get(
     `${process.env.NEXT_PUBLIC_API_URL}/parameters/incidenttype`,
     {
       headers: { Authorization: `Bearer ${user.accessToken}` },
-    }
+    },
+    { timeout: 20 }
   );
 
+  // get data urgency list
   const urgencyReq = axios.get(
     `${process.env.NEXT_PUBLIC_API_URL}/parameters/urgency?isActive=Y`,
     {
       headers: { Authorization: `Bearer ${user.accessToken}` },
-    }
+    },
+    { timeout: 20 }
   );
 
+  // get data impact list
   const impactReq = axios.get(
     `${process.env.NEXT_PUBLIC_API_URL}/parameters/impact?isActive=Y`,
     {
       headers: { Authorization: `Bearer ${user.accessToken}` },
-    }
+    },
+    { timeout: 20 }
   );
 
-  const [incident, type, urgency, impact] = await Promise.all([
+  // get data impact list
+  const enhanceReq = axios.get(
+    `${process.env.NEXT_PUBLIC_API_URL}/parameters/fuplan?isActive=Y`,
+    {
+      headers: { Authorization: `Bearer ${user.accessToken}` },
+    },
+    { timeout: 20 }
+  );
+
+  const [incident, type, urgency, impact, enhance] = await Promise.all([
     incidentReq,
     typeReq,
     urgencyReq,
     impactReq,
+    enhanceReq,
   ]);
 
   // Pass data to the page via props
@@ -91,13 +113,19 @@ export const getServerSideProps = withSession(async function ({ req, params }) {
       type: type.data,
       urgency: urgency.data,
       impact: impact.data,
+      enhance: enhance.data,
     },
   };
 });
 
-function IncidentDetail({ user, incident, type, urgency, impact }) {
+function IncidentDetail({ user, incident, type, urgency, impact, enhance }) {
   const router = useRouter();
   const [editMode, setEditMode] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState(
+    incident.data.incidentStatus
+  );
+  const [spinner, setSpinner] = useState(false);
+  const [enhancement, setEnhancement] = useState(false);
 
   const typeList = [];
   type.data.map((item) =>
@@ -123,11 +151,21 @@ function IncidentDetail({ user, incident, type, urgency, impact }) {
     })
   );
 
+  const enhanceList = [];
+  enhance.data.map((item) =>
+    enhanceList.push({
+      label: item.followUpPlan,
+      value: item.id,
+    })
+  );
+
   const {
     register,
+    unregister,
     handleSubmit,
     control,
     reset,
+    getValues,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -149,13 +187,89 @@ function IncidentDetail({ user, incident, type, urgency, impact }) {
             value: incident.data.paramImpact.id,
           }
         : false,
+      logStartTime: incident.data.logStartTime
+        ? parseISO(incident.data.logStartTime, new Date())
+        : false,
+      startTime: incident.data.startTime
+        ? parseISO(incident.data.startTime, new Date())
+        : false,
+      endTime: incident.data.endTime
+        ? parseISO(incident.data.endTime, new Date())
+        : false,
+      idFollowUpPlan: incident.data.idFollowUpPlan
+        ? {
+            label: incident.data.paramImpact.impact,
+            value: incident.data.paramImpact.id,
+          }
+        : false,
     },
   });
 
+  // handle change on incident status dropdown
+  const onStatusChange = (value) => {
+    setSpinner(true);
+    setSelectedStatus(value);
+    axios
+      .patch(
+        `${process.env.NEXT_PUBLIC_API_URL}/incidents/${incident.data.id}`,
+        { incidentStatus: value },
+        {
+          headers: { Authorization: `Bearer ${user.accessToken}` },
+        }
+      )
+      .then(function (response) {
+        setSpinner(false);
+        if (response.status === 200) {
+          toast.success(`Incident set to ${response.data.data.incidentStatus}`);
+        } else {
+          toast.error(`Failed to update ${response.status}`);
+        }
+      })
+      .catch(function (error) {
+        if (error.response.status == 401) {
+          return {
+            redirect: {
+              destination: "/auth",
+              permanent: false,
+            },
+          };
+        } else {
+          // Error 😨
+          toast.error(`${error}`);
+        }
+      });
+  };
+
+  // handle validate incident log start time - end time
+  const handleDatetime = () => {
+    const st = new Date(getValues("startTime"));
+    const et = new Date(getValues("endTime"));
+    const ls = new Date(getValues("logStartTime"));
+
+    return (
+      st.setSeconds(0, 0) < et.setSeconds(0, 0) &&
+      ls.setSeconds(0, 0) < et.setSeconds(0, 0)
+    );
+  };
+
+  // Handle switch button for permanent fix option
+  const handleSwitch = () => {
+    if (enhancement) {
+      unregister("idFollowUpPlan", "proposedEnhancement");
+      setEnhancement(false);
+    } else {
+      setEnhancement(true);
+    }
+  };
+
+  // handle form submit
   const onSubmit = async (data) => {
     console.log(data);
     data = Object.assign(data, {
       idIncidentType: data.idIncidentType.value,
+      startTime: format(new Date(data.startTime), "yyyy-MM-dd HH:mm:ss"),
+      logStartTime: format(new Date(data.logStartTime), "yyyy-MM-dd HH:mm:ss"),
+      endTime: format(new Date(data.endTime), "yyyy-MM-dd HH:mm:ss"),
       idUrgency: data.idUrgency.value,
       idImpact: data.idImpact.value,
     });
@@ -169,14 +283,24 @@ function IncidentDetail({ user, incident, type, urgency, impact }) {
       )
       .then(function (response) {
         if (response.status === 200) {
-          toast.success("Incident updated.");
+          toast.success("Incident updated");
           router.reload();
         } else {
           toast.error(`Failed to update ${response.status}`);
         }
       })
       .catch(function (error) {
-        toast.error(error);
+        if (error.response.status == 401) {
+          return {
+            redirect: {
+              destination: "/auth",
+              permanent: false,
+            },
+          };
+        } else {
+          // Error 😨
+          toast.error(`${error}`);
+        }
       });
   };
 
@@ -198,24 +322,144 @@ function IncidentDetail({ user, incident, type, urgency, impact }) {
                   <p className="text-sm font-medium text-gray-500">
                     Reported by{" "}
                     <a href="#" className="text-gray-900">
-                      Lord Commander
+                      {incident.data.paramCreatedBy.fullname
+                        ? incident.data.paramCreatedBy.fullname
+                        : incident.data.paramCreatedBy.username}
                     </a>{" "}
-                    on <time dateTime="2020-08-25">August 25, 2020</time>
+                    on{" "}
+                    <time>
+                      {format(
+                        new Date(incident.data.createdAt),
+                        "dd MMMM yyyy HH:mm",
+                        "id-ID"
+                      )}
+                    </time>
                   </p>
                 </div>
               </div>
 
               <div className="mt-6 flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-3">
-                <span
-                  className={classNames(
-                    incident.data.incidentStatus == "Open"
-                      ? "bg-red-100 text-red-800"
-                      : "bg-green-100 text-green-800",
-                    "sm:ml-3 inline-flex items-center justify-center px-3 py-0.5 rounded-md text-sm font-medium"
-                  )}
+                <Listbox
+                  value={selectedStatus}
+                  onChange={(value) => {
+                    onStatusChange(value);
+                  }}
                 >
-                  {incident.data.incidentStatus}
-                </span>
+                  {({ open }) => (
+                    <>
+                      <Listbox.Label className="sr-only">
+                        Change incident status
+                      </Listbox.Label>
+                      <div className="relative">
+                        <div className="inline-flex shadow-sm rounded-md divide-x divide-gray-200">
+                          <div className="relative z-0 inline-flex shadow-sm rounded-md divide-x divide-gray-200">
+                            <div
+                              className={classNames(
+                                selectedStatus == "Open"
+                                  ? "bg-red-500"
+                                  : "bg-green-500",
+                                "relative inline-flex items-center py-2 pl-3 pr-4 border border-transparent rounded-l-md shadow-sm text-white"
+                              )}
+                            >
+                              {spinner && <Spinner />}
+                              <CheckIcon
+                                className="h-5 w-5"
+                                aria-hidden="true"
+                              />
+                              <p className="ml-2.5 text-sm font-medium">
+                                {selectedStatus}
+                              </p>
+                            </div>
+                            <Listbox.Button
+                              className={classNames(
+                                selectedStatus == "Open"
+                                  ? "bg-red-500 hover:bg-red-600"
+                                  : "bg-green-500 hover:bg-green-600",
+                                "relative inline-flex items-center p-2 rounded-l-none rounded-r-md text-sm font-medium text-white focus:outline-none focus:z-10 focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-blue-500"
+                              )}
+                            >
+                              <span className="sr-only">
+                                Change incident status
+                              </span>
+                              <ChevronDownIcon
+                                className="h-5 w-5 text-white"
+                                aria-hidden="true"
+                              />
+                            </Listbox.Button>
+                          </div>
+                        </div>
+
+                        <Transition
+                          show={open}
+                          as={Fragment}
+                          leave="transition ease-in duration-100"
+                          leaveFrom="opacity-100"
+                          leaveTo="opacity-0"
+                        >
+                          <Listbox.Options
+                            static
+                            className="origin-top-right absolute z-10 right-0 mt-2 w-72 rounded-md shadow-lg overflow-hidden bg-white divide-y divide-gray-200 ring-1 ring-black ring-opacity-5 focus:outline-none"
+                          >
+                            {incidentStatus.map((option) => (
+                              <Listbox.Option
+                                key={option.status}
+                                className={({ active }) =>
+                                  classNames(
+                                    active
+                                      ? "text-white bg-blue-500"
+                                      : "text-gray-900",
+                                    "cursor-default select-none relative p-4 text-sm"
+                                  )
+                                }
+                                value={option.status}
+                              >
+                                {({ selected, active }) => (
+                                  <div className="flex flex-col">
+                                    <div className="flex justify-between">
+                                      <p
+                                        className={
+                                          selected
+                                            ? "font-semibold"
+                                            : "font-normal"
+                                        }
+                                      >
+                                        {option.status}
+                                      </p>
+                                      {selected ? (
+                                        <span
+                                          className={
+                                            active
+                                              ? "text-white"
+                                              : "text-blue-500"
+                                          }
+                                        >
+                                          <CheckIcon
+                                            className="h-5 w-5"
+                                            aria-hidden="true"
+                                          />
+                                        </span>
+                                      ) : null}
+                                    </div>
+                                    <p
+                                      className={classNames(
+                                        active
+                                          ? "text-blue-200"
+                                          : "text-gray-500",
+                                        "mt-2"
+                                      )}
+                                    >
+                                      {option.description}
+                                    </p>
+                                  </div>
+                                )}
+                              </Listbox.Option>
+                            ))}
+                          </Listbox.Options>
+                        </Transition>
+                      </div>
+                    </>
+                  )}
+                </Listbox>
               </div>
             </div>
 
@@ -292,7 +536,7 @@ function IncidentDetail({ user, incident, type, urgency, impact }) {
                                     errors.idIncidentType
                                       ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
                                       : "focus:ring-blue-500 focus:border-blue-500",
-                                    "block w-full pr-10 py-2 text-base border-gray-300 sm:text-sm rounded-md"
+                                    "block w-full py-2 text-base border-gray-300 sm:text-sm rounded-md"
                                   )}
                                   options={typeList}
                                   styles={styledReactSelect}
@@ -303,6 +547,117 @@ function IncidentDetail({ user, incident, type, urgency, impact }) {
                             {errors.idIncidentType && (
                               <p className="text-sm text-red-600">
                                 {errors.idIncidentType.message}
+                              </p>
+                            )}
+                          </div>
+                          <div className="sm:col-span-1">
+                            <label
+                              htmlFor="log-start"
+                              className="mb-1 block text-sm font-medium text-gray-500"
+                            >
+                              Log Start
+                            </label>
+                            <Controller
+                              control={control}
+                              rules={{ required: "This is required" }}
+                              name="logStartTime"
+                              render={({ field }) => (
+                                <DatePicker
+                                  allowClear
+                                  placeholder="When the incident actually happen?"
+                                  showTime={{ format: "HH:mm" }}
+                                  format="d MMMM yyyy HH:mm"
+                                  onChange={(e) => field.onChange(e)}
+                                  value={field.value}
+                                  style={{
+                                    borderRadius: "0.375rem",
+                                    width: "100%",
+                                    height: "38px",
+                                  }}
+                                />
+                              )}
+                            />
+                            {errors.logStartTime && (
+                              <p className="mt-2 text-sm text-red-600">
+                                {errors.logStartTime.message}
+                              </p>
+                            )}
+                          </div>
+                          <div className="sm:col-span-1">
+                            <label
+                              htmlFor="start-time"
+                              className="mb-1 block text-sm font-medium text-gray-500"
+                            >
+                              Start Time
+                            </label>
+                            <Controller
+                              control={control}
+                              rules={{ required: "This is required" }}
+                              name="startTime"
+                              render={({ field }) => (
+                                <DatePicker
+                                  allowClear
+                                  placeholder="When we aware/identified the incident?"
+                                  showTime={{ format: "HH:mm" }}
+                                  format="d MMMM yyyy HH:mm"
+                                  onChange={(e) => field.onChange(e)}
+                                  value={field.value}
+                                  style={{
+                                    borderRadius: "0.375rem",
+                                    width: "100%",
+                                    height: "38px",
+                                  }}
+                                />
+                              )}
+                            />
+                            {errors.startTime && (
+                              <p className="mt-2 text-sm text-red-600">
+                                {errors.startTime.message}
+                              </p>
+                            )}
+                          </div>
+                          <div className="sm:col-span-2">
+                            <label
+                              htmlFor="end-time"
+                              className="mb-1 block text-sm font-medium text-gray-500"
+                            >
+                              End Time
+                            </label>
+                            <Controller
+                              name="endTime"
+                              control={control}
+                              rules={{
+                                required: "This is required",
+                                validate: handleDatetime,
+                              }}
+                              render={({ field }) => (
+                                <DatePicker
+                                  allowClear
+                                  placeholder="Thank God the incident is over"
+                                  showTime={{ format: "HH:mm" }}
+                                  format="d MMMM yyyy HH:mm"
+                                  onChange={(e) => field.onChange(e)}
+                                  value={field.value}
+                                  defaultValue={parseISO(
+                                    incident.data.endTime,
+                                    new Date()
+                                  )}
+                                  style={{
+                                    borderRadius: "0.375rem",
+                                    width: "100%",
+                                    height: "38px",
+                                  }}
+                                />
+                              )}
+                            />
+                            {errors.endTime?.type === "validate" && (
+                              <p className="mt-2 text-sm text-red-600">
+                                End time must be greater than log or start time
+                              </p>
+                            )}
+                            {errors.endTime && (
+                              <p className="mt-2 text-sm text-red-600">
+                                {errors.endTime.message}
                               </p>
                             )}
                           </div>
@@ -320,11 +675,12 @@ function IncidentDetail({ user, incident, type, urgency, impact }) {
                               render={({ field }) => (
                                 <Select
                                   {...field}
+                                  isClearable
                                   className={classNames(
                                     errors.idUrgency
                                       ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
                                       : "focus:ring-blue-500 focus:border-blue-500",
-                                    "block w-full pr-10 py-2 text-base border-gray-300 sm:text-sm rounded-md"
+                                    "block w-full py-2 text-base border-gray-300 sm:text-sm rounded-md"
                                   )}
                                   options={urgencyList}
                                   styles={styledReactSelect}
@@ -352,11 +708,12 @@ function IncidentDetail({ user, incident, type, urgency, impact }) {
                               render={({ field }) => (
                                 <Select
                                   {...field}
+                                  isClearable
                                   className={classNames(
                                     errors.idImpact
                                       ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
                                       : "focus:ring-blue-500 focus:border-blue-500",
-                                    "block w-full pr-10 py-2 text-base border-gray-300 sm:text-sm rounded-md"
+                                    "block w-full py-2 text-base border-gray-300 sm:text-sm rounded-md"
                                   )}
                                   options={impactList}
                                   styles={styledReactSelect}
@@ -386,6 +743,7 @@ function IncidentDetail({ user, incident, type, urgency, impact }) {
                                   : "focus:ring-blue-500 focus:border-blue-500",
                                 "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
                               )}
+                              placeholder="What service/system that impacted?"
                               defaultValue={
                                 incident.data.impactedSystem
                                   ? incident.data.impactedSystem
@@ -414,6 +772,7 @@ function IncidentDetail({ user, incident, type, urgency, impact }) {
                                   : "focus:ring-blue-500 focus:border-blue-500",
                                 "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
                               )}
+                              placeholder="Explain the Root Cause Analysis"
                               defaultValue={
                                 incident.data.rootCause
                                   ? incident.data.rootCause
@@ -442,6 +801,7 @@ function IncidentDetail({ user, incident, type, urgency, impact }) {
                                   : "focus:ring-blue-500 focus:border-blue-500",
                                 "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
                               )}
+                              placeholder="What do we do to fix the incident? What happened?"
                               defaultValue={
                                 incident.data.actionItem
                                   ? incident.data.actionItem
@@ -453,6 +813,119 @@ function IncidentDetail({ user, incident, type, urgency, impact }) {
                                 {errors.actionItem.message}
                               </p>
                             )}
+                          </div>
+                          <div className="flex items-center space-x-3 sm:col-span-2">
+                            <Switch
+                              checked={enhancement}
+                              onChange={handleSwitch}
+                              className={classNames(
+                                enhancement ? "bg-blue-600" : "bg-gray-200",
+                                "relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                              )}
+                            >
+                              <span className="sr-only">Use setting</span>
+                              <span
+                                aria-hidden="true"
+                                className={classNames(
+                                  enhancement
+                                    ? "translate-x-5"
+                                    : "translate-x-0",
+                                  "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200"
+                                )}
+                              />
+                            </Switch>
+                            <div>
+                              <label className="block text-sm font-regular text-gray-700">
+                                Need improvement or permanent fix?
+                              </label>
+                              <span className="inline-block align-top text-xs text-gray-400">
+                                Please switch the toggle if the incident need
+                                improvement or permanent fix
+                              </span>
+                            </div>
+                          </div>
+                          {enhancement === true && (
+                            <>
+                              <div className="sm:col-span-1">
+                                <label
+                                  htmlFor="log-start"
+                                  className="mb-1 block text-sm font-medium text-gray-500"
+                                >
+                                  Permanent Fix
+                                </label>
+                                <Controller
+                                  name="idFollowUpPlan"
+                                  control={control}
+                                  rules={{ required: "This is required" }}
+                                  render={({ field }) => (
+                                    <Select
+                                      {...field}
+                                      isClearable
+                                      className={classNames(
+                                        errors.idFollowUpPlan
+                                          ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
+                                          : "focus:ring-blue-500 focus:border-blue-500",
+                                        "block w-full py-2 text-base border-gray-300 sm:text-sm rounded-md"
+                                      )}
+                                      options={enhanceList}
+                                      styles={styledReactSelect}
+                                      placeholder="Select permanent fix..."
+                                    />
+                                  )}
+                                />
+                                {errors.idFollowUpPlan && (
+                                  <p className="text-sm text-red-600">
+                                    {errors.idFollowUpPlan.message}
+                                  </p>
+                                )}
+                              </div>
+                              <div className="sm:col-span-2">
+                                <dt className="text-sm font-medium text-gray-500">
+                                  Proposed Enhancement
+                                </dt>
+                                <textarea
+                                  id="proposed-enhancement"
+                                  {...register("proposedEnhancement", {
+                                    required: "This is required!",
+                                  })}
+                                  rows={4}
+                                  className={classNames(
+                                    errors.proposedEnhancement
+                                      ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
+                                      : "focus:ring-blue-500 focus:border-blue-500",
+                                    "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                                  )}
+                                  placeholder="What should be done to avoid this in future?"
+                                  defaultValue={
+                                    incident.data.proposedEnhancement
+                                      ? incident.data.proposedEnhancement
+                                      : ""
+                                  }
+                                />
+                                {errors.proposedEnhancement && (
+                                  <p className="mt-1 text-sm text-red-600">
+                                    {errors.proposedEnhancement.message}
+                                  </p>
+                                )}
+                              </div>
+                            </>
+                          )}
+                          <div className="sm:col-span-2">
+                            <dt className="text-sm font-medium text-gray-500">
+                              Lesson Learned
+                            </dt>
+                            <textarea
+                              id="action-items"
+                              {...register("lessonLearned")}
+                              rows={4}
+                              className="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                              placeholder="The lesson that we take from this incident (optional)."
+                              defaultValue={
+                                incident.data.lessonLearned
+                                  ? incident.data.lessonLearned
+                                  : ""
+                              }
+                            />
                           </div>
                         </CardContent>
                       </div>
@@ -558,6 +1031,30 @@ function IncidentDetail({ user, incident, type, urgency, impact }) {
                               : "Not defined yet"}
                           </dd>
                         </div>
+                        {incident.data.idFollowUpPlan != null && (
+                          <>
+                            <div className="sm:col-span-2">
+                              <dt className="text-sm font-medium text-gray-500">
+                                Proposed Enhancement
+                              </dt>
+                              <dd className="mt-1 text-sm text-gray-900">
+                                {incident.data.proposedEnhancement
+                                  ? incident.data.proposedEnhancement
+                                  : "No need improvement"}
+                              </dd>
+                            </div>
+                          </>
+                        )}
+                        <div className="sm:col-span-2">
+                          <dt className="text-sm font-medium text-gray-500">
+                            Lesson Learned
+                          </dt>
+                          <dd className="mt-1 text-sm text-gray-900">
+                            {incident.data.lessonLearned
+                              ? incident.data.lessonLearned
+                              : "Not defined yet"}
+                          </dd>
+                        </div>
                       </CardContent>
                     </div>
                   </section>
@@ -632,12 +1129,13 @@ function IncidentDetail({ user, incident, type, urgency, impact }) {
                         aria-hidden="true"
                       />
                       <span className="text-gray-900 text-sm">
-                        Resolved on{" "}
-                        {format(
-                          new Date(incident.data.endTime),
-                          "dd MMM yyyy HH:mm",
-                          "id-ID"
-                        )}
+                        {incident.data.endTime
+                          ? `Resolved on ${format(
+                              new Date(incident.data.endTime),
+                              "dd MMM yyyy HH:mm",
+                              "id-ID"
+                            )}`
+                          : "Incident still open"}
                       </span>
                     </div>
                   </div>
@@ -651,19 +1149,30 @@ function IncidentDetail({ user, incident, type, urgency, impact }) {
                         aria-hidden="true"
                       />
                       <span className="text-gray-900 text-sm">
-                        Lord Commander
+                        {incident.data.paramCreatedBy
+                          ? incident.data.paramCreatedBy.username
+                          : "undefined"}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <span className="text-gray-900 text-sm">
                         Last updated on{" "}
-                        {format(
-                          new Date(incident.data.endTime),
-                          "dd MMM yyyy HH:mm",
-                          "id-ID"
-                        )}{" "}
+                        {incident.data.updatedAt
+                          ? format(
+                              new Date(incident.data.updatedAt),
+                              "dd MMM yyyy HH:mm",
+                              "id-ID"
+                            )
+                          : format(
+                              new Date(incident.data.createdAt),
+                              "dd MMM yyyy HH:mm",
+                              "id-ID"
+                            )}{" "}
                         <br />
-                        by Jon Snow
+                        by{" "}
+                        {incident.data.paramUpdatedBy
+                          ? incident.data.paramUpdatedBy.username
+                          : incident.data.paramCreatedBy.username}
                       </span>
                     </div>
                   </div>
