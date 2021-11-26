@@ -6,7 +6,7 @@ import router from "next/router";
 import fetchJson from "../lib/fetchJson";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import {
   HomeIcon,
   DocumentSearchIcon,
@@ -22,8 +22,14 @@ const navigation = [
 ];
 
 async function logout() {
-  await fetchJson("/api/logout");
-  router.push("/auth");
+  try {
+    const response = await fetchJson("/api/logout");
+    if (response.status == 200) {
+      router.push("/auth");
+    }
+  } catch (error) {
+    toast.error(`${error}`);
+  }
 }
 
 export default function Layout({ children }) {

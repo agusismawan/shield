@@ -61,6 +61,7 @@ export default function Login() {
                         id="username"
                         {...register("username", { required: true })}
                         type="text"
+                        placeholder="Personal Number"
                         autoComplete="username"
                         required
                         className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
@@ -80,10 +81,23 @@ export default function Login() {
                         id="password"
                         {...register("password", { required: true })}
                         type="password"
+                        placeholder="Bristars password if you have one"
                         autoComplete="password"
                         required
                         className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                       />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm">
+                      Don't have a personal number?{" "}
+                      <a
+                        href="#"
+                        className="font-medium text-indigo-600 hover:text-indigo-500"
+                      >
+                        Register here
+                      </a>
                     </div>
                   </div>
 

@@ -21,7 +21,8 @@ import {
   XIcon,
   CheckIcon,
   ChevronDownIcon,
-  CalendarIcon,
+  ExclamationCircleIcon,
+  RefreshIcon,
   UserCircleIcon,
 } from "@heroicons/react/solid";
 
@@ -514,7 +515,7 @@ function IncidentDetail({ user, incident, type, urgency, impact, enhance }) {
                             </dt>
                             <dd className="mt-1 text-sm text-gray-900">
                               {incident.data.paramApps
-                                ? incident.data.paramApps.name
+                                ? incident.data.paramApps.subName
                                 : "Not defined yet"}
                             </dd>
                           </div>
@@ -967,7 +968,7 @@ function IncidentDetail({ user, incident, type, urgency, impact, enhance }) {
                           </dt>
                           <dd className="mt-1 text-sm text-gray-900">
                             {incident.data.paramApps
-                              ? incident.data.paramApps.name
+                              ? incident.data.paramApps.subName
                               : "Not defined yet"}
                           </dd>
                         </div>
@@ -1103,39 +1104,57 @@ function IncidentDetail({ user, incident, type, urgency, impact, enhance }) {
                               />
                             </div>
                             <div className="ml-3.5 text-sm font-medium text-gray-900">
-                              Critical Sev 1
+                              {incident.data.paramApps
+                                ? incident.data.paramApps.criticalityApp
+                                : "-"}
                             </div>
                           </a>{" "}
                         </li>
                       </ul>
                     </div>
+                    <h2 className="text-sm font-medium text-gray-500">
+                      Time to Discover
+                    </h2>
                     <div className="flex items-center space-x-2">
-                      <CalendarIcon
-                        className="h-5 w-5 text-rose-600"
+                      <ExclamationCircleIcon
+                        className="h-5 w-5 text-yellow-600"
                         aria-hidden="true"
                       />
                       <span className="text-gray-900 text-sm">
-                        Started on{" "}
-                        {format(
-                          new Date(incident.data.startTime),
-                          "dd MMM yyyy HH:mm",
-                          "id-ID"
-                        )}
+                        {incident.data.detectIntervals
+                          ? `Detect : ${incident.data.detectIntervals} minutes`
+                          : "-"}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <CalendarIcon
+                      <RefreshIcon
                         className="h-5 w-5 text-emerald-600"
                         aria-hidden="true"
                       />
                       <span className="text-gray-900 text-sm">
-                        {incident.data.endTime
-                          ? `Resolved on ${format(
-                              new Date(incident.data.endTime),
-                              "dd MMM yyyy HH:mm",
-                              "id-ID"
-                            )}`
-                          : "Incident still open"}
+                        {incident.data.resolvedIntervals
+                          ? `Recover : ${incident.data.resolvedIntervals} minutes`
+                          : "Not recovered yet"}
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-gray-900 text-sm">
+                        From{" "}
+                        {format(
+                          new Date(incident.data.logStartTime),
+                          "dd MMMM yyyy HH:mm",
+                          "id-ID"
+                        )}{" "}
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-gray-900 text-sm">
+                        Until{" "}
+                        {format(
+                          new Date(incident.data.endTime),
+                          "dd MMMM yyyy HH:mm",
+                          "id-ID"
+                        )}{" "}
                       </span>
                     </div>
                   </div>
