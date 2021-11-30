@@ -126,7 +126,7 @@ function IncidentDetail({ user, incident, type, urgency, impact, enhance }) {
     incident.data.incidentStatus
   );
   const [spinner, setSpinner] = useState(false);
-  const [enhancement, setEnhancement] = useState(false);
+  const [enhancement, setEnhancement] = useState(true);
 
   const typeList = [];
   type.data.map((item) =>
@@ -199,8 +199,8 @@ function IncidentDetail({ user, incident, type, urgency, impact, enhance }) {
         : false,
       idFollowUpPlan: incident.data.idFollowUpPlan
         ? {
-            label: incident.data.paramImpact.impact,
-            value: incident.data.paramImpact.id,
+            label: incident.data.paramFollowUpPlan.followUpPlan,
+            value: incident.data.paramFollowUpPlan.id,
           }
         : false,
     },
@@ -264,6 +264,7 @@ function IncidentDetail({ user, incident, type, urgency, impact, enhance }) {
       endTime: format(new Date(data.endTime), "yyyy-MM-dd HH:mm:ss"),
       idUrgency: data.idUrgency.value,
       idImpact: data.idImpact.value,
+      idFollowUpPlan: data.idFollowUpPlan ? data.idFollowUpPlan.value : null,
     });
     axios
       .patch(
