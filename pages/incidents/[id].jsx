@@ -227,17 +227,8 @@ function IncidentDetail({ user, incident, type, urgency, impact, enhance }) {
         }
       })
       .catch(function (error) {
-        if (error.response.status == 401) {
-          return {
-            redirect: {
-              destination: "/auth",
-              permanent: false,
-            },
-          };
-        } else {
-          // Error 😨
-          toast.error(`${error}`);
-        }
+        // Error 😨
+        toast.error(`${error}`);
       });
   };
 
@@ -291,17 +282,8 @@ function IncidentDetail({ user, incident, type, urgency, impact, enhance }) {
         }
       })
       .catch(function (error) {
-        if (error.response.status == 401) {
-          return {
-            redirect: {
-              destination: "/auth",
-              permanent: false,
-            },
-          };
-        } else {
-          // Error 😨
-          toast.error(`${error}`);
-        }
+        // Error 😨
+        toast.error(`${error}`);
       });
   };
 
