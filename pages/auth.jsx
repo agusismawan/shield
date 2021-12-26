@@ -1,11 +1,21 @@
 import Head from "next/head";
-import router from "next/router";
-import fetchJson from "../lib/fetchJson";
+import Image from "next/image";
+import loginPic from "public/cover-photo.jpg";
+import fetchJson from "lib/fetchJson";
+import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
+import { classNames } from "components/utils";
+import { Spinner } from "components/ui/spinner";
+import { FingerPrintIcon, KeyIcon } from "@heroicons/react/solid";
 
-export default function Login() {
-  const { register, handleSubmit } = useForm();
+export default function Auth() {
+  const router = useRouter();
+  const {
+    register,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = useForm();
   const [errorMsg, setErrorMsg] = useState("");
 
   const onSubmit = async (data) => {
@@ -15,12 +25,16 @@ export default function Login() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (response.status == 200) {
-        router.push("/");
+      if (response.status === 200) {
+        !isSubmitting;
+        if (response.data.fullname === null) {
+          router.push("/profile");
+        } else {
+          router.push("/");
+        }
       }
     } catch (error) {
-      //console.error("An unexpected error happened:", error);
-      setErrorMsg(error.data.message);
+      setErrorMsg(`${error.data.message}`);
     }
   };
 
@@ -56,7 +70,13 @@ export default function Login() {
                     >
                       Username
                     </label>
-                    <div className="mt-1">
+                    <div className="mt-1 relative rounded-md shadow-sm">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <FingerPrintIcon
+                          className="h-5 w-5 text-gray-400"
+                          aria-hidden="true"
+                        />
+                      </div>
                       <input
                         id="username"
                         {...register("username", { required: true })}
@@ -64,7 +84,7 @@ export default function Login() {
                         placeholder="Personal Number"
                         autoComplete="username"
                         required
-                        className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
                       />
                     </div>
                   </div>
@@ -76,7 +96,13 @@ export default function Login() {
                     >
                       Password
                     </label>
-                    <div className="mt-1">
+                    <div className="mt-1 relative rounded-md shadow-sm">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <KeyIcon
+                          className="h-5 w-5 text-gray-400"
+                          aria-hidden="true"
+                        />
+                      </div>
                       <input
                         id="password"
                         {...register("password", { required: true })}
@@ -84,7 +110,7 @@ export default function Login() {
                         placeholder="Bristars password if you have one"
                         autoComplete="password"
                         required
-                        className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
                       />
                     </div>
                   </div>
@@ -104,8 +130,15 @@ export default function Login() {
                   <div>
                     <button
                       type="submit"
-                      className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      className={classNames(
+                        isSubmitting
+                          ? "disabled:opacity-50 cursor-not-allowed"
+                          : "",
+                        "w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      )}
+                      disabled={isSubmitting}
                     >
+                      {isSubmitting && <Spinner />}
                       Sign in
                     </button>
                   </div>
@@ -115,10 +148,12 @@ export default function Login() {
           </div>
         </div>
         <div className="hidden lg:block relative w-0 flex-1">
-          <img
+          <Image
             className="absolute inset-0 h-full w-full object-cover"
-            src="/cover-photo.jpg"
-            alt=""
+            src={loginPic}
+            layout="fill"
+            placeholder="blur"
+            alt="Login Cover Photo"
           />
         </div>
       </div>

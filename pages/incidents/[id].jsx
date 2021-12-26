@@ -7,14 +7,14 @@ import withSession from "lib/session";
 import incidentStatus from "public/incident-status.json";
 import { format, parseISO } from "date-fns";
 import { useRouter } from "next/router";
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { CardTitle } from "components/ui/card-title";
 import { CardContent } from "components/ui/card-content";
 import { ButtonCircle } from "components/ui/button-circle";
 import { classNames, styledReactSelect } from "components/utils";
-import { Spinner } from "../../components/ui/spinner";
+import { Spinner } from "components/ui/spinner";
 import { Listbox, Transition, Switch } from "@headlessui/react";
 import {
   PencilIcon,
@@ -26,24 +26,8 @@ import {
   UserCircleIcon,
 } from "@heroicons/react/solid";
 
-const people = [
-  {
-    name: "Jane Cooper",
-    title: "Regional Paradigm Technician",
-    role: "Admin",
-    email: "jane.cooper@example.com",
-  },
-  {
-    name: "Jane Marry",
-    title: "Regional Paradigm Technician",
-    role: "Admin",
-    email: "jane.marry@example.com",
-  },
-];
-
 export const getServerSideProps = withSession(async function ({ req, params }) {
   const user = req.session.get("user");
-
   if (!user) {
     return {
       redirect: {
@@ -54,111 +38,119 @@ export const getServerSideProps = withSession(async function ({ req, params }) {
   }
 
   // get data incident detail
-  const incidentReq = axios.get(
+  const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/incidents/${params.id}`,
     {
       headers: { Authorization: `Bearer ${user.accessToken}` },
-    },
-    { timeout: 20 }
+    }
   );
+  const data = await res.json();
 
-  // get data incident type list
-  const typeReq = axios.get(
-    `${process.env.NEXT_PUBLIC_API_URL}/parameters/incidenttype`,
-    {
-      headers: { Authorization: `Bearer ${user.accessToken}` },
-    },
-    { timeout: 20 }
-  );
-
-  // get data urgency list
-  const urgencyReq = axios.get(
-    `${process.env.NEXT_PUBLIC_API_URL}/parameters/urgency?isActive=Y`,
-    {
-      headers: { Authorization: `Bearer ${user.accessToken}` },
-    },
-    { timeout: 20 }
-  );
-
-  // get data impact list
-  const impactReq = axios.get(
-    `${process.env.NEXT_PUBLIC_API_URL}/parameters/impact?isActive=Y`,
-    {
-      headers: { Authorization: `Bearer ${user.accessToken}` },
-    },
-    { timeout: 20 }
-  );
-
-  // get data impact list
-  const enhanceReq = axios.get(
-    `${process.env.NEXT_PUBLIC_API_URL}/parameters/fuplan?isActive=Y`,
-    {
-      headers: { Authorization: `Bearer ${user.accessToken}` },
-    },
-    { timeout: 20 }
-  );
-
-  const [incident, type, urgency, impact, enhance] = await Promise.all([
-    incidentReq,
-    typeReq,
-    urgencyReq,
-    impactReq,
-    enhanceReq,
-  ]);
-
-  // Pass data to the page via props
-  return {
-    props: {
-      user: req.session.get("user"),
-      incident: incident.data,
-      type: type.data,
-      urgency: urgency.data,
-      impact: impact.data,
-      enhance: enhance.data,
-    },
-  };
+  if (res.status === 200) {
+    // Pass data to the page via props
+    return {
+      props: {
+        user: req.session.get("user"),
+        incident: data,
+      },
+    };
+  } else if (res.status === 401) {
+    if (data.code === 999) {
+      return {
+        redirect: {
+          destination: "/auth",
+          permanent: false,
+        },
+      };
+    } else if (data.code === 401) {
+      return {
+        notFound: true,
+      };
+    }
+  } else if (res.status === 404) {
+    return {
+      notFound: true,
+    };
+  }
 });
 
-function IncidentDetail({ user, incident, type, urgency, impact, enhance }) {
+function IncidentDetail({ user, incident }) {
   const router = useRouter();
   const [editMode, setEditMode] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState(
-    incident.data.incidentStatus
-  );
   const [spinner, setSpinner] = useState(false);
-  const [enhancement, setEnhancement] = useState(true);
 
-  const typeList = [];
-  type.data.map((item) =>
-    typeList.push({
-      label: item.incidentType,
-      value: item.id,
-    })
-  );
+  // get data incident type
+  const [incidentTypeOptions, setIncidentTypeOptions] = useState([]);
+  useEffect(() => {
+    axios
+      .get(
+        `${process.env.NEXT_PUBLIC_API_URL}/parameters/incidenttype?isActive=Y`,
+        {
+          headers: { Authorization: `Bearer ${user.accessToken}` },
+        }
+      )
+      .then((response) => {
+        const data = response.data.data.map((item) => ({
+          value: item.id,
+          label: item.incidentType,
+        }));
+        setIncidentTypeOptions(data);
+      })
+      .catch((error) =>
+        toast.error(`${error} unable to get incident type list`)
+      );
+  }, []);
 
-  const urgencyList = [];
-  urgency.data.map((item) =>
-    urgencyList.push({
-      label: item.urgency,
-      value: item.id,
-    })
-  );
+  // get data urgency list
+  const [urgencyOptions, setUrgencyOptions] = useState([]);
+  useEffect(() => {
+    axios
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/parameters/urgency?isActive=Y`, {
+        headers: { Authorization: `Bearer ${user.accessToken}` },
+      })
+      .then((response) => {
+        const data = response.data.data.map((item) => ({
+          value: item.id,
+          label: item.urgency,
+        }));
+        setUrgencyOptions(data);
+      })
+      .catch((error) => toast.error(`${error} unable to get urgency list`));
+  }, []);
 
-  const impactList = [];
-  impact.data.map((item) =>
-    impactList.push({
-      label: item.impact,
-      value: item.id,
-    })
-  );
+  // get data impact list
+  const [impactOptions, setImpactOptions] = useState([]);
+  useEffect(() => {
+    axios
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/parameters/impact?isActive=Y`, {
+        headers: { Authorization: `Bearer ${user.accessToken}` },
+      })
+      .then((response) => {
+        const data = response.data.data.map((item) => ({
+          value: item.id,
+          label: item.impact,
+        }));
+        setImpactOptions(data);
+      })
+      .catch((error) => toast.error(`${error} unable to get impact list`));
+  }, []);
 
-  const enhanceList = [];
-  enhance.data.map((item) =>
-    enhanceList.push({
-      label: item.followUpPlan,
-      value: item.id,
-    })
-  );
+  // get data enhancement list
+  const [enhanceOptions, setEnhanceOptions] = useState([]);
+  useEffect(() => {
+    axios
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/parameters/fuplan?isActive=Y`, {
+        headers: { Authorization: `Bearer ${user.accessToken}` },
+      })
+      .then((response) => {
+        const data = response.data.data.map((item) => ({
+          value: item.id,
+          label: item.followUpPlan,
+        }));
+        setEnhanceOptions(data);
+      })
+      .catch((error) => toast.error(`${error} unable to get enhancement list`));
+  }, []);
 
   const {
     register,
@@ -166,8 +158,9 @@ function IncidentDetail({ user, incident, type, urgency, impact, enhance }) {
     handleSubmit,
     control,
     reset,
+    setValue,
     getValues,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
       idIncidentType: incident.data.paramIncidentType
@@ -207,6 +200,9 @@ function IncidentDetail({ user, incident, type, urgency, impact, enhance }) {
   });
 
   // handle change on incident status dropdown
+  const [selectedStatus, setSelectedStatus] = useState(
+    incident.data.incidentStatus
+  );
   const onStatusChange = (value) => {
     setSpinner(true);
     setSelectedStatus(value);
@@ -245,9 +241,11 @@ function IncidentDetail({ user, incident, type, urgency, impact, enhance }) {
   };
 
   // Handle switch button for permanent fix option
+  const [enhancement, setEnhancement] = useState(true);
   const handleSwitch = () => {
     if (enhancement) {
-      unregister("idFollowUpPlan", "proposedEnhancement");
+      unregister(["idFollowUpPlan", "proposedEnhancement"]);
+      setValue("proposedEnhancement", null);
       setEnhancement(false);
     } else {
       setEnhancement(true);
@@ -256,7 +254,6 @@ function IncidentDetail({ user, incident, type, urgency, impact, enhance }) {
 
   // handle form submit
   const onSubmit = async (data) => {
-    console.log(data);
     data = Object.assign(data, {
       idIncidentType: data.idIncidentType.value,
       startTime: format(new Date(data.startTime), "yyyy-MM-dd HH:mm:ss"),
@@ -266,7 +263,7 @@ function IncidentDetail({ user, incident, type, urgency, impact, enhance }) {
       idImpact: data.idImpact.value,
       idFollowUpPlan: data.idFollowUpPlan ? data.idFollowUpPlan.value : null,
     });
-    axios
+    await axios
       .patch(
         `${process.env.NEXT_PUBLIC_API_URL}/incidents/${incident.data.id}`,
         data,
@@ -275,6 +272,7 @@ function IncidentDetail({ user, incident, type, urgency, impact, enhance }) {
         }
       )
       .then(function (response) {
+        !isSubmitting;
         if (response.status === 200) {
           toast.success("Incident updated");
           router.reload();
@@ -290,7 +288,7 @@ function IncidentDetail({ user, incident, type, urgency, impact, enhance }) {
 
   return (
     <>
-      <Layout>
+      <Layout session={user}>
         <Head>
           <title>Incident Report</title>
         </Head>
@@ -482,8 +480,15 @@ function IncidentDetail({ user, incident, type, urgency, impact, enhance }) {
                             </ButtonCircle>
                             <ButtonCircle
                               action={handleSubmit(onSubmit)}
-                              className="ml-3 border-transparent text-white bg-blue-600 hover:bg-blue-700"
+                              className={classNames(
+                                isSubmitting
+                                  ? "px-4 disabled:opacity-50 cursor-not-allowed"
+                                  : "",
+                                "ml-3 border-transparent text-white bg-blue-600 hover:bg-blue-700"
+                              )}
+                              disabled={isSubmitting}
                             >
+                              {isSubmitting && <Spinner />}
                               <CheckIcon
                                 className="h-5 w-5"
                                 aria-hidden="true"
@@ -522,7 +527,7 @@ function IncidentDetail({ user, incident, type, urgency, impact, enhance }) {
                                       : "focus:ring-blue-500 focus:border-blue-500",
                                     "block w-full py-2 text-base border-gray-300 sm:text-sm rounded-md"
                                   )}
-                                  options={typeList}
+                                  options={incidentTypeOptions}
                                   styles={styledReactSelect}
                                   placeholder="Select incident type..."
                                 />
@@ -666,7 +671,7 @@ function IncidentDetail({ user, incident, type, urgency, impact, enhance }) {
                                       : "focus:ring-blue-500 focus:border-blue-500",
                                     "block w-full py-2 text-base border-gray-300 sm:text-sm rounded-md"
                                   )}
-                                  options={urgencyList}
+                                  options={urgencyOptions}
                                   styles={styledReactSelect}
                                   placeholder="Select urgency..."
                                 />
@@ -699,7 +704,7 @@ function IncidentDetail({ user, incident, type, urgency, impact, enhance }) {
                                       : "focus:ring-blue-500 focus:border-blue-500",
                                     "block w-full py-2 text-base border-gray-300 sm:text-sm rounded-md"
                                   )}
-                                  options={impactList}
+                                  options={impactOptions}
                                   styles={styledReactSelect}
                                   placeholder="Select impact..."
                                 />
@@ -851,7 +856,7 @@ function IncidentDetail({ user, incident, type, urgency, impact, enhance }) {
                                           : "focus:ring-blue-500 focus:border-blue-500",
                                         "block w-full py-2 text-base border-gray-300 sm:text-sm rounded-md"
                                       )}
-                                      options={enhanceList}
+                                      options={enhanceOptions}
                                       styles={styledReactSelect}
                                       placeholder="Select permanent fix..."
                                     />
@@ -907,6 +912,23 @@ function IncidentDetail({ user, incident, type, urgency, impact, enhance }) {
                               defaultValue={
                                 incident.data.lessonLearned
                                   ? incident.data.lessonLearned
+                                  : ""
+                              }
+                            />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <dt className="text-sm font-medium text-gray-500">
+                              Responsible Engineer
+                            </dt>
+                            <textarea
+                              id="action-items"
+                              {...register("responsibleEngineer")}
+                              rows={4}
+                              className="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                              placeholder="The lesson that we take from this incident (optional)."
+                              defaultValue={
+                                incident.data.responsibleEngineer
+                                  ? incident.data.responsibleEngineer
                                   : ""
                               }
                             />
@@ -1039,6 +1061,16 @@ function IncidentDetail({ user, incident, type, urgency, impact, enhance }) {
                               : "Not defined yet"}
                           </dd>
                         </div>
+                        <div className="sm:col-span-2">
+                          <dt className="text-sm font-medium text-gray-500">
+                            Responsible Engineer
+                          </dt>
+                          <dd className="mt-1 text-sm text-gray-900">
+                            {incident.data.responsibleEngineer
+                              ? incident.data.responsibleEngineer
+                              : "Not defined yet"}
+                          </dd>
+                        </div>
                       </CardContent>
                     </div>
                   </section>
@@ -1140,6 +1172,31 @@ function IncidentDetail({ user, incident, type, urgency, impact, enhance }) {
                         )}{" "}
                       </span>
                     </div>
+                    <div>
+                      <h2 className="text-sm font-medium text-gray-500">
+                        Improvement
+                      </h2>
+                      <ul className="mt-2 leading-8">
+                        <li className="inline">
+                          <a
+                            href="#"
+                            className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5"
+                          >
+                            <div className="absolute flex-shrink-0 flex items-center justify-center">
+                              <span
+                                className="h-1.5 w-1.5 rounded-full bg-emerald-500"
+                                aria-hidden="true"
+                              />
+                            </div>
+                            <div className="ml-3.5 text-sm font-medium text-gray-900">
+                              {incident.data.paramFollowUpPlan
+                                ? incident.data.paramFollowUpPlan.followUpPlan
+                                : "None"}
+                            </div>
+                          </a>{" "}
+                        </li>
+                      </ul>
+                    </div>
                   </div>
                   <div className="border-t border-gray-200 space-y-4 px-4 py-5 sm:px-6">
                     <h2 className="text-sm font-medium text-gray-500">
@@ -1173,7 +1230,7 @@ function IncidentDetail({ user, incident, type, urgency, impact, enhance }) {
                         <br />
                         by{" "}
                         {incident.data.paramUpdatedBy
-                          ? incident.data.paramUpdatedBy.username
+                          ? incident.data.paramUpdatedBy.fullname
                           : incident.data.paramCreatedBy.username}
                       </span>
                     </div>

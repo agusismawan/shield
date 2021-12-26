@@ -193,7 +193,7 @@ function addIncident({ user }) {
 
   return (
     <>
-      <Layout>
+      <Layout session={user}>
         <Head>
           <title>Incident Report - Add New Incident</title>
         </Head>

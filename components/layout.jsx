@@ -1,9 +1,9 @@
-import Meta from "../components/meta";
+import Meta from "components/meta";
 import SidebarOverlay from "./sidebar-overlay";
 import Sidebar from "./sidebar";
 import MobileHeader from "./mobile-header";
 import router from "next/router";
-import fetchJson from "../lib/fetchJson";
+import fetchJson from "lib/fetchJson";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
@@ -24,7 +24,7 @@ const navigation = [
 async function logout() {
   try {
     const response = await fetchJson("/api/logout");
-    if (response.status == 200) {
+    if (response.status === 200) {
       router.push("/auth");
     }
   } catch (error) {
@@ -32,7 +32,7 @@ async function logout() {
   }
 }
 
-export default function Layout({ children }) {
+export default function Layout({ children, session }) {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -49,7 +49,12 @@ export default function Layout({ children }) {
           setSidebarOpen={setSidebarOpen}
         />
         {/* Static sidebar for desktop */}
-        <Sidebar navigation={navigation} router={router} action={logout} />
+        <Sidebar
+          navigation={navigation}
+          router={router}
+          session={session}
+          action={logout}
+        />
         {/* Main column */}
         <div className="flex flex-col w-0 flex-1 overflow-hidden">
           {/* Mobile header */}

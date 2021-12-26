@@ -4,7 +4,7 @@ import { Fragment } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import { SearchIcon, SelectorIcon } from "@heroicons/react/solid";
 
-export default function Sidebar({ navigation, router, action }) {
+export default function Sidebar({ navigation, router, session, action }) {
   return (
     <>
       {/* Static sidebar for desktop */}
@@ -33,10 +33,12 @@ export default function Sidebar({ navigation, router, action }) {
                           />
                           <span className="flex-1 flex flex-col min-w-0">
                             <span className="text-gray-900 text-sm font-medium truncate">
-                              Jessy Schwarz
+                              {session.fullname
+                                ? session.fullname
+                                : session.username}
                             </span>
                             <span className="text-gray-500 text-sm truncate">
-                              @jessyschwarz
+                              {`@${session.username}`}
                             </span>
                           </span>
                         </span>
