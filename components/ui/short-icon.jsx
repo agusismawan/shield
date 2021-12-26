@@ -1,4 +1,7 @@
-import { ChevronUpIcon, ChevronDownIcon, SelectorIcon } from "@heroicons/react/solid"
+import {
+  // ChevronUpIcon, ChevronDownIcon, 
+  ArrowUpIcon, ArrowDownIcon, SelectorIcon
+} from "@heroicons/react/solid";
 
 const SortIcon = ({ className }) => {
   return (
@@ -8,13 +11,15 @@ const SortIcon = ({ className }) => {
 
 const SortUpIcon = ({ className }) => {
   return (
-    <ChevronUpIcon className={className} />
+    // <ChevronUpIcon className={className} />
+    <ArrowUpIcon className={className} />
   )
 }
 
 const SortDownIcon = ({ className }) => {
   return (
-    <ChevronDownIcon className={className} />
+    // <ChevronDownIcon className={className} />
+    <ArrowDownIcon className={className} />
   )
 }
 
