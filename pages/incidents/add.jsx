@@ -6,7 +6,7 @@ import { Disclosure, Switch } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/outline";
 import { QuestionMarkCircleIcon } from "@heroicons/react/solid";
 import { Controller, useForm } from "react-hook-form";
-import Select from "react-select";
+import Select, { components } from "react-select";
 import AsyncSelect from "react-select/async";
 import format from "date-fns/format";
 import DatePicker from "../../components/ui/datepicker";
@@ -55,7 +55,7 @@ function addIncident({ user }) {
     actionItem: "",
     responsibleEngineer: "",
   };
-  const { register, handleSubmit, control, formState, reset, getValues } =
+  const { register, unregister, handleSubmit, control, formState, reset, getValues } =
     useForm({
       defaultValues,
     });
@@ -65,6 +65,8 @@ function addIncident({ user }) {
   const [enabled, setEnabled] = useState(false);
   const [urgencyOptions, setUrgencyOptions] = useState([]);
   const [impactOptions, setImpactOptions] = useState([]);
+  const [fuPlanOptions, setFuPlanOptions] = useState([]);
+  const [fuPlan, setFuPlan] = useState();
 
   // Get data urgency
   useEffect(() => {
@@ -108,7 +110,7 @@ function addIncident({ user }) {
         .then((res) => {
           const cachedOptions = res.data.data.map((d) => ({
             value: d.id,
-            label: d.name,
+            label: d.subName,
           }));
 
           callback(cachedOptions);
@@ -116,6 +118,29 @@ function addIncident({ user }) {
         .catch((err) => toast.error(`Application ${err}`));
     }, 500);
   };
+
+  const NoOptionsMessage = props => {
+    return (
+      <components.NoOptionsMessage {...props}>
+        <span>Type at least 3 letters of application name</span>
+      </components.NoOptionsMessage>
+    );
+  };
+
+  // Get data fu plan
+  useEffect(() => {
+    axios
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/parameters/fuplan`)
+      .then((res) => {
+        const data = res.data.data.map((d) => ({
+          value: d.id,
+          label: d.followUpPlan
+        }));
+        setFuPlanOptions(data);
+      })
+      .catch((err) => toast.error(`Fu Plam ${err}`))
+  }, [])
+
 
   // Handle switch button when incident is over
   const handleSwitch = () => {
@@ -142,10 +167,20 @@ function addIncident({ user }) {
     const ls = new Date(getValues("logStartTime"));
 
     return (
-      st.setSeconds(0, 0) < et.setSeconds(0, 0) &&
-      st.setSeconds(0, 0) < ls.setSeconds(0, 0)
+      st.setSeconds(0, 0) < et.setSeconds(0, 0) && ls.setSeconds(0, 0) < et.setSeconds(0, 0)
     );
   };
+
+  // Hanlde permanent fix select
+  const handlePFChange = (e) => {
+    if (e.target.value === "") {
+      reset({ proposedEnhancement: "" })
+      unregister("proposedEnhancement")
+      setFuPlan(false)
+    } else {
+      setFuPlan(true);
+    }
+  }
 
   const onSubmit = async (data, e) => {
     e.preventDefault();
@@ -177,7 +212,9 @@ function addIncident({ user }) {
     }
 
     axios
-      .post(`${process.env.NEXT_PUBLIC_API_URL}/incidents`, data)
+      .post(`${process.env.NEXT_PUBLIC_API_URL}/incidents`, data, {
+        headers: { Authorization: `Bearer ${user.accessToken}` },
+      })
       .then(function (response) {
         if (response.status === 201) {
           !isSubmitting && toast.success("Incident successfully added");
@@ -242,7 +279,8 @@ function addIncident({ user }) {
                               loadOptions={loadApplications}
                               styles={styledReactSelect}
                               className="text-sm focus:ring-blue-500 focus:border-blue-500"
-                              placeholder="Type an Application"
+                              placeholder="Search for application"
+                              components={{ NoOptionsMessage }}
                             />
                           )}
                         />
@@ -312,31 +350,28 @@ function addIncident({ user }) {
                         )}
                       </div>
                       <div className="flex items-center space-x-3 col-span-6 sm:col-span-6">
-                        <Switch
-                          checked={enabled}
-                          onChange={handleSwitch}
-                          className={classNames(
-                            enabled ? "bg-blue-600" : "bg-gray-200",
-                            "relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                          )}
-                        >
-                          <span className="sr-only">Use setting</span>
-                          <span
-                            aria-hidden="true"
+                        <Switch.Group as="div" className="flex items-center">
+                          <Switch
+                            checked={enabled}
+                            onChange={handleSwitch}
                             className={classNames(
-                              enabled ? "translate-x-5" : "translate-x-0",
-                              "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200"
+                              enabled ? 'bg-blue-600' : 'bg-gray-200',
+                              'relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
                             )}
-                          />
-                        </Switch>
-                        <div>
-                          <label className="block text-sm font-regular text-gray-700">
-                            Is the incident over ?
-                          </label>
-                          <span className="inline-block align-top text-xs text-gray-400">
-                            Please switch the toggle if the incident is over
-                          </span>
-                        </div>
+                          >
+                            <span
+                              aria-hidden="true"
+                              className={classNames(
+                                enabled ? 'translate-x-5' : 'translate-x-0',
+                                'pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200'
+                              )}
+                            />
+                          </Switch>
+                          <Switch.Label as="span" className="ml-3" passive>
+                            <span className="text-sm font-medium text-gray-900">Incident is Over </span>
+                            <span className="text-sm text-gray-500">(Switch the toggle if the incident is over)</span>
+                          </Switch.Label>
+                        </Switch.Group>
                       </div>
                       {/* Jika kondisi incident sudah selesai */}
                       {enabled === true && (
@@ -506,6 +541,58 @@ function addIncident({ user }) {
                                 {errors.responsibleEngineer.message}
                               </p>
                             )}
+                          </div>
+                          <div className="col-span-3 sm:col-span-3">
+                            <label htmlFor="idFollowUpPlan" className="block text-sm font-medium text-gray-700">
+                              Permanent Fix <span className="text-gray-500 font-normal">(Optional)</span>
+                            </label>
+                            <select {...register("idFollowUpPlan")}
+                              id="idFollowUpPlan"
+                              name="idFollowUpPlan"
+                              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md text-gray-700"
+                              defaultValue={null}
+                              onChange={handlePFChange}
+                            >
+                              <option value="">Select...</option>
+                              {fuPlanOptions.map((plan) => (
+                                <option value={plan.value}>{plan.label}</option>
+                              ))}
+                            </select>
+                          </div>
+                          {fuPlan &&
+                            <div className="col-span-6 sm:col-span-6">
+                              <label className="mb-1 block text-sm font-medium text-gray-700">
+                                Proposed Enhancement
+                              </label>
+                              <textarea
+                                {...register("proposedEnhancement", {
+                                  required: "This is required",
+                                })}
+                                id="proposedEnhancement"
+                                name="proposedEnhancement"
+                                rows={3}
+                                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                                placeholder="What should be done to avoid this in future ? This is mandatory if you choose the permanent fix"
+                              />
+                              {errors.proposedEnhancement && (
+                                <p className="mt-2 text-sm text-red-600">
+                                  {errors.proposedEnhancement.message}
+                                </p>
+                              )}
+                            </div>
+                          }
+                          <div className="col-span-6 sm:col-span-6">
+                            <label className="mb-1 block text-sm font-medium text-gray-700">
+                              Lesson Learned <span className="text-gray-500 font-normal">(Optional)</span>
+                            </label>
+                            <textarea
+                              {...register("lessonLearned")}
+                              id="lessonLearned"
+                              name="lessonLearned"
+                              rows={3}
+                              className="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                              placeholder="The lesson that we take from this incident"
+                            />
                           </div>
                         </>
                       )}

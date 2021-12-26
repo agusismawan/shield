@@ -3,6 +3,7 @@ import GlobalFilter from "./global-filter";
 import { ChevronDoubleLeftIcon, ChevronLeftIcon, ChevronRightIcon, ChevronDoubleRightIcon } from '@heroicons/react/solid';
 import { Button, PageButton } from "../ui/pagination-button";
 import { SortIcon, SortUpIcon, SortDownIcon } from "../ui/short-icon";
+import { classNames } from "../utils";
 
 function Table({ columns, data }) {
     const {
@@ -46,19 +47,23 @@ function Table({ columns, data }) {
 
             <div className="flex flex-col mt-3">
                 <div className="align-middle min-w-full overflow-x-auto shadow overflow-hidden sm:rounded-lg">
-                    <table {...getTableProps()} className="min-w-full divide-y divide-gray-200">
+                    <table {...getTableProps()} className="min-w-full divide-y divide-gray-200 table-fixed">
                         <thead>
                             {headerGroups.map((headerGroup) => (
                                 <tr {...headerGroup.getHeaderGroupProps()}>
                                     {headerGroup.headers.map((column) => (
-                                        <th {...column.getHeaderProps(column.getSortByToggleProps())} className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        // <th {...column.getHeaderProps(column.getSortByToggleProps())} className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th {...column.getHeaderProps(column.getSortByToggleProps())}
+                                            className={classNames("px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider",
+                                                column.Header === 'Incident Name' && 'w-1/3')}
+                                        >
                                             <div className="group flex items-center justify-between">
                                                 {column.render('Header')}
                                                 <span>
                                                     {column.isSorted ? (column.isSortedDesc ?
-                                                        <SortDownIcon className="w-4 h-4 text-gray-400" />
-                                                        : <SortUpIcon className="w-4 h-4 text-gray-400" />)
-                                                        : <SortIcon className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100" />
+                                                        <SortDownIcon className="w-4 h-4 text-green-400" />
+                                                        : <SortUpIcon className="w-4 h-4 text-green-400" />)
+                                                        : column.canSort && <SortIcon className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100" />
                                                     }
                                                 </span>
                                             </div>
@@ -75,7 +80,7 @@ function Table({ columns, data }) {
                                         <tr {...row.getRowProps()} className="bg-white">
                                             {row.cells.map((cell) => {
                                                 return (
-                                                    <td {...cell.getCellProps()} className="px-6 py-3 text-sm text-gray-500 font-normal">
+                                                    <td {...cell.getCellProps()} className="px-6 py-3 text-sm text-gray-500">
                                                         {cell.render('Cell')}
                                                     </td>
                                                 )

@@ -1,6 +1,9 @@
 import { UserCircleIcon } from "@heroicons/react/solid";
+import { formatDistance, formatDistanceToNowStrict } from "date-fns";
 
-function AvatarCell() {
+function AvatarCell({ value, row }) {
+    const createdAt = row.original.createdAt ? new Date(row.original.createdAt) : '';
+
     return (
         <div className="flex items-center">
             <div className="flex-shrink-0 h-7 w-7">
@@ -12,8 +15,8 @@ function AvatarCell() {
                 <UserCircleIcon className="h-7 w-7" />
             </div>
             <div className="ml-2">
-                <div className="text-xs font-normal text-gray-900">Lord Commander</div>
-                <div className="text-xs font-normal text-gray-500">IT Service Desk</div>
+                <div className="text-xs text-gray-900">{value ? value : row.original.paramCreatedBy.username}</div>
+                <div className="text-xs text-gray-500">{formatDistanceToNowStrict(createdAt)} ago</div>
             </div>
         </div>
     );

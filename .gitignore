@@ -38,3 +38,5 @@ yarn-error.log*
 
 #exclude sample.jsx
 pages/sample.jsx
+# package-lock
+package-lock.json

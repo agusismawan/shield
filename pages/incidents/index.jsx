@@ -4,15 +4,15 @@ import Layout from "../../components/layout";
 import AvatarCell from "../../components/incidents/avatar-cell";
 import PageHeader from "../../components/incidents/page-header";
 import Table from "../../components/incidents/table";
-import SelectColumnFilter from "../../components/incidents/dropdown-filter";
+import { SelectColumnFilter, StatusFilter } from "../../components/incidents/dropdown-filter";
+// import DateRangeFilter from "../../components/incidents/daterange-filter";
 import axios from "axios";
 import withSession from "../../lib/session";
 import format from "date-fns/format";
 import { useMemo } from "react";
-import { StatusPill, StatusText } from "../../components/incidents/status-pill";
+import { StatusPill, StatusText, StatusIncident } from "../../components/incidents/status-pill";
 import { PlusSmIcon } from "@heroicons/react/outline";
 import { ButtonSmall } from "../../components/ui/button";
-import { classNames } from "../../components/utils";
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
   const user = req.session.get("user");
@@ -53,70 +53,54 @@ function IncidentList({ user, data }) {
         Cell: (props) => {
           return (
             <div>
-              <div>
-                <Link
-                  href={`/incidents/${props.row.original.id}`}
-                  className="group inline-flex space-x-2 truncate text-sm"
-                >
-                  <a className="text-gray-500 truncate group-hover:text-gray-900">
-                    {props.value}
-                  </a>
-                </Link>
-              </div>
-              <div>
-                <span
-                  className={classNames(
-                    "inline-flex items-center px-1.5 py-px rounded text-xs font-medium",
-                    props.row.original.incidentStatus === "Open"
-                      ? "bg-red-100 text-red-800"
-                      : "bg-green-100 text-green-800"
-                  )}
-                >
-                  {props.row.original.incidentStatus}
-                </span>
-              </div>
+              <Link href={`/incidents/${props.row.original.id}`}>
+                <a className="text-blue-500 hover:text-blue-900">{props.value}</a>
+              </Link>
+              <p className="mt-1 flex items-center text-xs text-gray-500">
+                {props.row.original.incidentNumber ? `#${props.row.original.incidentNumber}` : ''}
+              </p>
             </div>
-          );
-        },
+          )
+        }
       },
       {
         Header: "Application",
-        accessor: "paramApps.name",
+        accessor: "paramApps.subName",
         Filter: SelectColumnFilter,
-        // filter: 'includes',
+        filter: 'includes',
         Cell: StatusText,
       },
       {
-        Header: "Priority",
+        Header: "P",
         accessor: "paramPriorityMatrix.mapping",
         Cell: StatusPill,
+        disableSortBy: true
       },
       {
-        Header: "Duration",
-        accessor: "resolvedIntervals",
-        Cell: (props) =>
-          props.row.original.resolvedIntervals
-            ? props.row.original.resolvedIntervals
-            : "-",
+        Header: "Status",
+        accessor: "incidentStatus",
+        Cell: StatusIncident,
+        Filter: StatusFilter,
+        filter: 'includes'
       },
       {
         Header: "Started At",
         accessor: "startTime",
+        // Filter: DateRangeFilter,
         Cell: (props) => {
           return (
             <div>
-              <div className="text-xs font-normal text-gray-900">
+              <div className="text-xs text-gray-900">
                 {format(
                   new Date(props.row.original.startTime),
-                  "dd/MM/yyyy HH:mm:ss"
+                  "dd MMM yyyy HH:mm"
                 )}
               </div>
-              <div className="text-xs font-normal text-gray-500">
-                End at{" "}
-                {format(
-                  new Date(props.row.original.endTime),
-                  "dd/MM/yyyy HH:mm:ss"
-                )}
+              <div className="text-xs text-gray-500">
+                {props.row.original.resolvedIntervals ?
+                  <span className="text-xs">{props.row.original.resolvedIntervals} minutes</span>
+                  : '-'
+                }
               </div>
             </div>
           );
@@ -124,8 +108,9 @@ function IncidentList({ user, data }) {
       },
       {
         Header: "Reporter",
-        accessor: "",
+        accessor: "paramCreatedBy.fullname",
         Cell: AvatarCell,
+        disableSortBy: true
       },
     ],
     []
