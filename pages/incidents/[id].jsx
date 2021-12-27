@@ -241,9 +241,12 @@ function IncidentDetail({ user, incident }) {
   };
 
   // Handle switch button for permanent fix option
-  const [enhancement, setEnhancement] = useState(true);
+  const [enhancement, setEnhancement] = useState(
+    incident.data.idFollowUpPlan ? true : false
+  );
   const handleSwitch = () => {
     if (enhancement) {
+      console.log(enhancement);
       unregister(["idFollowUpPlan", "proposedEnhancement"]);
       setValue("proposedEnhancement", null);
       setEnhancement(false);
@@ -498,10 +501,10 @@ function IncidentDetail({ user, incident }) {
                         </CardTitle>
                         <CardContent>
                           <div className="sm:col-span-1">
-                            <dt className="text-sm font-medium text-gray-500">
+                            <dt className="text-sm font-medium text-gray-900">
                               Application
                             </dt>
-                            <dd className="mt-1 text-sm text-gray-900">
+                            <dd className="mt-1 text-sm text-gray-500">
                               {incident.data.paramApps
                                 ? incident.data.paramApps.subName
                                 : "Not defined yet"}
@@ -510,7 +513,7 @@ function IncidentDetail({ user, incident }) {
                           <div className="sm:col-span-1">
                             <label
                               htmlFor="incident-type"
-                              className="block text-sm font-medium text-gray-500"
+                              className="block text-sm font-medium text-gray-900"
                             >
                               Incident Type
                             </label>
@@ -542,7 +545,7 @@ function IncidentDetail({ user, incident }) {
                           <div className="sm:col-span-1">
                             <label
                               htmlFor="log-start"
-                              className="mb-1 block text-sm font-medium text-gray-500"
+                              className="mb-1 block text-sm font-medium text-gray-900"
                             >
                               Log Start
                             </label>
@@ -575,7 +578,7 @@ function IncidentDetail({ user, incident }) {
                           <div className="sm:col-span-1">
                             <label
                               htmlFor="start-time"
-                              className="mb-1 block text-sm font-medium text-gray-500"
+                              className="mb-1 block text-sm font-medium text-gray-900"
                             >
                               Start Time
                             </label>
@@ -608,7 +611,7 @@ function IncidentDetail({ user, incident }) {
                           <div className="sm:col-span-2">
                             <label
                               htmlFor="end-time"
-                              className="mb-1 block text-sm font-medium text-gray-500"
+                              className="mb-1 block text-sm font-medium text-gray-900"
                             >
                               End Time
                             </label>
@@ -653,7 +656,7 @@ function IncidentDetail({ user, incident }) {
                           <div className="sm:col-span-2">
                             <label
                               htmlFor="urgency"
-                              className="block text-sm font-medium text-gray-500"
+                              className="block text-sm font-medium text-gray-900"
                             >
                               Urgency
                             </label>
@@ -686,7 +689,7 @@ function IncidentDetail({ user, incident }) {
                           <div className="sm:col-span-2">
                             <label
                               htmlFor="impact"
-                              className="block text-sm font-medium text-gray-500"
+                              className="block text-sm font-medium text-gray-900"
                             >
                               Impact
                             </label>
@@ -717,7 +720,7 @@ function IncidentDetail({ user, incident }) {
                             )}
                           </div>
                           <div className="sm:col-span-2">
-                            <dt className="text-sm font-medium text-gray-500">
+                            <dt className="text-sm font-medium text-gray-900">
                               Impacted System
                             </dt>
                             <textarea
@@ -746,7 +749,7 @@ function IncidentDetail({ user, incident }) {
                             )}
                           </div>
                           <div className="sm:col-span-2">
-                            <dt className="text-sm font-medium text-gray-500">
+                            <dt className="text-sm font-medium text-gray-900">
                               Root Cause
                             </dt>
                             <textarea
@@ -775,7 +778,7 @@ function IncidentDetail({ user, incident }) {
                             )}
                           </div>
                           <div className="sm:col-span-2">
-                            <dt className="text-sm font-medium text-gray-500">
+                            <dt className="text-sm font-medium text-gray-900">
                               Action Items
                             </dt>
                             <textarea
@@ -812,7 +815,9 @@ function IncidentDetail({ user, incident }) {
                                 "relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                               )}
                             >
-                              <span className="sr-only">Use setting</span>
+                              <span className="sr-only">
+                                Need permanent fix?
+                              </span>
                               <span
                                 aria-hidden="true"
                                 className={classNames(
@@ -838,7 +843,7 @@ function IncidentDetail({ user, incident }) {
                               <div className="sm:col-span-1">
                                 <label
                                   htmlFor="log-start"
-                                  className="mb-1 block text-sm font-medium text-gray-500"
+                                  className="mb-1 block text-sm font-medium text-gray-900"
                                 >
                                   Permanent Fix
                                 </label>
@@ -869,7 +874,7 @@ function IncidentDetail({ user, incident }) {
                                 )}
                               </div>
                               <div className="sm:col-span-2">
-                                <dt className="text-sm font-medium text-gray-500">
+                                <dt className="text-sm font-medium text-gray-900">
                                   Proposed Enhancement
                                 </dt>
                                 <textarea
@@ -900,7 +905,7 @@ function IncidentDetail({ user, incident }) {
                             </>
                           )}
                           <div className="sm:col-span-2">
-                            <dt className="text-sm font-medium text-gray-500">
+                            <dt className="text-sm font-medium text-gray-900">
                               Lesson Learned
                             </dt>
                             <textarea
@@ -917,15 +922,17 @@ function IncidentDetail({ user, incident }) {
                             />
                           </div>
                           <div className="sm:col-span-2">
-                            <dt className="text-sm font-medium text-gray-500">
+                            <dt className="text-sm font-medium text-gray-900">
                               Responsible Engineer
                             </dt>
                             <textarea
                               id="action-items"
-                              {...register("responsibleEngineer")}
+                              {...register("responsibleEngineer", {
+                                required: "This is required!",
+                              })}
                               rows={4}
                               className="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
-                              placeholder="The lesson that we take from this incident (optional)."
+                              placeholder="The person(s) who attended the support call and had most context of what happened."
                               defaultValue={
                                 incident.data.responsibleEngineer
                                   ? incident.data.responsibleEngineer
@@ -968,70 +975,70 @@ function IncidentDetail({ user, incident }) {
                       </CardTitle>
                       <CardContent>
                         <div className="sm:col-span-1">
-                          <dt className="text-sm font-medium text-gray-500">
+                          <dt className="text-sm font-medium text-gray-900">
                             Application
                           </dt>
-                          <dd className="mt-1 text-sm text-gray-900">
+                          <dd className="mt-1 whitespace-pre-wrap text-sm text-gray-500">
                             {incident.data.paramApps
                               ? incident.data.paramApps.subName
                               : "Not defined yet"}
                           </dd>
                         </div>
                         <div className="sm:col-span-1">
-                          <dt className="text-sm font-medium text-gray-500">
+                          <dt className="text-sm font-medium text-gray-900">
                             Incident Priority
                           </dt>
-                          <dd className="mt-1 text-sm text-gray-900">
+                          <dd className="mt-1 whitespace-pre-wrap text-sm text-gray-500">
                             {incident.data.paramPriorityMatrix
                               ? incident.data.paramPriorityMatrix.mapping
                               : "Not defined yet"}
                           </dd>
                         </div>
                         <div className="sm:col-span-2">
-                          <dt className="text-sm font-medium text-gray-500">
+                          <dt className="text-sm font-medium text-gray-900">
                             Urgency
                           </dt>
-                          <dd className="mt-1 text-sm text-gray-900">
+                          <dd className="mt-1 whitespace-pre-wrap text-sm text-gray-500">
                             {incident.data.paramUrgency
                               ? incident.data.paramUrgency.urgency
                               : "Not defined yet"}
                           </dd>
                         </div>
                         <div className="sm:col-span-2">
-                          <dt className="text-sm font-medium text-gray-500">
+                          <dt className="text-sm font-medium text-gray-900">
                             Impact
                           </dt>
-                          <dd className="mt-1 text-sm text-gray-900">
+                          <dd className="mt-1 whitespace-pre-wrap text-sm text-gray-500">
                             {incident.data.paramImpact
                               ? incident.data.paramImpact.impact
                               : "Not defined yet"}
                           </dd>
                         </div>
                         <div className="sm:col-span-2">
-                          <dt className="text-sm font-medium text-gray-500">
+                          <dt className="text-sm font-medium text-gray-900">
                             Impacted System
                           </dt>
-                          <dd className="mt-1 text-sm text-gray-900">
+                          <dd className="mt-1 whitespace-pre-wrap text-sm text-gray-500">
                             {incident.data.impactedSystem
                               ? incident.data.impactedSystem
                               : "Not defined yet"}
                           </dd>
                         </div>
                         <div className="sm:col-span-2">
-                          <dt className="text-sm font-medium text-gray-500">
+                          <dt className="text-sm font-medium text-gray-900">
                             Root Cause
                           </dt>
-                          <dd className="mt-1 text-sm text-gray-900">
+                          <dd className="mt-1 whitespace-pre-wrap text-sm text-gray-500">
                             {incident.data.rootCause
                               ? incident.data.rootCause
                               : "Not defined yet"}
                           </dd>
                         </div>
                         <div className="sm:col-span-2">
-                          <dt className="text-sm font-medium text-gray-500">
+                          <dt className="text-sm font-medium text-gray-900">
                             Action Items
                           </dt>
-                          <dd className="mt-1 text-sm text-gray-900">
+                          <dd className="mt-1 whitespace-pre-wrap text-sm text-gray-500">
                             {incident.data.actionItem
                               ? incident.data.actionItem
                               : "Not defined yet"}
@@ -1040,10 +1047,10 @@ function IncidentDetail({ user, incident }) {
                         {incident.data.idFollowUpPlan != null && (
                           <>
                             <div className="sm:col-span-2">
-                              <dt className="text-sm font-medium text-gray-500">
+                              <dt className="text-sm font-medium text-gray-900">
                                 Proposed Enhancement
                               </dt>
-                              <dd className="mt-1 text-sm text-gray-900">
+                              <dd className="mt-1 whitespace-pre-wrap text-sm text-gray-500">
                                 {incident.data.proposedEnhancement
                                   ? incident.data.proposedEnhancement
                                   : "No need improvement"}
@@ -1052,20 +1059,20 @@ function IncidentDetail({ user, incident }) {
                           </>
                         )}
                         <div className="sm:col-span-2">
-                          <dt className="text-sm font-medium text-gray-500">
+                          <dt className="text-sm font-medium text-gray-900">
                             Lesson Learned
                           </dt>
-                          <dd className="mt-1 text-sm text-gray-900">
+                          <dd className="mt-1 whitespace-pre-wrap text-sm text-gray-500">
                             {incident.data.lessonLearned
                               ? incident.data.lessonLearned
                               : "Not defined yet"}
                           </dd>
                         </div>
                         <div className="sm:col-span-2">
-                          <dt className="text-sm font-medium text-gray-500">
+                          <dt className="text-sm font-medium text-gray-900">
                             Responsible Engineer
                           </dt>
-                          <dd className="mt-1 text-sm text-gray-900">
+                          <dd className="mt-1 whitespace-pre-wrap text-sm text-gray-500">
                             {incident.data.responsibleEngineer
                               ? incident.data.responsibleEngineer
                               : "Not defined yet"}
@@ -1085,7 +1092,7 @@ function IncidentDetail({ user, incident }) {
                   {/* Incident Info */}
                   <div className="space-y-4 px-4 py-5 sm:px-6">
                     <div>
-                      <h2 className="text-sm font-medium text-gray-500">
+                      <h2 className="text-sm font-medium text-gray-900">
                         Incident Type
                       </h2>
                       <ul className="mt-2 leading-8">
@@ -1100,7 +1107,7 @@ function IncidentDetail({ user, incident }) {
                                 aria-hidden="true"
                               />
                             </div>
-                            <div className="ml-3.5 text-sm font-medium text-gray-900">
+                            <div className="ml-3.5 text-sm font-medium text-gray-600">
                               {incident.data.paramIncidentType
                                 ? incident.data.paramIncidentType.incidentType
                                 : "-"}
@@ -1118,7 +1125,7 @@ function IncidentDetail({ user, incident }) {
                                 aria-hidden="true"
                               />
                             </div>
-                            <div className="ml-3.5 text-sm font-medium text-gray-900">
+                            <div className="ml-3.5 text-sm font-medium text-gray-600">
                               {incident.data.paramApps
                                 ? incident.data.paramApps.criticalityApp
                                 : "-"}
@@ -1127,7 +1134,7 @@ function IncidentDetail({ user, incident }) {
                         </li>
                       </ul>
                     </div>
-                    <h2 className="text-sm font-medium text-gray-500">
+                    <h2 className="text-sm font-medium text-gray-900">
                       Time to Discover
                     </h2>
                     <div className="flex items-center space-x-2">
@@ -1135,7 +1142,7 @@ function IncidentDetail({ user, incident }) {
                         className="h-5 w-5 text-yellow-600"
                         aria-hidden="true"
                       />
-                      <span className="text-gray-900 text-sm">
+                      <span className="text-gray-600 text-sm">
                         {incident.data.detectIntervals
                           ? `Detect : ${incident.data.detectIntervals} minutes`
                           : "-"}
@@ -1146,14 +1153,14 @@ function IncidentDetail({ user, incident }) {
                         className="h-5 w-5 text-emerald-600"
                         aria-hidden="true"
                       />
-                      <span className="text-gray-900 text-sm">
+                      <span className="text-gray-600 text-sm">
                         {incident.data.resolvedIntervals
                           ? `Recover : ${incident.data.resolvedIntervals} minutes`
                           : "Not recovered yet"}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <span className="text-gray-900 text-sm">
+                      <span className="text-gray-600 text-sm">
                         From{" "}
                         {format(
                           new Date(incident.data.logStartTime),
@@ -1163,7 +1170,7 @@ function IncidentDetail({ user, incident }) {
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <span className="text-gray-900 text-sm">
+                      <span className="text-gray-600 text-sm">
                         Until{" "}
                         {format(
                           new Date(incident.data.endTime),
@@ -1173,7 +1180,7 @@ function IncidentDetail({ user, incident }) {
                       </span>
                     </div>
                     <div>
-                      <h2 className="text-sm font-medium text-gray-500">
+                      <h2 className="text-sm font-medium text-gray-900">
                         Improvement
                       </h2>
                       <ul className="mt-2 leading-8">
@@ -1188,7 +1195,7 @@ function IncidentDetail({ user, incident }) {
                                 aria-hidden="true"
                               />
                             </div>
-                            <div className="ml-3.5 text-sm font-medium text-gray-900">
+                            <div className="ml-3.5 text-sm font-medium text-gray-600">
                               {incident.data.paramFollowUpPlan
                                 ? incident.data.paramFollowUpPlan.followUpPlan
                                 : "None"}
@@ -1199,7 +1206,7 @@ function IncidentDetail({ user, incident }) {
                     </div>
                   </div>
                   <div className="border-t border-gray-200 space-y-4 px-4 py-5 sm:px-6">
-                    <h2 className="text-sm font-medium text-gray-500">
+                    <h2 className="text-sm font-medium text-gray-900">
                       Reporter
                     </h2>
                     <div className="flex items-center space-x-2">
@@ -1207,14 +1214,14 @@ function IncidentDetail({ user, incident }) {
                         className="h-5 w-5 text-gray-700"
                         aria-hidden="true"
                       />
-                      <span className="text-gray-900 text-sm">
+                      <span className="text-gray-600 text-sm">
                         {incident.data.paramCreatedBy
                           ? incident.data.paramCreatedBy.username
                           : "undefined"}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <span className="text-gray-900 text-sm">
+                      <span className="text-gray-600 text-sm">
                         Last updated on{" "}
                         {incident.data.updatedAt
                           ? format(
