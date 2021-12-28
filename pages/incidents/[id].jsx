@@ -97,7 +97,9 @@ function IncidentDetail({ user, incident }) {
         setIncidentTypeOptions(data);
       })
       .catch((error) =>
-        toast.error(`${error} unable to get incident type list`)
+        toast.error(
+          `Unable to get incident type list: ${error.response.data.message}`
+        )
       );
   }, []);
 
@@ -115,7 +117,11 @@ function IncidentDetail({ user, incident }) {
         }));
         setUrgencyOptions(data);
       })
-      .catch((error) => toast.error(`${error} unable to get urgency list`));
+      .catch((error) =>
+        toast.error(
+          `Unable to get urgency list: ${error.response.data.message}`
+        )
+      );
   }, []);
 
   // get data impact list
@@ -132,7 +138,9 @@ function IncidentDetail({ user, incident }) {
         }));
         setImpactOptions(data);
       })
-      .catch((error) => toast.error(`${error} unable to get impact list`));
+      .catch((error) =>
+        toast.error(`Unable to get impact list: ${error.response.data.message}`)
+      );
   }, []);
 
   // get data enhancement list
@@ -149,7 +157,11 @@ function IncidentDetail({ user, incident }) {
         }));
         setEnhanceOptions(data);
       })
-      .catch((error) => toast.error(`${error} unable to get enhancement list`));
+      .catch((error) =>
+        toast.error(
+          `Unable to get enhancement list: ${error.response.data.message}`
+        )
+      );
   }, []);
 
   const {
@@ -205,7 +217,6 @@ function IncidentDetail({ user, incident }) {
   );
   const onStatusChange = (value) => {
     setSpinner(true);
-    setSelectedStatus(value);
     axios
       .patch(
         `${process.env.NEXT_PUBLIC_API_URL}/incidents/${incident.data.id}`,
@@ -217,14 +228,16 @@ function IncidentDetail({ user, incident }) {
       .then(function (response) {
         setSpinner(false);
         if (response.status === 200) {
+          setSelectedStatus(response.data.data.incidentStatus);
           toast.success(`Incident set to ${response.data.data.incidentStatus}`);
         } else {
-          toast.error(`Failed to update ${response.status}`);
+          toast.error(`Failed to update: ${response.data.message}`);
         }
       })
       .catch(function (error) {
         // Error 😨
-        toast.error(`${error}`);
+        setSpinner(false);
+        toast.error(`${error.response.data.message}`);
       });
   };
 
@@ -280,12 +293,12 @@ function IncidentDetail({ user, incident }) {
           toast.success("Incident updated");
           router.reload();
         } else {
-          toast.error(`Failed to update ${response.status}`);
+          toast.error(`Failed to update: ${response.data.message}`);
         }
       })
       .catch(function (error) {
         // Error 😨
-        toast.error(`${error}`);
+        toast.error(`Failed to update: ${error.response.data.message}`);
       });
   };
 
@@ -307,9 +320,9 @@ function IncidentDetail({ user, incident }) {
                   <p className="text-sm font-medium text-gray-500">
                     Reported by{" "}
                     <a href="#" className="text-gray-900">
-                      {incident.data.paramCreatedBy.fullname
+                      {incident.data.paramCreatedBy
                         ? incident.data.paramCreatedBy.fullname
-                        : incident.data.paramCreatedBy.username}
+                        : "undefined"}
                     </a>{" "}
                     on{" "}
                     <time>
@@ -329,6 +342,7 @@ function IncidentDetail({ user, incident }) {
                   onChange={(value) => {
                     onStatusChange(value);
                   }}
+                  disabled={user.grant === "viewer" ? true : false}
                 >
                   {({ open }) => (
                     <>
@@ -460,13 +474,13 @@ function IncidentDetail({ user, incident }) {
                           subtitle={`Priority ${
                             incident.data.paramPriorityMatrix
                               ? incident.data.paramPriorityMatrix.mapping
-                              : "Not defined yet"
+                              : "not defined yet"
                           }, ${
                             incident.data.resolvedIntervals
-                              ? `Duration ${incident.data.resolvedIntervals} minutes`
-                              : `Started ${format(
+                              ? `duration ${incident.data.resolvedIntervals} minutes`
+                              : `started ${format(
                                   new Date(incident.data.startTime),
-                                  "dd MMM yyyy HH:mm",
+                                  "dd MMMM yyyy HH:mm",
                                   "id-ID"
                                 )}`
                           }`}
@@ -544,10 +558,10 @@ function IncidentDetail({ user, incident }) {
                           </div>
                           <div className="sm:col-span-1">
                             <label
-                              htmlFor="log-start"
+                              htmlFor="start-time"
                               className="mb-1 block text-sm font-medium text-gray-900"
                             >
-                              Log Start
+                              Start Time
                             </label>
                             <Controller
                               control={control}
@@ -577,10 +591,10 @@ function IncidentDetail({ user, incident }) {
                           </div>
                           <div className="sm:col-span-1">
                             <label
-                              htmlFor="start-time"
+                              htmlFor="detected-time"
                               className="mb-1 block text-sm font-medium text-gray-900"
                             >
-                              Start Time
+                              Detected Time
                             </label>
                             <Controller
                               control={control}
@@ -954,23 +968,25 @@ function IncidentDetail({ user, incident }) {
                             ? `Duration ${incident.data.resolvedIntervals} minutes`
                             : `Started ${format(
                                 new Date(incident.data.startTime),
-                                "dd MMM yyyy HH:mm",
+                                "dd MMMM yyyy HH:mm",
                                 "id-ID"
                               )}`
                         }
                       >
                         <div className="px-4 flex">
-                          <ButtonCircle
-                            action={() => {
-                              setEditMode(true);
-                            }}
-                            className="border-gray-300 text-gray-700 bg-gray-100 hover:bg-gray-50"
-                          >
-                            <PencilIcon
-                              className="h-5 w-5"
-                              aria-hidden="true"
-                            />
-                          </ButtonCircle>
+                          {user.grant != "viewer" && (
+                            <ButtonCircle
+                              action={() => {
+                                setEditMode(true);
+                              }}
+                              className="border-gray-300 text-gray-700 bg-gray-100 hover:bg-gray-50"
+                            >
+                              <PencilIcon
+                                className="h-5 w-5"
+                                aria-hidden="true"
+                              />
+                            </ButtonCircle>
+                          )}
                         </div>
                       </CardTitle>
                       <CardContent>
@@ -1143,9 +1159,7 @@ function IncidentDetail({ user, incident }) {
                         aria-hidden="true"
                       />
                       <span className="text-gray-600 text-sm">
-                        {incident.data.detectIntervals
-                          ? `Detect : ${incident.data.detectIntervals} minutes`
-                          : "-"}
+                        {`Detect : ${incident.data.detectIntervals} minutes`}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -1162,21 +1176,25 @@ function IncidentDetail({ user, incident }) {
                     <div className="flex items-center space-x-2">
                       <span className="text-gray-600 text-sm">
                         From{" "}
-                        {format(
-                          new Date(incident.data.logStartTime),
-                          "dd MMMM yyyy HH:mm",
-                          "id-ID"
-                        )}{" "}
+                        {incident.data.logStartTime
+                          ? format(
+                              new Date(incident.data.logStartTime),
+                              "dd MMMM yyyy HH:mm",
+                              "id-ID"
+                            )
+                          : "-"}{" "}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <span className="text-gray-600 text-sm">
                         Until{" "}
-                        {format(
-                          new Date(incident.data.endTime),
-                          "dd MMMM yyyy HH:mm",
-                          "id-ID"
-                        )}{" "}
+                        {incident.data.endTime
+                          ? format(
+                              new Date(incident.data.endTime),
+                              "dd MMMM yyyy HH:mm",
+                              "id-ID"
+                            )
+                          : "(not recovered yet)"}{" "}
                       </span>
                     </div>
                     <div>
@@ -1216,7 +1234,7 @@ function IncidentDetail({ user, incident }) {
                       />
                       <span className="text-gray-600 text-sm">
                         {incident.data.paramCreatedBy
-                          ? incident.data.paramCreatedBy.username
+                          ? incident.data.paramCreatedBy.fullname
                           : "undefined"}
                       </span>
                     </div>
@@ -1238,7 +1256,7 @@ function IncidentDetail({ user, incident }) {
                         by{" "}
                         {incident.data.paramUpdatedBy
                           ? incident.data.paramUpdatedBy.fullname
-                          : incident.data.paramCreatedBy.username}
+                          : incident.data.paramCreatedBy.fullname}
                       </span>
                     </div>
                   </div>
