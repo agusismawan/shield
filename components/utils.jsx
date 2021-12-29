@@ -19,7 +19,6 @@ const styledReactSelectAdd = {
         },
     }),
     menuList: styles => {
-        console.log('menuList:', styles);
         return {
             ...styles,
             maxHeight: 150

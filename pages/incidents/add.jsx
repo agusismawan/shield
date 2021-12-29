@@ -247,13 +247,12 @@ function addIncident({ user }) {
       })
       .catch((error) => {
         if (error.response) {
-          toast.error(`Data: ${error.response.data.message} | Status: ${error.response.status} | Headers: ${error.response.headers}`);
+          toast.error(`${error.response.data.message} (Code: ${error.response.status})`);
         } else if (error.request) {
           toast.error(`Request: ${error.request}`);
         } else {
           toast.error(`Msg: ${error.message}`);
         }
-        toast.error(`Config: ${error.config}`);
       });
   };
 
