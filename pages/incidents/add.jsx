@@ -57,23 +57,10 @@ function addIncident({ user }) {
     proposedEnhancement: "",
     lessonLearned: ""
   };
-<<<<<<< HEAD
   const { register, unregister, handleSubmit, control, formState, reset, getValues, setValue } = useForm({
     mode: 'onSubmit',
     reValidateMode: 'onChange',
     defaultValues: {},
-=======
-  const {
-    register,
-    unregister,
-    handleSubmit,
-    control,
-    formState,
-    reset,
-    getValues,
-  } = useForm({
-    defaultValues,
->>>>>>> origin/main
   });
   const { errors, isSubmitting } = formState;
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -155,7 +142,6 @@ function addIncident({ user }) {
         }));
         setFuPlanOptions(data);
       })
-<<<<<<< HEAD
       .catch((err) => toast.error(`Fu Plan ${err}`))
   }, [])
 
@@ -174,10 +160,6 @@ function addIncident({ user }) {
       .catch((err) => toast.error(`Fu Plan ${err}`))
   }, [])
 
-=======
-      .catch((err) => toast.error(`Fu Plam ${err}`));
-  }, []);
->>>>>>> origin/main
 
   // Handle switch button when incident is over
   const handleSwitch = () => {
@@ -214,19 +196,11 @@ function addIncident({ user }) {
   const handleStartTime = () => ls.setSeconds(0, 0) <= st.setSeconds(0, 0)
 
   // Hanlde permanent fix select
-<<<<<<< HEAD
   const handlePFChange = (event) => {
     if (event.target.value === "") {
       setFuPlan(false);
       setValue("proposedEnhancement", "", { shouldValidate: false, shouldDirty: false })
       unregister("proposedEnhancement");
-=======
-  const handlePFChange = (e) => {
-    if (e.target.value === "") {
-      reset({ proposedEnhancement: "" });
-      unregister("proposedEnhancement");
-      setFuPlan(false);
->>>>>>> origin/main
     } else {
       setFuPlan(true);
     }
