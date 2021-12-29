@@ -10,7 +10,6 @@ import Select, { components } from "react-select";
 import AsyncSelect from "react-select/async";
 import format from "date-fns/format";
 import DatePicker from "../../components/ui/datepicker";
-import "antd/dist/antd.css";
 import { toast } from "react-toastify";
 import Layout from "../../components/layout";
 import { Input } from "../../components/ui/forms";
@@ -55,10 +54,17 @@ function addIncident({ user }) {
     actionItem: "",
     responsibleEngineer: "",
   };
-  const { register, unregister, handleSubmit, control, formState, reset, getValues } =
-    useForm({
-      defaultValues,
-    });
+  const {
+    register,
+    unregister,
+    handleSubmit,
+    control,
+    formState,
+    reset,
+    getValues,
+  } = useForm({
+    defaultValues,
+  });
   const { errors, isSubmitting } = formState;
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const router = useRouter();
@@ -119,7 +125,7 @@ function addIncident({ user }) {
     }, 500);
   };
 
-  const NoOptionsMessage = props => {
+  const NoOptionsMessage = (props) => {
     return (
       <components.NoOptionsMessage {...props}>
         <span>Type at least 3 letters of application name</span>
@@ -134,13 +140,12 @@ function addIncident({ user }) {
       .then((res) => {
         const data = res.data.data.map((d) => ({
           value: d.id,
-          label: d.followUpPlan
+          label: d.followUpPlan,
         }));
         setFuPlanOptions(data);
       })
-      .catch((err) => toast.error(`Fu Plam ${err}`))
-  }, [])
-
+      .catch((err) => toast.error(`Fu Plam ${err}`));
+  }, []);
 
   // Handle switch button when incident is over
   const handleSwitch = () => {
@@ -167,20 +172,21 @@ function addIncident({ user }) {
     const ls = new Date(getValues("logStartTime"));
 
     return (
-      st.setSeconds(0, 0) < et.setSeconds(0, 0) && ls.setSeconds(0, 0) < et.setSeconds(0, 0)
+      st.setSeconds(0, 0) < et.setSeconds(0, 0) &&
+      ls.setSeconds(0, 0) < et.setSeconds(0, 0)
     );
   };
 
   // Hanlde permanent fix select
   const handlePFChange = (e) => {
     if (e.target.value === "") {
-      reset({ proposedEnhancement: "" })
-      unregister("proposedEnhancement")
-      setFuPlan(false)
+      reset({ proposedEnhancement: "" });
+      unregister("proposedEnhancement");
+      setFuPlan(false);
     } else {
       setFuPlan(true);
     }
-  }
+  };
 
   const onSubmit = async (data, e) => {
     e.preventDefault();
@@ -355,21 +361,25 @@ function addIncident({ user }) {
                             checked={enabled}
                             onChange={handleSwitch}
                             className={classNames(
-                              enabled ? 'bg-blue-600' : 'bg-gray-200',
-                              'relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+                              enabled ? "bg-blue-600" : "bg-gray-200",
+                              "relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                             )}
                           >
                             <span
                               aria-hidden="true"
                               className={classNames(
-                                enabled ? 'translate-x-5' : 'translate-x-0',
-                                'pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200'
+                                enabled ? "translate-x-5" : "translate-x-0",
+                                "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200"
                               )}
                             />
                           </Switch>
                           <Switch.Label as="span" className="ml-3" passive>
-                            <span className="text-sm font-medium text-gray-900">Incident is Over </span>
-                            <span className="text-sm text-gray-500">(Switch the toggle if the incident is over)</span>
+                            <span className="text-sm font-medium text-gray-900">
+                              Incident is Over{" "}
+                            </span>
+                            <span className="text-sm text-gray-500">
+                              (Switch the toggle if the incident is over)
+                            </span>
                           </Switch.Label>
                         </Switch.Group>
                       </div>
@@ -543,10 +553,17 @@ function addIncident({ user }) {
                             )}
                           </div>
                           <div className="col-span-3 sm:col-span-3">
-                            <label htmlFor="idFollowUpPlan" className="block text-sm font-medium text-gray-700">
-                              Permanent Fix <span className="text-gray-500 font-normal">(Optional)</span>
+                            <label
+                              htmlFor="idFollowUpPlan"
+                              className="block text-sm font-medium text-gray-700"
+                            >
+                              Permanent Fix{" "}
+                              <span className="text-gray-500 font-normal">
+                                (Optional)
+                              </span>
                             </label>
-                            <select {...register("idFollowUpPlan")}
+                            <select
+                              {...register("idFollowUpPlan")}
                               id="idFollowUpPlan"
                               name="idFollowUpPlan"
                               className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md text-gray-700"
@@ -559,7 +576,7 @@ function addIncident({ user }) {
                               ))}
                             </select>
                           </div>
-                          {fuPlan &&
+                          {fuPlan && (
                             <div className="col-span-6 sm:col-span-6">
                               <label className="mb-1 block text-sm font-medium text-gray-700">
                                 Proposed Enhancement
@@ -580,10 +597,13 @@ function addIncident({ user }) {
                                 </p>
                               )}
                             </div>
-                          }
+                          )}
                           <div className="col-span-6 sm:col-span-6">
                             <label className="mb-1 block text-sm font-medium text-gray-700">
-                              Lesson Learned <span className="text-gray-500 font-normal">(Optional)</span>
+                              Lesson Learned{" "}
+                              <span className="text-gray-500 font-normal">
+                                (Optional)
+                              </span>
                             </label>
                             <textarea
                               {...register("lessonLearned")}

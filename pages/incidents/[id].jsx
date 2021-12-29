@@ -741,6 +741,11 @@ function IncidentDetail({ user, incident }) {
                               id="impact-system"
                               {...register("impactedSystem", {
                                 required: "This is required!",
+                                minLength: {
+                                  value: 30,
+                                  message:
+                                    "Please lengthen this text to 30 characters or more.",
+                                },
                               })}
                               rows={4}
                               className={classNames(
@@ -770,6 +775,11 @@ function IncidentDetail({ user, incident }) {
                               id="root-cause"
                               {...register("rootCause", {
                                 required: "This is required!",
+                                minLength: {
+                                  value: 30,
+                                  message:
+                                    "Please lengthen this text to 30 characters or more.",
+                                },
                               })}
                               rows={4}
                               className={classNames(
@@ -799,10 +809,15 @@ function IncidentDetail({ user, incident }) {
                               id="action-items"
                               {...register("actionItem", {
                                 required: "This is required!",
+                                minLength: {
+                                  value: 30,
+                                  message:
+                                    "Please lengthen this text to 30 characters or more.",
+                                },
                               })}
                               rows={4}
                               className={classNames(
-                                errors.rootCause
+                                errors.actionItem
                                   ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
                                   : "focus:ring-blue-500 focus:border-blue-500",
                                 "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
@@ -864,7 +879,7 @@ function IncidentDetail({ user, incident }) {
                                 <Controller
                                   name="idFollowUpPlan"
                                   control={control}
-                                  rules={{ required: "This is required" }}
+                                  rules={{ required: "This is required!" }}
                                   render={({ field }) => (
                                     <Select
                                       {...field}
@@ -895,6 +910,11 @@ function IncidentDetail({ user, incident }) {
                                   id="proposed-enhancement"
                                   {...register("proposedEnhancement", {
                                     required: "This is required!",
+                                    minLength: {
+                                      value: 30,
+                                      message:
+                                        "Please lengthen this text to 30 characters or more.",
+                                    },
                                   })}
                                   rows={4}
                                   className={classNames(
@@ -924,7 +944,13 @@ function IncidentDetail({ user, incident }) {
                             </dt>
                             <textarea
                               id="action-items"
-                              {...register("lessonLearned")}
+                              {...register("lessonLearned", {
+                                minLength: {
+                                  value: 30,
+                                  message:
+                                    "Please lengthen this text to 30 characters or more.",
+                                },
+                              })}
                               rows={4}
                               className="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
                               placeholder="The lesson that we take from this incident (optional)."
@@ -940,12 +966,17 @@ function IncidentDetail({ user, incident }) {
                               Responsible Engineer
                             </dt>
                             <textarea
-                              id="action-items"
+                              id="responsible-engineer"
                               {...register("responsibleEngineer", {
                                 required: "This is required!",
                               })}
                               rows={4}
-                              className="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                              className={classNames(
+                                errors.responsibleEngineer
+                                  ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
+                                  : "focus:ring-blue-500 focus:border-blue-500",
+                                "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                              )}
                               placeholder="The person(s) who attended the support call and had most context of what happened."
                               defaultValue={
                                 incident.data.responsibleEngineer
@@ -953,6 +984,11 @@ function IncidentDetail({ user, incident }) {
                                   : ""
                               }
                             />
+                            {errors.responsibleEngineer && (
+                              <p className="mt-1 text-sm text-red-600">
+                                {errors.responsibleEngineer.message}
+                              </p>
+                            )}
                           </div>
                         </CardContent>
                       </div>
