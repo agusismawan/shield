@@ -38,7 +38,7 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
   };
 });
 
-function IncidentList({ data }) {
+function IncidentList({ user, data }) {
   const columns = useMemo(
     () => [
       // {
@@ -119,7 +119,7 @@ function IncidentList({ data }) {
 
   return (
     <>
-      <Layout>
+      <Layout session={user}>
         <Head>
           <title>Incident Report</title>
         </Head>

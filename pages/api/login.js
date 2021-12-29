@@ -14,12 +14,16 @@ export default withSession(async (req, res) => {
 
     const user = {
       isLoggedIn: true,
+      id: response.data.id,
       username: response.data.username,
+      fullname: response.data.fullname,
+      email: response.data.email,
+      grant: response.data.paramUserMatrix.grant,
       accessToken: response.access_token,
     };
     req.session.set("user", user);
     await req.session.save();
-    res.json({ status: 200, message: response.message });
+    res.json({ status: 200, message: response.message, data: user });
   } catch (error) {
     const { response: fetchResponse } = error;
     res.status(fetchResponse?.status || 500).json(error.data);
