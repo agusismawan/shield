@@ -8,7 +8,23 @@ const styledReactSelect = {
         'input:focus': {
             boxShadow: 'none',
         },
-    }),
+    })
 }
 
-export { classNames, styledReactSelect }
+const styledReactSelectAdd = {
+    input: (base) => ({
+        ...base,
+        'input:focus': {
+            boxShadow: 'none',
+        },
+    }),
+    menuList: styles => {
+        console.log('menuList:', styles);
+        return {
+            ...styles,
+            maxHeight: 150
+        };
+    }
+}
+
+export { classNames, styledReactSelect, styledReactSelectAdd }

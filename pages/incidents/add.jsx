@@ -14,7 +14,7 @@ import "antd/dist/antd.css";
 import { toast } from "react-toastify";
 import Layout from "../../components/layout";
 import { Input } from "../../components/ui/forms";
-import { classNames, styledReactSelect } from "../../components/utils";
+import { classNames, styledReactSelect, styledReactSelectAdd } from "../../components/utils";
 import { ButtonSmall, ButtonSecondary } from "../../components/ui/button";
 import { Spinner } from "../../components/ui/spinner";
 import PageHeader from "../../components/incidents/page-header";
@@ -47,18 +47,22 @@ function addIncident({ user }) {
     idApps: null,
     startTime: null,
     logStartTime: null,
-    idUrgency: null,
     endTime: null,
+    idUrgency: null,
     idImpact: null,
     impactedSystem: "",
     rootCause: "",
     actionItem: "",
     responsibleEngineer: "",
+    idFollowUpPlan: null,
+    proposedEnhancement: "",
+    lessonLearned: ""
   };
-  const { register, unregister, handleSubmit, control, formState, reset, getValues } =
-    useForm({
-      defaultValues,
-    });
+  const { register, unregister, handleSubmit, control, formState, reset, getValues, setValue } = useForm({
+    mode: 'onSubmit',
+    reValidateMode: 'onChange',
+    defaultValues: {},
+  });
   const { errors, isSubmitting } = formState;
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const router = useRouter();
@@ -66,6 +70,7 @@ function addIncident({ user }) {
   const [urgencyOptions, setUrgencyOptions] = useState([]);
   const [impactOptions, setImpactOptions] = useState([]);
   const [fuPlanOptions, setFuPlanOptions] = useState([]);
+  const [incidentTypeOptions, setIncidentTypeOptions] = useState([]);
   const [fuPlan, setFuPlan] = useState();
 
   // Get data urgency
@@ -106,7 +111,7 @@ function addIncident({ user }) {
 
     const timeoutId = setTimeout(() => {
       axios
-        .get(`${process.env.NEXT_PUBLIC_API_URL}/parameters/app?name=${value}`)
+        .get(`${process.env.NEXT_PUBLIC_API_URL}/parameters/app?subName=${value}`)
         .then((res) => {
           const cachedOptions = res.data.data.map((d) => ({
             value: d.id,
@@ -138,22 +143,38 @@ function addIncident({ user }) {
         }));
         setFuPlanOptions(data);
       })
-      .catch((err) => toast.error(`Fu Plam ${err}`))
+      .catch((err) => toast.error(`Fu Plan ${err}`))
+  }, [])
+
+  // Get data incident type
+  useEffect(() => {
+    axios
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/parameters/incidenttype?isActive=Y`)
+      .then((res) => {
+        const data = res.data.data.map((d) => ({
+          value: d.id,
+          label: d.incidentType
+        }));
+        setIncidentTypeOptions(data);
+
+      })
+      .catch((err) => toast.error(`Fu Plan ${err}`))
   }, [])
 
 
   // Handle switch button when incident is over
   const handleSwitch = () => {
     if (enabled) {
-      reset({
-        endTime: null,
-        impactedSystem: "",
-        idUrgency: null,
-        idImpact: null,
-        rootCause: "",
-        actionItem: "",
-        responsibleEngineer: "",
-      });
+      setValue("endTime", null, { shouldValidate: false, shouldDirty: false })
+      setValue("idUrgency", null, { shouldValidate: false, shouldDirty: false })
+      setValue("idImpact", null, { shouldValidate: false, shouldDirty: false })
+      setValue("impactedSystem", "", { shouldValidate: false, shouldDirty: false })
+      setValue("rootCause", "", { shouldValidate: false, shouldDirty: false })
+      setValue("responsibleEngineer", "", { shouldValidate: false, shouldDirty: false })
+      setValue("idFollowUpPlan", null, { shouldValidate: false, shouldDirty: false })
+      setValue("proposedEnhancement", "", { shouldValidate: false, shouldDirty: false })
+      setValue("lessonLearned", "", { shouldValidate: false, shouldDirty: false })
+
       setEnabled(false);
     } else {
       setEnabled(true);
@@ -161,22 +182,25 @@ function addIncident({ user }) {
   };
 
   // Handle validate datetime
-  const handleDatetime = () => {
-    const st = new Date(getValues("startTime"));
-    const et = new Date(getValues("endTime"));
-    const ls = new Date(getValues("logStartTime"));
+  const st = new Date(getValues("startTime"));
+  const et = new Date(getValues("endTime"));
+  const ls = new Date(getValues("logStartTime"));
 
+  const handleDatetime = () => {
     return (
       st.setSeconds(0, 0) < et.setSeconds(0, 0) && ls.setSeconds(0, 0) < et.setSeconds(0, 0)
     );
   };
 
+  // Handle validate start time
+  const handleStartTime = () => ls.setSeconds(0, 0) <= st.setSeconds(0, 0)
+
   // Hanlde permanent fix select
-  const handlePFChange = (e) => {
-    if (e.target.value === "") {
-      reset({ proposedEnhancement: "" })
-      unregister("proposedEnhancement")
-      setFuPlan(false)
+  const handlePFChange = (event) => {
+    if (event.target.value === "") {
+      setFuPlan(false);
+      setValue("proposedEnhancement", "", { shouldValidate: false, shouldDirty: false })
+      unregister("proposedEnhancement");
     } else {
       setFuPlan(true);
     }
@@ -191,10 +215,7 @@ function addIncident({ user }) {
       Object.assign(data, {
         idApps: data.idApps.value,
         startTime: format(new Date(data.startTime), "yyyy-MM-dd HH:mm:ss"),
-        logStartTime: format(
-          new Date(data.logStartTime),
-          "yyyy-MM-dd HH:mm:ss"
-        ),
+        logStartTime: format(new Date(data.logStartTime), "yyyy-MM-dd HH:mm:ss"),
       });
     } else {
       Object.assign(data, {
@@ -204,6 +225,7 @@ function addIncident({ user }) {
           new Date(data.logStartTime),
           "yyyy-MM-dd HH:mm:ss"
         ),
+        idIncidentType: data.idIncidentType.value,
         idUrgency: data.idUrgency.value,
         idImpact: data.idImpact.value,
         endTime: format(new Date(data.endTime), "yyyy-MM-dd HH:mm:ss"),
@@ -218,13 +240,20 @@ function addIncident({ user }) {
       .then(function (response) {
         if (response.status === 201) {
           !isSubmitting && toast.success("Incident successfully added");
-          router.push("/incidents");
+          // router.push("/incidents");
         } else {
           toast.error(`Error Code: ${response.status}`);
         }
       })
-      .catch(function (error) {
-        toast.error(error);
+      .catch((error) => {
+        if (error.response) {
+          toast.error(`Data: ${error.response.data.message} | Status: ${error.response.status} | Headers: ${error.response.headers}`);
+        } else if (error.request) {
+          toast.error(`Request: ${error.request}`);
+        } else {
+          toast.error(`Msg: ${error.message}`);
+        }
+        toast.error(`Config: ${error.config}`);
       });
   };
 
@@ -277,7 +306,7 @@ function addIncident({ user }) {
                               {...field}
                               isClearable
                               loadOptions={loadApplications}
-                              styles={styledReactSelect}
+                              styles={styledReactSelectAdd}
                               className="text-sm focus:ring-blue-500 focus:border-blue-500"
                               placeholder="Search for application"
                               components={{ NoOptionsMessage }}
@@ -293,7 +322,7 @@ function addIncident({ user }) {
                       <div className="col-span-6 sm:col-span-3"></div>
                       <div className="col-span-6 sm:col-span-3">
                         <label className="mb-1 block text-sm font-medium text-gray-700">
-                          Log Start
+                          Start Time
                         </label>
                         <Controller
                           control={control}
@@ -314,6 +343,7 @@ function addIncident({ user }) {
                             />
                           )}
                         />
+
                         {errors.logStartTime && (
                           <p className="mt-2 text-sm text-red-600">
                             {errors.logStartTime.message}
@@ -322,11 +352,11 @@ function addIncident({ user }) {
                       </div>
                       <div className="col-span-6 sm:col-span-3">
                         <label className="mb-1 block text-sm font-medium text-gray-700">
-                          Start Time
+                          Detected Time
                         </label>
                         <Controller
                           control={control}
-                          rules={{ required: "This is required" }}
+                          rules={{ required: "This is required", validate: handleStartTime }}
                           name="startTime"
                           render={({ field }) => (
                             <DatePicker
@@ -343,6 +373,11 @@ function addIncident({ user }) {
                             />
                           )}
                         />
+                        {errors.startTime?.type === "validate" && (
+                          <p className="mt-2 text-sm text-red-600">
+                            Detected time can't be less than start time
+                          </p>
+                        )}
                         {errors.startTime && (
                           <p className="mt-2 text-sm text-red-600">
                             {errors.startTime.message}
@@ -413,7 +448,32 @@ function addIncident({ user }) {
                               </p>
                             )}
                           </div>
-                          <div className="col-span-6 sm:col-span-3">
+                          <div className="col-span-3 sm:col-span-3">
+                            <label className="mb-1 block text-sm font-medium text-gray-700">
+                              Incident Type
+                            </label>
+                            <Controller
+                              name="idIncidentType"
+                              control={control}
+                              rules={{ required: "This is required" }}
+                              render={({ field }) => (
+                                <Select
+                                  {...field}
+                                  isClearable={true}
+                                  isSearchable={false}
+                                  options={incidentTypeOptions}
+                                  styles={styledReactSelect}
+                                  className="text-sm focus:ring-blue-500 focus:border-blue-500"
+                                />
+                              )}
+                            />
+                            {errors.idIncidentType && (
+                              <p className="mt-2 text-sm text-red-600">
+                                {errors.idIncidentType.message}
+                              </p>
+                            )}
+                          </div>
+                          <div className="col-span-6 sm:col-span-6">
                             <label className="mb-1 block text-sm font-medium text-gray-700">
                               Urgency
                             </label>
