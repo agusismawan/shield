@@ -7,7 +7,6 @@ import {
   FireIcon,
   ChatAlt2Icon,
 } from "@heroicons/react/outline";
-import axios from "axios";
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
   const user = req.session.get("user");
@@ -20,17 +19,37 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
     };
   }
 
-  res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/incidents`, {
+  res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/incidents`, {
     headers: { Authorization: `Bearer ${user.accessToken}` },
   });
-  const data = await res.data;
+  const data = await res.json();
 
-  return {
-    props: {
-      user: req.session.get("user"),
-      incidents: data,
-    },
-  };
+  if (res.status === 200) {
+    // Pass data to the page via props
+    return {
+      props: {
+        user: req.session.get("user"),
+        incidents: data,
+      },
+    };
+  } else if (res.status === 401) {
+    if (data.code === 999) {
+      return {
+        redirect: {
+          destination: "/auth",
+          permanent: false,
+        },
+      };
+    } else if (data.code === 401) {
+      return {
+        notFound: true,
+      };
+    }
+  } else if (res.status === 404) {
+    return {
+      notFound: true,
+    };
+  }
 });
 
 function Home({ user, incidents }) {
