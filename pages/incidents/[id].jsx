@@ -241,17 +241,20 @@ function IncidentDetail({ user, incident }) {
       });
   };
 
-  // handle validate incident log start time - end time
-  const handleDatetime = () => {
-    const st = new Date(getValues("startTime"));
-    const et = new Date(getValues("endTime"));
-    const ls = new Date(getValues("logStartTime"));
+  // Handle validate datetime
+  const st = new Date(getValues("startTime"));
+  const et = new Date(getValues("endTime"));
+  const ls = new Date(getValues("logStartTime"));
 
+  const handleDatetime = () => {
     return (
       st.setSeconds(0, 0) < et.setSeconds(0, 0) &&
       ls.setSeconds(0, 0) < et.setSeconds(0, 0)
     );
   };
+
+  // Handle validate start time
+  const handleStartTime = () => ls.setSeconds(0, 0) <= st.setSeconds(0, 0);
 
   // Handle switch button for permanent fix option
   const [enhancement, setEnhancement] = useState(
@@ -598,7 +601,10 @@ function IncidentDetail({ user, incident }) {
                             </label>
                             <Controller
                               control={control}
-                              rules={{ required: "This is required" }}
+                              rules={{
+                                required: "This is required",
+                                validate: handleStartTime,
+                              }}
                               name="startTime"
                               render={({ field }) => (
                                 <DatePicker
@@ -616,6 +622,11 @@ function IncidentDetail({ user, incident }) {
                                 />
                               )}
                             />
+                            {errors.startTime?.type === "validate" && (
+                              <p className="mt-2 text-sm text-red-600">
+                                Detected time can't be less than start time
+                              </p>
+                            )}
                             {errors.startTime && (
                               <p className="mt-2 text-sm text-red-600">
                                 {errors.startTime.message}
