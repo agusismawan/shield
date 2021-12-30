@@ -19,7 +19,7 @@ function SelectColumnFilter({ column: { setFilter } }) {
     const timeoutId = setTimeout(() => {
       axios
         .get(
-          `${process.env.NEXT_PUBLIC_API_URL}/parameters/app?name=${inputValue}`
+          `${process.env.NEXT_PUBLIC_API_URL}/parameters/app?subName=${inputValue}`
         )
         .then((res) => {
           const cacheOptions = res.data.data.map((d) => ({
