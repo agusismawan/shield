@@ -41,12 +41,12 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
 function IncidentList({ user, data }) {
   const columns = useMemo(
     () => [
-      // {
-      //   Header: "#",
-      //   Cell: (row) => {
-      //     return <div>{Number(row.row.id) + 1}</div>;
-      //   },
-      // },
+      {
+        Header: "#",
+        Cell: (row) => {
+          return <div>{Number(row.row.id) + 1}</div>;
+        },
+      },
       {
         Header: "Incident Name",
         accessor: "incidentName",
@@ -71,7 +71,7 @@ function IncidentList({ user, data }) {
         Cell: StatusText,
       },
       {
-        Header: "Priority",
+        Header: "P",
         accessor: "paramPriorityMatrix.mapping",
         Cell: StatusPill,
         disableSortBy: true
@@ -81,8 +81,7 @@ function IncidentList({ user, data }) {
         accessor: "incidentStatus",
         Cell: StatusIncident,
         Filter: StatusFilter,
-        filter: 'includes',
-        disableSortBy: true
+        filter: 'includes'
       },
       {
         Header: "Started At",
