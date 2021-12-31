@@ -250,24 +250,18 @@ function addIncident({ user }) {
     if (!data.endTime || data.endTime === null || data.endTime === "") {
       Object.assign(data, {
         idApps: data.idApps.value,
-        startTime: format(new Date(data.startTime), "yyyy-MM-dd HH:mm:ss"),
-        logStartTime: format(
-          new Date(data.logStartTime),
-          "yyyy-MM-dd HH:mm:ss"
-        ),
+        startTime: format(new Date(data.startTime), "yyyy-MM-dd HH:mm"),
+        logStartTime: format(new Date(data.logStartTime), "yyyy-MM-dd HH:mm"),
       });
     } else {
       Object.assign(data, {
         idApps: data.idApps.value,
-        startTime: format(new Date(data.startTime), "yyyy-MM-dd HH:mm:ss"),
-        logStartTime: format(
-          new Date(data.logStartTime),
-          "yyyy-MM-dd HH:mm:ss"
-        ),
+        startTime: format(new Date(data.startTime), "yyyy-MM-dd HH:mm"),
+        logStartTime: format(new Date(data.logStartTime), "yyyy-MM-dd HH:mm"),
         idIncidentType: data.idIncidentType.value,
         idUrgency: data.idUrgency.value,
         idImpact: data.idImpact.value,
-        endTime: format(new Date(data.endTime), "yyyy-MM-dd HH:mm:ss"),
+        endTime: format(new Date(data.endTime), "yyyy-MM-dd HH:mm"),
         incidentStatus: "Resolved",
       });
     }
@@ -570,7 +564,7 @@ function addIncident({ user }) {
                           </div>
                           <div className="col-span-6 sm:col-span-6">
                             <label className="mb-1 block text-sm font-medium text-gray-700">
-                              Impacted System
+                              Affected System
                             </label>
                             <textarea
                               {...register("impactedSystem", {

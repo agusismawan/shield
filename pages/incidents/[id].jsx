@@ -275,9 +275,9 @@ function IncidentDetail({ user, incident }) {
   const onSubmit = async (data) => {
     data = Object.assign(data, {
       idIncidentType: data.idIncidentType.value,
-      startTime: format(new Date(data.startTime), "yyyy-MM-dd HH:mm:ss"),
-      logStartTime: format(new Date(data.logStartTime), "yyyy-MM-dd HH:mm:ss"),
-      endTime: format(new Date(data.endTime), "yyyy-MM-dd HH:mm:ss"),
+      startTime: format(new Date(data.startTime), "yyyy-MM-dd HH:mm"),
+      logStartTime: format(new Date(data.logStartTime), "yyyy-MM-dd HH:mm"),
+      endTime: format(new Date(data.endTime), "yyyy-MM-dd HH:mm"),
       idUrgency: data.idUrgency.value,
       idImpact: data.idImpact.value,
       idFollowUpPlan: data.idFollowUpPlan ? data.idFollowUpPlan.value : null,
@@ -746,7 +746,7 @@ function IncidentDetail({ user, incident }) {
                           </div>
                           <div className="sm:col-span-2">
                             <dt className="text-sm font-medium text-gray-900">
-                              Impacted System
+                              Affected System
                             </dt>
                             <textarea
                               id="impact-system"
@@ -1079,7 +1079,7 @@ function IncidentDetail({ user, incident }) {
                         </div>
                         <div className="sm:col-span-2">
                           <dt className="text-sm font-medium text-gray-900">
-                            Impacted System
+                            Affected System
                           </dt>
                           <dd className="mt-1 whitespace-pre-wrap text-sm text-gray-500">
                             {incident.data.impactedSystem
