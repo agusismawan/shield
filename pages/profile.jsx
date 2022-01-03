@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { classNames } from "components/utils";
 import { Spinner } from "components/ui/spinner";
-import { IdentificationIcon, BriefcaseIcon } from "@heroicons/react/solid";
+import { IdentificationIcon } from "@heroicons/react/solid";
 
 export const getServerSideProps = withSession(async function ({ req }) {
   const user = req.session.get("user");
@@ -26,7 +26,7 @@ export const getServerSideProps = withSession(async function ({ req }) {
   };
 });
 
-export default function Profile({ user }) {
+export default function Profile() {
   const router = useRouter();
   const {
     register,
@@ -35,17 +35,14 @@ export default function Profile({ user }) {
   } = useForm();
 
   const onSubmit = async (data) => {
-    console.log(`Test ${isSubmitting}`);
     await axios
-      .patch(`${process.env.NEXT_PUBLIC_API_URL}/users/${user.id}`, data, {
-        headers: { Authorization: `Bearer ${user.accessToken}` },
-      })
+      .patch(`/api/profile`, data)
       .then(function (response) {
         if (response.status === 200) {
           !isSubmitting && toast.success("Profile updated");
           router.push("/");
         } else {
-          toast.error(`Failed to update ${response.status}`);
+          toast.error(`Failed to update: ${error.response.data.message}`);
         }
       })
       .catch(function (error) {
