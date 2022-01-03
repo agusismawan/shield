@@ -971,6 +971,11 @@ function IncidentDetail({ user, incident }) {
                                   : ""
                               }
                             />
+                            {errors.lessonLearned && (
+                              <p className="mt-1 text-sm text-red-600">
+                                {errors.lessonLearned.message}
+                              </p>
+                            )}
                           </div>
                           <div className="sm:col-span-2">
                             <dt className="text-sm font-medium text-gray-900">

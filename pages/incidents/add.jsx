@@ -755,7 +755,12 @@ function addIncident({ user }) {
               </h2>
               <dl className="space-y-3 divide-y divide-gray-200">
                 {docs.map((doc) => (
-                  <Disclosure as="div" key={doc.id} className="pt-3">
+                  <Disclosure
+                    as="div"
+                    defaultOpen="true"
+                    key={doc.id}
+                    className="pt-3"
+                  >
                     {({ open }) => (
                       <>
                         <dt className="text-lg">

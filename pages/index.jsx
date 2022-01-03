@@ -1,5 +1,6 @@
-import Layout from "../components/layout";
 import Head from "next/head";
+import Link from "next/link";
+import Layout from "../components/layout";
 import withSession from "../lib/session";
 import {
   OfficeBuildingIcon,
@@ -148,12 +149,11 @@ function Home({ user, incidents }) {
                     </div>
                     <div className="bg-gray-50 px-5 py-3">
                       <div className="text-sm">
-                        <a
-                          href={card.href}
-                          className="font-medium text-cyan-700 hover:text-cyan-900"
-                        >
-                          {card.href !== "#" ? "View All" : "Coming Soon"}
-                        </a>
+                        <Link href={card.href}>
+                          <a className="font-medium text-cyan-700 hover:text-cyan-900">
+                            {card.href !== "#" ? "View All" : "Coming Soon"}
+                          </a>
+                        </Link>
                       </div>
                     </div>
                   </div>
