@@ -1,11 +1,11 @@
 module.exports = {
   apps: [
     {
-      name: "Shield",
+      name: "shield",
       script: "node_modules/.bin/next",
       args: "start -p 3000",
-      cwd: "/home/blaviken/work-projects/shield",
-      instances: "max",
+      cwd: "/home/administrator/Application/shield",
+      instances: 5,
       exec_mode: "cluster",
       autorestart: true,
       watch: true,
