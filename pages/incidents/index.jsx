@@ -32,17 +32,37 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
     };
   }
 
-  res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/incidents`, {
+  res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/incidents`, {
     headers: { Authorization: `Bearer ${user.accessToken}` },
   });
-  const data = await res.data;
+  const data = await res.json();
 
-  return {
-    props: {
-      user: req.session.get("user"),
-      data: data.data,
-    },
-  };
+  if (res.status === 200) {
+    // Pass data to the page via props
+    return {
+      props: {
+        user: req.session.get("user"),
+        data: data.data,
+      },
+    };
+  } else if (res.status === 401) {
+    if (data.code === 999) {
+      return {
+        redirect: {
+          destination: "/auth",
+          permanent: false,
+        },
+      };
+    } else if (data.code === 401) {
+      return {
+        notFound: true,
+      };
+    }
+  } else if (res.status === 404) {
+    return {
+      notFound: true,
+    };
+  }
 });
 
 function IncidentList({ user, data }) {
