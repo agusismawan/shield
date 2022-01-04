@@ -293,7 +293,7 @@ function IncidentDetail({ user, incident }) {
       .then(function (response) {
         !isSubmitting;
         if (response.status === 200) {
-          router.reload() && toast.success("Incident updated");
+          toast.success("Incident updated") && router.reload();
         } else {
           toast.error(`Failed to update: ${response.data.message}`);
         }
