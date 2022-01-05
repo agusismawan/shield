@@ -308,7 +308,10 @@ function IncidentDetail({ user, incident }) {
     <>
       <Layout session={user}>
         <Head>
-          <title>Incident Report</title>
+          <title>
+            {incident.data.incidentNumber} {incident.data.paramApps.subName} -
+            Shield
+          </title>
         </Head>
         <section>
           <div className="py-6">
@@ -1280,7 +1283,7 @@ function IncidentDetail({ user, incident }) {
                     </h2>
                     <div className="flex items-center space-x-2">
                       <UserCircleIcon
-                        className="h-5 w-5 text-gray-700"
+                        className="h-6 w-6 text-gray-500"
                         aria-hidden="true"
                       />
                       <span className="text-gray-600 text-sm">

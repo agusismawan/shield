@@ -295,7 +295,7 @@ function addIncident({ user }) {
     <>
       <Layout session={user}>
         <Head>
-          <title>Incident Report - Add New Incident</title>
+          <title>Declare New Incident - Shield</title>
         </Head>
         {/* Page title & actions */}
         <PageHeader title="Create New Incident"></PageHeader>

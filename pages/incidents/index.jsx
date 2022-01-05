@@ -9,7 +9,6 @@ import {
   StatusFilter,
 } from "../../components/incidents/dropdown-filter";
 // import DateRangeFilter from "../../components/incidents/daterange-filter";
-import axios from "axios";
 import withSession from "../../lib/session";
 import format from "date-fns/format";
 import { useMemo } from "react";
@@ -155,7 +154,7 @@ function IncidentList({ user, data }) {
     <>
       <Layout session={user}>
         <Head>
-          <title>Incident Report</title>
+          <title>Incident Report - Shield</title>
         </Head>
         <section>
           {/* Page title & actions */}

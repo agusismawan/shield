@@ -80,7 +80,7 @@ function Home({ user, incidents }) {
     <>
       <Layout session={user}>
         <Head>
-          <title>Incident Report</title>
+          <title>Shield - Incident & Problem Management</title>
         </Head>
         <section>
           {/* Page header */}
