@@ -10,7 +10,7 @@ export default function Meta() {
       />
       <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       <meta name="robots" content="noindex,nofollow" />
-      <link rel="shortcut icon" href="/shield-favicon.ico" />
+      <link rel="shortcut icon" href="/favicon.ico" />
     </Head>
   );
 }
