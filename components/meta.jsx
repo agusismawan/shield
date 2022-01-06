@@ -3,7 +3,6 @@ import Head from "next/head";
 export default function Meta() {
   return (
     <Head>
-      <meta charset="utf-8" />
       <meta
         name="description"
         content="Shield is incident and problem management application developed by SDK and AES Team APP Division. Inspired by SHIELD on the MCU which taking care of every single problem."

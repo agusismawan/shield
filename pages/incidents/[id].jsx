@@ -310,7 +310,8 @@ function IncidentDetail({ user, incident }) {
       <Layout session={user}>
         <Head>
           <title>
-            {incident.data.incidentNumber} {incident.data.paramApps.subName} -
+            {incident.data.incidentNumber}{" "}
+            {incident.data.paramApps ? incident.data.paramApps.subName : ""} -
             Shield
           </title>
         </Head>
