@@ -1,4 +1,5 @@
-import { classNames } from "../utils";
+import Select from "react-select";
+import { styledReactSelect, classNames } from "components/utils";
 
 const Input = ({ label, name, placeholder, className, register, required }) => (
     <>
@@ -12,4 +13,12 @@ const Input = ({ label, name, placeholder, className, register, required }) => (
     </>
 );
 
-export { Input };
+const ReactSelect = ({ className, ...rest }) => (
+    <Select
+        className={classNames("text-sm focus:ring-blue-500 focus:border-blue-500", className)}
+        styles={styledReactSelect}
+        {...rest}
+    />
+)
+
+export { Input, ReactSelect };

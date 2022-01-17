@@ -240,7 +240,7 @@ function addIncident({ user }) {
       .then(function (response) {
         if (response.status === 201) {
           !isSubmitting && toast.success("Incident successfully added");
-          // router.push("/incidents");
+          router.push("/incidents");
         } else {
           toast.error(`Error Code: ${response.status}`);
         }

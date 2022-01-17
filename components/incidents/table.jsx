@@ -29,7 +29,7 @@ function Table({ columns, data }) {
 
     return (
         <>
-            <div className="flex gap-x-2">
+            <div className="mt-3 flex gap-x-2">
                 <GlobalFilter filter={globalFilter} setFilter={setGlobalFilter} preGlobalFilteredRows={preGlobalFilteredRows} />
 
                 {/* Untuk menampilkan ui select filter */}
