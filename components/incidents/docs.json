@@ -5,7 +5,7 @@
         "bodyHeader": "Declare an incident if:",
         "bodyContent": [
             {
-                "id": 1,
+                "no": 1,
                 "text": "An issue is or may be impacting customers or services."
             },
             {
@@ -16,20 +16,12 @@
     },
     {
         "id": 2,
-        "title": "Severity Levels",
+        "title": "How to choose an urgency?",
         "bodyHeader": "",
         "bodyContent": [
             {
                 "id": 1,
-                "text": "SEV-1 (Critical) : \n Most critical issue affecting customers and users."
-            },
-            {
-                "id": 2,
-                "text": "SEV-2 (High) : \n Major issue affecting customers and users."
-            },
-            {
-                "id": 3,
-                "text": "SEV-3 (Moderate) : \n Internal issue requiring immediate action from service owners."
+                "text": "Choose an urgency based on the closest condition related to the incidents. Otherwise, choose the urgency based on application criticality."
             }
         ]
     }

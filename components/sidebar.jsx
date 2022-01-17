@@ -2,7 +2,11 @@ import Link from "next/link";
 import { classNames } from "./utils";
 import { Fragment } from "react";
 import { Menu, Transition } from "@headlessui/react";
-import { SearchIcon, SelectorIcon } from "@heroicons/react/solid";
+import {
+  SearchIcon,
+  SelectorIcon,
+  UserCircleIcon,
+} from "@heroicons/react/solid";
 
 export default function Sidebar({ navigation, router, session, action }) {
   return (
@@ -26,10 +30,9 @@ export default function Sidebar({ navigation, router, session, action }) {
                     <Menu.Button className="group w-full bg-white rounded-md px-3.5 py-2 text-sm text-left font-medium text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-blue-500">
                       <span className="flex w-full justify-between items-center">
                         <span className="flex min-w-0 items-center justify-between space-x-3">
-                          <img
-                            className="w-10 h-10 bg-gray-300 rounded-full flex-shrink-0"
-                            src="/profpic.jpg"
-                            alt=""
+                          <UserCircleIcon
+                            className="h-10 w-10 text-gray-500"
+                            aria-hidden="true"
                           />
                           <span className="flex-1 flex flex-col min-w-0">
                             <span className="text-gray-900 text-sm font-medium truncate">

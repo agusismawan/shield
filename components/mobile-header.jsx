@@ -2,7 +2,7 @@ import { classNames } from "./utils";
 import { Fragment } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import { MenuAlt1Icon } from "@heroicons/react/outline";
-import { SearchIcon } from "@heroicons/react/solid";
+import { SearchIcon, UserCircleIcon } from "@heroicons/react/solid";
 
 export default function MobileHeader({ setSidebarOpen, action }) {
   return (
@@ -44,10 +44,9 @@ export default function MobileHeader({ setSidebarOpen, action }) {
                   <div>
                     <Menu.Button className="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                       <span className="sr-only">Open user menu</span>
-                      <img
-                        className="h-8 w-8 rounded-full"
-                        src="/profpic.jpg"
-                        alt=""
+                      <UserCircleIcon
+                        className="h-8 w-8 text-gray-500"
+                        aria-hidden="true"
                       />
                     </Menu.Button>
                   </div>

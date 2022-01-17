@@ -4,13 +4,19 @@ import Layout from "../../components/layout";
 import AvatarCell from "../../components/incidents/avatar-cell";
 import PageHeader from "../../components/incidents/page-header";
 import Table from "../../components/incidents/table";
-import { SelectColumnFilter, StatusFilter } from "../../components/incidents/dropdown-filter";
+import {
+  SelectColumnFilter,
+  StatusFilter,
+} from "../../components/incidents/dropdown-filter";
 // import DateRangeFilter from "../../components/incidents/daterange-filter";
-import axios from "axios";
 import withSession from "../../lib/session";
 import format from "date-fns/format";
 import { useMemo } from "react";
-import { StatusPill, StatusText, StatusIncident } from "../../components/incidents/status-pill";
+import {
+  StatusPill,
+  StatusText,
+  StatusIncident,
+} from "../../components/incidents/status-pill";
 import { PlusSmIcon } from "@heroicons/react/outline";
 import { ButtonSmall } from "../../components/ui/button";
 
@@ -25,17 +31,37 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
     };
   }
 
-  res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/incidents`, {
+  res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/incidents`, {
     headers: { Authorization: `Bearer ${user.accessToken}` },
   });
-  const data = await res.data;
+  const data = await res.json();
 
-  return {
-    props: {
-      user: req.session.get("user"),
-      data: data.data,
-    },
-  };
+  if (res.status === 200) {
+    // Pass data to the page via props
+    return {
+      props: {
+        user: req.session.get("user"),
+        data: data.data,
+      },
+    };
+  } else if (res.status === 401) {
+    if (data.code === 999) {
+      return {
+        redirect: {
+          destination: "/auth",
+          permanent: false,
+        },
+      };
+    } else if (data.code === 401) {
+      return {
+        notFound: true,
+      };
+    }
+  } else if (res.status === 404) {
+    return {
+      notFound: true,
+    };
+  }
 });
 
 function IncidentList({ user, data }) {
@@ -54,54 +80,61 @@ function IncidentList({ user, data }) {
           return (
             <div>
               <Link href={`/incidents/${props.row.original.id}`}>
-                <a className="text-blue-500 hover:text-blue-900">{props.value}</a>
+                <a className="text-blue-500 hover:text-blue-900">
+                  {props.value}
+                </a>
               </Link>
               <p className="mt-1 flex items-center text-xs text-gray-500">
-                {props.row.original.incidentNumber ? `#${props.row.original.incidentNumber}` : ''}
+                {props.row.original.incidentNumber
+                  ? `#${props.row.original.incidentNumber}`
+                  : ""}
               </p>
             </div>
-          )
-        }
+          );
+        },
       },
       {
         Header: "Application",
         accessor: "paramApps.subName",
         Filter: SelectColumnFilter,
-        filter: 'includes',
+        filter: "includes",
         Cell: StatusText,
       },
       {
         Header: "Priority",
         accessor: "paramPriorityMatrix.mapping",
         Cell: StatusPill,
-        disableSortBy: true
+        disableSortBy: true,
       },
       {
         Header: "Status",
         accessor: "incidentStatus",
         Cell: StatusIncident,
         Filter: StatusFilter,
-        filter: 'includes',
-        disableSortBy: true
+        filter: "includes",
+        disableSortBy: true,
       },
       {
-        Header: "Started At",
-        accessor: "startTime",
+        Header: "Start Time",
+        accessor: "logStartTime",
         // Filter: DateRangeFilter,
         Cell: (props) => {
           return (
             <div>
               <div className="text-xs text-gray-900">
                 {format(
-                  new Date(props.row.original.startTime),
+                  new Date(props.row.original.logStartTime),
                   "dd MMM yyyy HH:mm"
                 )}
               </div>
               <div className="text-xs text-gray-500">
-                {props.row.original.resolvedIntervals ?
-                  <span className="text-xs">{props.row.original.resolvedIntervals} minutes</span>
-                  : '-'
-                }
+                {props.row.original.resolvedIntervals ? (
+                  <span className="text-xs">
+                    {props.row.original.resolvedIntervals} minutes
+                  </span>
+                ) : (
+                  "-"
+                )}
               </div>
             </div>
           );
@@ -111,7 +144,7 @@ function IncidentList({ user, data }) {
         Header: "Reporter",
         accessor: "paramCreatedBy.fullname",
         Cell: AvatarCell,
-        disableSortBy: true
+        disableSortBy: true,
       },
     ],
     []
@@ -121,7 +154,7 @@ function IncidentList({ user, data }) {
     <>
       <Layout session={user}>
         <Head>
-          <title>Incident Report</title>
+          <title>Incident Report - Shield</title>
         </Head>
         <section>
           {/* Page title & actions */}

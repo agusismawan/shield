@@ -241,17 +241,20 @@ function IncidentDetail({ user, incident }) {
       });
   };
 
-  // handle validate incident log start time - end time
-  const handleDatetime = () => {
-    const st = new Date(getValues("startTime"));
-    const et = new Date(getValues("endTime"));
-    const ls = new Date(getValues("logStartTime"));
+  // Handle validate datetime
+  const st = new Date(getValues("startTime"));
+  const et = new Date(getValues("endTime"));
+  const ls = new Date(getValues("logStartTime"));
 
+  const handleDatetime = () => {
     return (
       st.setSeconds(0, 0) < et.setSeconds(0, 0) &&
       ls.setSeconds(0, 0) < et.setSeconds(0, 0)
     );
   };
+
+  // Handle validate start time
+  const handleStartTime = () => ls.setSeconds(0, 0) <= st.setSeconds(0, 0);
 
   // Handle switch button for permanent fix option
   const [enhancement, setEnhancement] = useState(
@@ -272,9 +275,9 @@ function IncidentDetail({ user, incident }) {
   const onSubmit = async (data) => {
     data = Object.assign(data, {
       idIncidentType: data.idIncidentType.value,
-      startTime: format(new Date(data.startTime), "yyyy-MM-dd HH:mm:ss"),
-      logStartTime: format(new Date(data.logStartTime), "yyyy-MM-dd HH:mm:ss"),
-      endTime: format(new Date(data.endTime), "yyyy-MM-dd HH:mm:ss"),
+      startTime: format(new Date(data.startTime), "yyyy-MM-dd HH:mm"),
+      logStartTime: format(new Date(data.logStartTime), "yyyy-MM-dd HH:mm"),
+      endTime: format(new Date(data.endTime), "yyyy-MM-dd HH:mm"),
       idUrgency: data.idUrgency.value,
       idImpact: data.idImpact.value,
       idFollowUpPlan: data.idFollowUpPlan ? data.idFollowUpPlan.value : null,
@@ -291,7 +294,7 @@ function IncidentDetail({ user, incident }) {
         !isSubmitting;
         if (response.status === 200) {
           toast.success("Incident updated");
-          router.reload();
+          setTimeout(() => router.reload(), 500);
         } else {
           toast.error(`Failed to update: ${response.data.message}`);
         }
@@ -306,7 +309,11 @@ function IncidentDetail({ user, incident }) {
     <>
       <Layout session={user}>
         <Head>
-          <title>Incident Report</title>
+          <title>
+            {incident.data.incidentNumber}{" "}
+            {incident.data.paramApps ? incident.data.paramApps.subName : ""} -
+            Shield
+          </title>
         </Head>
         <section>
           <div className="py-6">
@@ -598,7 +605,10 @@ function IncidentDetail({ user, incident }) {
                             </label>
                             <Controller
                               control={control}
-                              rules={{ required: "This is required" }}
+                              rules={{
+                                required: "This is required",
+                                validate: handleStartTime,
+                              }}
                               name="startTime"
                               render={({ field }) => (
                                 <DatePicker
@@ -616,6 +626,11 @@ function IncidentDetail({ user, incident }) {
                                 />
                               )}
                             />
+                            {errors.startTime?.type === "validate" && (
+                              <p className="mt-2 text-sm text-red-600">
+                                Detected time can't be less than start time
+                              </p>
+                            )}
                             {errors.startTime && (
                               <p className="mt-2 text-sm text-red-600">
                                 {errors.startTime.message}
@@ -735,7 +750,7 @@ function IncidentDetail({ user, incident }) {
                           </div>
                           <div className="sm:col-span-2">
                             <dt className="text-sm font-medium text-gray-900">
-                              Impacted System
+                              Affected System
                             </dt>
                             <textarea
                               id="impact-system"
@@ -960,6 +975,11 @@ function IncidentDetail({ user, incident }) {
                                   : ""
                               }
                             />
+                            {errors.lessonLearned && (
+                              <p className="mt-1 text-sm text-red-600">
+                                {errors.lessonLearned.message}
+                              </p>
+                            )}
                           </div>
                           <div className="sm:col-span-2">
                             <dt className="text-sm font-medium text-gray-900">
@@ -1068,7 +1088,7 @@ function IncidentDetail({ user, incident }) {
                         </div>
                         <div className="sm:col-span-2">
                           <dt className="text-sm font-medium text-gray-900">
-                            Impacted System
+                            Affected System
                           </dt>
                           <dd className="mt-1 whitespace-pre-wrap text-sm text-gray-500">
                             {incident.data.impactedSystem
@@ -1265,7 +1285,7 @@ function IncidentDetail({ user, incident }) {
                     </h2>
                     <div className="flex items-center space-x-2">
                       <UserCircleIcon
-                        className="h-5 w-5 text-gray-700"
+                        className="h-6 w-6 text-gray-500"
                         aria-hidden="true"
                       />
                       <span className="text-gray-600 text-sm">

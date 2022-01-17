@@ -13,7 +13,11 @@ import DatePicker from "../../components/ui/datepicker";
 import { toast } from "react-toastify";
 import Layout from "../../components/layout";
 import { Input } from "../../components/ui/forms";
-import { classNames, styledReactSelect, styledReactSelectAdd } from "../../components/utils";
+import {
+  classNames,
+  styledReactSelect,
+  styledReactSelectAdd,
+} from "../../components/utils";
 import { ButtonSmall, ButtonSecondary } from "../../components/ui/button";
 import { Spinner } from "../../components/ui/spinner";
 import PageHeader from "../../components/incidents/page-header";
@@ -55,11 +59,20 @@ function addIncident({ user }) {
     responsibleEngineer: "",
     idFollowUpPlan: null,
     proposedEnhancement: "",
-    lessonLearned: ""
+    lessonLearned: "",
   };
-  const { register, unregister, handleSubmit, control, formState, reset, getValues, setValue } = useForm({
-    mode: 'onSubmit',
-    reValidateMode: 'onChange',
+  const {
+    register,
+    unregister,
+    handleSubmit,
+    control,
+    formState,
+    reset,
+    getValues,
+    setValue,
+  } = useForm({
+    mode: "onSubmit",
+    reValidateMode: "onChange",
     defaultValues: {},
   });
   const { errors, isSubmitting } = formState;
@@ -110,7 +123,9 @@ function addIncident({ user }) {
 
     const timeoutId = setTimeout(() => {
       axios
-        .get(`${process.env.NEXT_PUBLIC_API_URL}/parameters/app?subName=${value}`)
+        .get(
+          `${process.env.NEXT_PUBLIC_API_URL}/parameters/app?subName=${value}`
+        )
         .then((res) => {
           const cachedOptions = res.data.data.map((d) => ({
             value: d.id,
@@ -142,37 +157,55 @@ function addIncident({ user }) {
         }));
         setFuPlanOptions(data);
       })
-      .catch((err) => toast.error(`Fu Plan ${err}`))
-  }, [])
+      .catch((err) => toast.error(`Fu Plan ${err}`));
+  }, []);
 
   // Get data incident type
   useEffect(() => {
     axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}/parameters/incidenttype?isActive=Y`)
+      .get(
+        `${process.env.NEXT_PUBLIC_API_URL}/parameters/incidenttype?isActive=Y`
+      )
       .then((res) => {
         const data = res.data.data.map((d) => ({
           value: d.id,
-          label: d.incidentType
+          label: d.incidentType,
         }));
         setIncidentTypeOptions(data);
-
       })
-      .catch((err) => toast.error(`Fu Plan ${err}`))
-  }, [])
-
+      .catch((err) => toast.error(`Fu Plan ${err}`));
+  }, []);
 
   // Handle switch button when incident is over
   const handleSwitch = () => {
     if (enabled) {
-      setValue("endTime", null, { shouldValidate: false, shouldDirty: false })
-      setValue("idUrgency", null, { shouldValidate: false, shouldDirty: false })
-      setValue("idImpact", null, { shouldValidate: false, shouldDirty: false })
-      setValue("impactedSystem", "", { shouldValidate: false, shouldDirty: false })
-      setValue("rootCause", "", { shouldValidate: false, shouldDirty: false })
-      setValue("responsibleEngineer", "", { shouldValidate: false, shouldDirty: false })
-      setValue("idFollowUpPlan", null, { shouldValidate: false, shouldDirty: false })
-      setValue("proposedEnhancement", "", { shouldValidate: false, shouldDirty: false })
-      setValue("lessonLearned", "", { shouldValidate: false, shouldDirty: false })
+      setValue("endTime", null, { shouldValidate: false, shouldDirty: false });
+      setValue("idUrgency", null, {
+        shouldValidate: false,
+        shouldDirty: false,
+      });
+      setValue("idImpact", null, { shouldValidate: false, shouldDirty: false });
+      setValue("impactedSystem", "", {
+        shouldValidate: false,
+        shouldDirty: false,
+      });
+      setValue("rootCause", "", { shouldValidate: false, shouldDirty: false });
+      setValue("responsibleEngineer", "", {
+        shouldValidate: false,
+        shouldDirty: false,
+      });
+      setValue("idFollowUpPlan", null, {
+        shouldValidate: false,
+        shouldDirty: false,
+      });
+      setValue("proposedEnhancement", "", {
+        shouldValidate: false,
+        shouldDirty: false,
+      });
+      setValue("lessonLearned", "", {
+        shouldValidate: false,
+        shouldDirty: false,
+      });
 
       setEnabled(false);
     } else {
@@ -193,13 +226,16 @@ function addIncident({ user }) {
   };
 
   // Handle validate start time
-  const handleStartTime = () => ls.setSeconds(0, 0) <= st.setSeconds(0, 0)
+  const handleStartTime = () => ls.setSeconds(0, 0) <= st.setSeconds(0, 0);
 
   // Hanlde permanent fix select
   const handlePFChange = (event) => {
     if (event.target.value === "") {
       setFuPlan(false);
-      setValue("proposedEnhancement", "", { shouldValidate: false, shouldDirty: false })
+      setValue("proposedEnhancement", "", {
+        shouldValidate: false,
+        shouldDirty: false,
+      });
       unregister("proposedEnhancement");
     } else {
       setFuPlan(true);
@@ -214,21 +250,18 @@ function addIncident({ user }) {
     if (!data.endTime || data.endTime === null || data.endTime === "") {
       Object.assign(data, {
         idApps: data.idApps.value,
-        startTime: format(new Date(data.startTime), "yyyy-MM-dd HH:mm:ss"),
-        logStartTime: format(new Date(data.logStartTime), "yyyy-MM-dd HH:mm:ss"),
+        startTime: format(new Date(data.startTime), "yyyy-MM-dd HH:mm"),
+        logStartTime: format(new Date(data.logStartTime), "yyyy-MM-dd HH:mm"),
       });
     } else {
       Object.assign(data, {
         idApps: data.idApps.value,
-        startTime: format(new Date(data.startTime), "yyyy-MM-dd HH:mm:ss"),
-        logStartTime: format(
-          new Date(data.logStartTime),
-          "yyyy-MM-dd HH:mm:ss"
-        ),
+        startTime: format(new Date(data.startTime), "yyyy-MM-dd HH:mm"),
+        logStartTime: format(new Date(data.logStartTime), "yyyy-MM-dd HH:mm"),
         idIncidentType: data.idIncidentType.value,
         idUrgency: data.idUrgency.value,
         idImpact: data.idImpact.value,
-        endTime: format(new Date(data.endTime), "yyyy-MM-dd HH:mm:ss"),
+        endTime: format(new Date(data.endTime), "yyyy-MM-dd HH:mm"),
         incidentStatus: "Resolved",
       });
     }
@@ -247,7 +280,9 @@ function addIncident({ user }) {
       })
       .catch((error) => {
         if (error.response) {
-          toast.error(`${error.response.data.message} (Code: ${error.response.status})`);
+          toast.error(
+            `${error.response.data.message} (Code: ${error.response.status})`
+          );
         } else if (error.request) {
           toast.error(`Request: ${error.request}`);
         } else {
@@ -260,7 +295,7 @@ function addIncident({ user }) {
     <>
       <Layout session={user}>
         <Head>
-          <title>Incident Report - Add New Incident</title>
+          <title>Declare New Incident - Shield</title>
         </Head>
         {/* Page title & actions */}
         <PageHeader title="Create New Incident"></PageHeader>
@@ -355,7 +390,10 @@ function addIncident({ user }) {
                         </label>
                         <Controller
                           control={control}
-                          rules={{ required: "This is required", validate: handleStartTime }}
+                          rules={{
+                            required: "This is required",
+                            validate: handleStartTime,
+                          }}
                           name="startTime"
                           render={({ field }) => (
                             <DatePicker
@@ -526,7 +564,7 @@ function addIncident({ user }) {
                           </div>
                           <div className="col-span-6 sm:col-span-6">
                             <label className="mb-1 block text-sm font-medium text-gray-700">
-                              Impacted System
+                              Affected System
                             </label>
                             <textarea
                               {...register("impactedSystem", {
@@ -717,7 +755,12 @@ function addIncident({ user }) {
               </h2>
               <dl className="space-y-3 divide-y divide-gray-200">
                 {docs.map((doc) => (
-                  <Disclosure as="div" key={doc.id} className="pt-3">
+                  <Disclosure
+                    as="div"
+                    defaultOpen="true"
+                    key={doc.id}
+                    className="pt-3"
+                  >
                     {({ open }) => (
                       <>
                         <dt className="text-lg">

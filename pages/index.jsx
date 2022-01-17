@@ -1,5 +1,6 @@
-import Layout from "../components/layout";
 import Head from "next/head";
+import Link from "next/link";
+import Layout from "../components/layout";
 import withSession from "../lib/session";
 import {
   OfficeBuildingIcon,
@@ -7,7 +8,6 @@ import {
   FireIcon,
   ChatAlt2Icon,
 } from "@heroicons/react/outline";
-import axios from "axios";
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
   const user = req.session.get("user");
@@ -20,17 +20,37 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
     };
   }
 
-  res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/incidents`, {
+  res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/incidents`, {
     headers: { Authorization: `Bearer ${user.accessToken}` },
   });
-  const data = await res.data;
+  const data = await res.json();
 
-  return {
-    props: {
-      user: req.session.get("user"),
-      incidents: data,
-    },
-  };
+  if (res.status === 200) {
+    // Pass data to the page via props
+    return {
+      props: {
+        user: req.session.get("user"),
+        incidents: data,
+      },
+    };
+  } else if (res.status === 401) {
+    if (data.code === 999) {
+      return {
+        redirect: {
+          destination: "/auth",
+          permanent: false,
+        },
+      };
+    } else if (data.code === 401) {
+      return {
+        notFound: true,
+      };
+    }
+  } else if (res.status === 404) {
+    return {
+      notFound: true,
+    };
+  }
 });
 
 function Home({ user, incidents }) {
@@ -60,7 +80,7 @@ function Home({ user, incidents }) {
     <>
       <Layout session={user}>
         <Head>
-          <title>Incident Report</title>
+          <title>Shield - Incident & Problem Management</title>
         </Head>
         <section>
           {/* Page header */}
@@ -129,12 +149,11 @@ function Home({ user, incidents }) {
                     </div>
                     <div className="bg-gray-50 px-5 py-3">
                       <div className="text-sm">
-                        <a
-                          href={card.href}
-                          className="font-medium text-cyan-700 hover:text-cyan-900"
-                        >
-                          {card.href !== "#" ? "View All" : "Coming Soon"}
-                        </a>
+                        <Link href={card.href}>
+                          <a className="font-medium text-cyan-700 hover:text-cyan-900">
+                            {card.href !== "#" ? "View All" : "Coming Soon"}
+                          </a>
+                        </Link>
                       </div>
                     </div>
                   </div>
