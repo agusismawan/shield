@@ -299,14 +299,14 @@ function addIncident({ user }) {
         </Head>
         {/* Page title & actions */}
         <PageHeader title="Create New Incident"></PageHeader>
-        <div className="mt-8 max-w-full mx-auto grid grid-cols-1 gap-6 sm:px-6 lg:max-w-full lg:px-12 lg:grid-flow-col-dense lg:grid-cols-3 relative">
+        <div className="mt-8 max-w-full mx-auto grid grid-cols-1 gap-6 sm:px-6 lg:max-w-full lg:px-12 lg:grid-flow-col-dense lg:grid-cols-3">
           <div className="space-y-6 lg:col-start-1 lg:col-span-2">
             {/* Section Incident Detail */}
             <section aria-labelledby="create-new-incident">
               <form onSubmit={handleSubmit(onSubmit)}>
                 {/* Card Start */}
                 <div className="bg-white shadow overflow-hidden sm:rounded-lg static">
-                  <div className="border-gray-200 px-4 py-5 sm:px-6">
+                  <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
                     <div className="grid grid-cols-6 gap-6">
                       <div className="col-span-6 sm:col-span-6">
                         <Input
@@ -327,7 +327,7 @@ function addIncident({ user }) {
                           </p>
                         )}
                       </div>
-                      <div className="col-span-6 sm:col-span-3">
+                      <div className="col-span-3 sm:col-span-3">
                         <label className="mb-1 block text-sm font-medium text-gray-700">
                           Application
                         </label>
@@ -625,7 +625,7 @@ function addIncident({ user }) {
                           </div>
                           <div className="col-span-6 sm:col-span-6">
                             <label className="mb-1 block text-sm font-medium text-gray-700">
-                              Responsible Engineer
+                              Responsible Team
                             </label>
                             <textarea
                               {...register("responsibleEngineer", {
@@ -635,7 +635,7 @@ function addIncident({ user }) {
                               name="responsibleEngineer"
                               rows={3}
                               className="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
-                              placeholder="Mention the engineer team. Example : SDK, CAO, etc."
+                              placeholder="The person(s) who attended the support call and had most context of what happened."
                             />
                             {errors.responsibleEngineer && (
                               <p className="mt-2 text-sm text-red-600">
@@ -691,19 +691,25 @@ function addIncident({ user }) {
                           )}
                           <div className="col-span-6 sm:col-span-6">
                             <label className="mb-1 block text-sm font-medium text-gray-700">
-                              Lesson Learned{" "}
+                              Lesson Learned
                               <span className="text-gray-500 font-normal">
-                                (Optional)
                               </span>
                             </label>
                             <textarea
-                              {...register("lessonLearned")}
+                              {...register("lessonLearned", {
+                                required: "This is required"
+                              })}
                               id="lessonLearned"
                               name="lessonLearned"
                               rows={3}
                               className="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
                               placeholder="The lesson that we take from this incident"
                             />
+                            {errors.lessonLearned && (
+                              <p className="mt-2 text-sm text-red-600">
+                                {errors.lessonLearned.message}
+                              </p>
+                            )}
                           </div>
                         </>
                       )}
