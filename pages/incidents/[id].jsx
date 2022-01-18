@@ -1141,7 +1141,7 @@ function IncidentDetail({ user, incident }) {
                         </div>
                         <div className="sm:col-span-2">
                           <dt className="text-sm font-medium text-gray-900">
-                            Responsible Engineer
+                            Responsible Team
                           </dt>
                           <dd className="mt-1 whitespace-pre-wrap text-sm text-gray-500">
                             {incident.data.responsibleEngineer
