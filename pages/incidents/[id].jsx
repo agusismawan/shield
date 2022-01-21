@@ -177,21 +177,21 @@ function IncidentDetail({ user, incident }) {
     defaultValues: {
       idIncidentType: incident.data.paramIncidentType
         ? {
-          label: incident.data.paramIncidentType.incidentType,
-          value: incident.data.paramIncidentType.id,
-        }
+            label: incident.data.paramIncidentType.incidentType,
+            value: incident.data.paramIncidentType.id,
+          }
         : false,
       idUrgency: incident.data.paramUrgency
         ? {
-          label: incident.data.paramUrgency.urgency,
-          value: incident.data.paramUrgency.id,
-        }
+            label: incident.data.paramUrgency.urgency,
+            value: incident.data.paramUrgency.id,
+          }
         : false,
       idImpact: incident.data.paramImpact
         ? {
-          label: incident.data.paramImpact.impact,
-          value: incident.data.paramImpact.id,
-        }
+            label: incident.data.paramImpact.impact,
+            value: incident.data.paramImpact.id,
+          }
         : false,
       logStartTime: incident.data.logStartTime
         ? parseISO(incident.data.logStartTime, new Date())
@@ -204,9 +204,9 @@ function IncidentDetail({ user, incident }) {
         : false,
       idFollowUpPlan: incident.data.idFollowUpPlan
         ? {
-          label: incident.data.paramFollowUpPlan.followUpPlan,
-          value: incident.data.paramFollowUpPlan.id,
-        }
+            label: incident.data.paramFollowUpPlan.followUpPlan,
+            value: incident.data.paramFollowUpPlan.id,
+          }
         : false,
     },
   });
@@ -478,17 +478,19 @@ function IncidentDetail({ user, incident }) {
                       <div className="bg-white shadow sm:rounded-lg">
                         <CardTitle
                           title={`Incident Report ${incident.data.incidentNumber}`}
-                          subtitle={`Priority ${incident.data.paramPriorityMatrix
-                            ? incident.data.paramPriorityMatrix.mapping
-                            : "not defined yet"
-                            }, ${incident.data.resolvedIntervals
+                          subtitle={`Priority ${
+                            incident.data.paramPriorityMatrix
+                              ? incident.data.paramPriorityMatrix.mapping
+                              : "not defined yet"
+                          }, ${
+                            incident.data.resolvedIntervals
                               ? `duration ${incident.data.resolvedIntervals} minutes`
                               : `started ${format(
-                                new Date(incident.data.startTime),
-                                "dd MMMM yyyy HH:mm",
-                                "id-ID"
-                              )}`
-                            }`}
+                                  new Date(incident.data.startTime),
+                                  "dd MMMM yyyy HH:mm",
+                                  "id-ID"
+                                )}`
+                          }`}
                         >
                           <div className="px-4 flex">
                             <ButtonCircle
@@ -958,12 +960,7 @@ function IncidentDetail({ user, incident }) {
                             <textarea
                               id="action-items"
                               {...register("lessonLearned", {
-                                minLength: {
-                                  value: 30,
-                                  message:
-                                    "Please lengthen this text to 30 characters or more.",
-                                },
-                                required: "This is required!"
+                                required: "This is required!",
                               })}
                               rows={4}
                               className="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
@@ -1022,10 +1019,10 @@ function IncidentDetail({ user, incident }) {
                           incident.data.resolvedIntervals
                             ? `Duration ${incident.data.resolvedIntervals} minutes`
                             : `Started ${format(
-                              new Date(incident.data.startTime),
-                              "dd MMMM yyyy HH:mm",
-                              "id-ID"
-                            )}`
+                                new Date(incident.data.startTime),
+                                "dd MMMM yyyy HH:mm",
+                                "id-ID"
+                              )}`
                         }
                       >
                         <div className="px-4 flex">
@@ -1233,10 +1230,10 @@ function IncidentDetail({ user, incident }) {
                         From{" "}
                         {incident.data.logStartTime
                           ? format(
-                            new Date(incident.data.logStartTime),
-                            "dd MMMM yyyy HH:mm",
-                            "id-ID"
-                          )
+                              new Date(incident.data.logStartTime),
+                              "dd MMMM yyyy HH:mm",
+                              "id-ID"
+                            )
                           : "-"}{" "}
                       </span>
                     </div>
@@ -1245,10 +1242,10 @@ function IncidentDetail({ user, incident }) {
                         Until{" "}
                         {incident.data.endTime
                           ? format(
-                            new Date(incident.data.endTime),
-                            "dd MMMM yyyy HH:mm",
-                            "id-ID"
-                          )
+                              new Date(incident.data.endTime),
+                              "dd MMMM yyyy HH:mm",
+                              "id-ID"
+                            )
                           : "(not recovered yet)"}{" "}
                       </span>
                     </div>
@@ -1298,15 +1295,15 @@ function IncidentDetail({ user, incident }) {
                         Last updated on{" "}
                         {incident.data.updatedAt
                           ? format(
-                            new Date(incident.data.updatedAt),
-                            "dd MMM yyyy HH:mm",
-                            "id-ID"
-                          )
+                              new Date(incident.data.updatedAt),
+                              "dd MMM yyyy HH:mm",
+                              "id-ID"
+                            )
                           : format(
-                            new Date(incident.data.createdAt),
-                            "dd MMM yyyy HH:mm",
-                            "id-ID"
-                          )}{" "}
+                              new Date(incident.data.createdAt),
+                              "dd MMM yyyy HH:mm",
+                              "id-ID"
+                            )}{" "}
                         <br />
                         by{" "}
                         {incident.data.paramUpdatedBy
