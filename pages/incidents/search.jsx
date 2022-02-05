@@ -1,11 +1,11 @@
 import Layout from "components/layout";
 import Head from "next/head";
+import Link from "next/link";
 import withSession from "lib/session";
 import { useRouter } from "next/router";
 import { format } from "date-fns";
 import { SearchIcon, CodeIcon } from "@heroicons/react/solid";
 import { classNames } from "components/utils";
-import Link from "next/link";
 
 export const getServerSideProps = withSession(async function ({ req, query }) {
   const user = req.session.get("user");
