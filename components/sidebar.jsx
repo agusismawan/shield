@@ -2,11 +2,7 @@ import Link from "next/link";
 import { classNames } from "./utils";
 import { Fragment } from "react";
 import { Menu, Transition } from "@headlessui/react";
-import {
-  SearchIcon,
-  SelectorIcon,
-  UserCircleIcon,
-} from "@heroicons/react/solid";
+import { SelectorIcon, UserCircleIcon } from "@heroicons/react/solid";
 
 export default function Sidebar({ navigation, router, session, action }) {
   return (
@@ -136,32 +132,8 @@ export default function Sidebar({ navigation, router, session, action }) {
                 </>
               )}
             </Menu>
-            {/* Sidebar Search */}
-            <div className="px-3 mt-5">
-              <label htmlFor="search" className="sr-only">
-                Search
-              </label>
-              <div className="mt-1 relative rounded-md shadow-sm">
-                <div
-                  className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
-                  aria-hidden="true"
-                >
-                  <SearchIcon
-                    className="mr-3 h-4 w-4 text-gray-400"
-                    aria-hidden="true"
-                  />
-                </div>
-                <input
-                  type="text"
-                  name="search"
-                  id="search"
-                  className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-9 sm:text-sm border-gray-300 rounded-md"
-                  placeholder="Search"
-                />
-              </div>
-            </div>
             {/* Navigation */}
-            <nav className="px-3 mt-6">
+            <nav className="px-3 mt-6 border-t border-gray-200 p-4">
               <div className="space-y-1">
                 {navigation.map((item) => (
                   <Link href={item.href}>
