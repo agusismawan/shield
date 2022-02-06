@@ -15,9 +15,9 @@ import {
 } from "@heroicons/react/outline";
 
 const navigation = [
-  { name: "Dashboard", href: "/", icon: HomeIcon },
+  { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
   { name: "Incidents", href: "/incidents", icon: DocumentSearchIcon },
-  { name: "Problem Management", href: "/problem", icon: FireIcon },
+  { name: "Problem Management", href: "#", icon: FireIcon },
   { name: "Tickets", href: "/ticket", icon: ChatAlt2Icon },
 ];
 

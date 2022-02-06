@@ -17,8 +17,8 @@ import {
   StatusText,
   StatusIncident,
 } from "../../components/incidents/status-pill";
-import { PlusSmIcon } from "@heroicons/react/outline";
-import { ButtonSmall } from "../../components/ui/button";
+import { PlusSmIcon, SearchIcon } from "@heroicons/react/outline";
+import { ButtonSmall, ButtonSecondary } from "../../components/ui/button";
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
   const user = req.session.get("user");
@@ -159,6 +159,12 @@ function IncidentList({ user, data }) {
         <section>
           {/* Page title & actions */}
           <PageHeader title="Incident Report">
+            <Link href="/incidents/search" passHref>
+              <ButtonSecondary type="button">
+                <SearchIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+                Search Incident
+              </ButtonSecondary>
+            </Link>
             <Link href="/incidents/add" passHref>
               <ButtonSmall type="button">
                 <PlusSmIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
@@ -167,7 +173,7 @@ function IncidentList({ user, data }) {
             </Link>
           </PageHeader>
           <div className="hidden sm:block mt-3">
-            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-12">
               <Table columns={columns} data={data} />
             </div>
           </div>

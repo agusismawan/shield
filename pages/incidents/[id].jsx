@@ -469,7 +469,7 @@ function IncidentDetail({ user, incident }) {
               </div>
             </div>
 
-            <div className="mt-8 max-w-full mx-auto grid grid-cols-1 gap-6 sm:px-6 lg:max-w-full lg:px-12 lg:grid-flow-col-dense lg:grid-cols-3">
+            <div className="mt-8 max-w-full mx-auto grid grid-cols-1 gap-8 sm:px-6 lg:max-w-full lg:px-12 lg:grid-flow-col-dense lg:grid-cols-2">
               <div className="space-y-6 lg:col-start-1 lg:col-span-2">
                 {/* Incident Detail */}
                 {editMode ? (
@@ -762,7 +762,7 @@ function IncidentDetail({ user, incident }) {
                                     "Please lengthen this text to 30 characters or more.",
                                 },
                               })}
-                              rows={4}
+                              rows={5}
                               className={classNames(
                                 errors.impactedSystem
                                   ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
@@ -796,7 +796,7 @@ function IncidentDetail({ user, incident }) {
                                     "Please lengthen this text to 30 characters or more.",
                                 },
                               })}
-                              rows={4}
+                              rows={5}
                               className={classNames(
                                 errors.rootCause
                                   ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
@@ -830,7 +830,7 @@ function IncidentDetail({ user, incident }) {
                                     "Please lengthen this text to 30 characters or more.",
                                 },
                               })}
-                              rows={4}
+                              rows={5}
                               className={classNames(
                                 errors.actionItem
                                   ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
@@ -986,7 +986,7 @@ function IncidentDetail({ user, incident }) {
                               {...register("responsibleEngineer", {
                                 required: "This is required!",
                               })}
-                              rows={4}
+                              rows={3}
                               className={classNames(
                                 errors.responsibleEngineer
                                   ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "

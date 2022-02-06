@@ -67,15 +67,15 @@ function SearchIncident({ user, search }) {
                         />
                       </div>
                       <input
-                        name="search-field"
-                        id="search-field"
+                        name="search"
+                        id="incident-search"
                         className="h-full w-full border-transparent py-2 pl-8 pr-3 text-base text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-0 focus:border-transparent focus:placeholder-gray-400 sm:hidden"
                         placeholder="Search incident report"
                         type="search"
                         onKeyPress={onSearch}
                       />
                       <input
-                        name="search-field"
+                        name="search"
                         id="search-field"
                         className="hidden h-full w-full border-transparent py-2 pl-8 pr-3 text-base text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-0 focus:border-transparent focus:placeholder-gray-400 sm:block"
                         placeholder="Search incident report"

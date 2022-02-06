@@ -40,7 +40,7 @@ export default function Profile() {
       .then(function (response) {
         if (response.status === 200) {
           !isSubmitting && toast.success("Profile updated");
-          router.push("/");
+          router.push("/dashboard");
         } else {
           toast.error(`Failed to update: ${error.response.data.message}`);
         }
