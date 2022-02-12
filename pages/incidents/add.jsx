@@ -299,7 +299,7 @@ function addIncident({ user }) {
         </Head>
         {/* Page title & actions */}
         <PageHeader title="Create New Incident"></PageHeader>
-        <div className="mt-8 max-w-full mx-auto grid grid-cols-1 gap-6 sm:px-6 lg:max-w-full lg:px-12 lg:grid-flow-col-dense lg:grid-cols-3">
+        <div className="mt-8 mb-8 max-w-full mx-auto grid grid-cols-1 gap-6 sm:px-6 lg:max-w-full lg:px-12 lg:grid-flow-col-dense lg:grid-cols-3">
           <div className="space-y-6 lg:col-start-1 lg:col-span-2">
             {/* Section Incident Detail */}
             <section aria-labelledby="create-new-incident">
@@ -692,12 +692,11 @@ function addIncident({ user }) {
                           <div className="col-span-6 sm:col-span-6">
                             <label className="mb-1 block text-sm font-medium text-gray-700">
                               Lesson Learned
-                              <span className="text-gray-500 font-normal">
-                              </span>
+                              <span className="text-gray-500 font-normal"></span>
                             </label>
                             <textarea
                               {...register("lessonLearned", {
-                                required: "This is required"
+                                required: "This is required",
                               })}
                               id="lessonLearned"
                               name="lessonLearned"
