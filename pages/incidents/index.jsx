@@ -260,14 +260,14 @@ function IncidentList({ user, data }) {
       },
       {
         Header: "Started At",
-        accessor: "startTime",
+        accessor: "logStartTime",
         // Filter: DateRangeFilter,
         Cell: (props) => {
           return (
             <div>
               <div className="text-xs text-gray-900">
                 {format(
-                  new Date(props.row.original.startTime),
+                  new Date(props.row.original.logStartTime),
                   "dd MMM yyyy HH:mm"
                 )}
               </div>
