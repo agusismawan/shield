@@ -46,10 +46,10 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
     };
   }
 
-  res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/incidents`, {
+  res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/incidents`, {
     headers: { Authorization: `Bearer ${user.accessToken}` },
   });
-  const data = await res.data;
+  const data = await res.json();
 
   if (res.status === 200) {
     // Pass data to the page via props
