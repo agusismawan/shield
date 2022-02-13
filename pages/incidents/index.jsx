@@ -20,7 +20,6 @@ import {
 import {
   PlusSmIcon,
   SearchIcon,
-  HashtagIcon,
   InformationCircleIcon,
 } from "@heroicons/react/outline";
 import { ButtonSmall } from "../../components/ui/button";
@@ -29,7 +28,6 @@ import AsyncSelect from "react-select/async";
 import { styledReactSelectAdd } from "components/utils";
 import { useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
-import { useRouter } from "next/router";
 import { useAsyncDebounce } from "react-table";
 import "regenerator-runtime";
 import DateRangeFilter from "components/incidents/daterange-filter";
@@ -51,12 +49,32 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
   });
   const data = await res.data;
 
-  return {
-    props: {
-      user: req.session.get("user"),
-      data: data.data,
-    },
-  };
+  if (res.status === 200) {
+    // Pass data to the page via props
+    return {
+      props: {
+        user: req.session.get("user"),
+        data: data.data,
+      },
+    };
+  } else if (res.status === 401) {
+    if (data.code === 999) {
+      return {
+        redirect: {
+          destination: "/auth",
+          permanent: false,
+        },
+      };
+    } else if (data.code === 401) {
+      return {
+        notFound: true,
+      };
+    }
+  } else if (res.status === 404) {
+    return {
+      notFound: true,
+    };
+  }
 });
 
 function IncidentList({ user, data }) {
@@ -283,6 +301,12 @@ function IncidentList({ user, data }) {
         <section>
           {/* Page title & actions */}
           <PageHeader title="Incident Report">
+            <Link href="/incidents/search" passHref>
+              <ButtonSecondary type="button">
+                <SearchIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+                Search Incident
+              </ButtonSecondary>
+            </Link>
             <Link href="/incidents/add" passHref>
               <ButtonSmall type="button">
                 <PlusSmIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
@@ -291,34 +315,8 @@ function IncidentList({ user, data }) {
             </Link>
           </PageHeader>
           <div className="hidden sm:block mt-3">
-            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-12">
               <div className="flex gap-x-2">
-                {/* <div>
-                  <label
-                    htmlFor="search"
-                    className="mb-1 block text-sm font-medium text-gray-700"
-                  >
-                    Search
-                  </label>
-                  <div className="mt-1 relative rounded-md shadow-sm">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <SearchIcon
-                        className="h-5 w-5 text-gray-400"
-                        aria-hidden="true"
-                      />
-                    </div>
-                    <input
-                      type="search"
-                      className="focus:ring-blue-300 focus:border-blue-300 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
-                      value={value || ""}
-                      onChange={(e) => {
-                        setValue(e.target.value);
-                        handleGlobalChange(e.target.value);
-                      }}
-                      placeholder={`${count} records...`}
-                    />
-                  </div>
-                </div> */}
                 <div>
                   <label
                     htmlFor="search"
