@@ -8,7 +8,7 @@ import {
   SelectColumnFilter,
   StatusFilter,
 } from "../../components/incidents/dropdown-filter";
-// import DateRangeFilter from "../../components/incidents/daterange-filter";
+import axios from "axios";
 import withSession from "../../lib/session";
 import format from "date-fns/format";
 import { useMemo } from "react";
@@ -17,8 +17,23 @@ import {
   StatusText,
   StatusIncident,
 } from "../../components/incidents/status-pill";
-import { PlusSmIcon, SearchIcon } from "@heroicons/react/outline";
-import { ButtonSmall, ButtonSecondary } from "../../components/ui/button";
+import {
+  PlusSmIcon,
+  SearchIcon,
+  DocumentSearchIcon,
+  InformationCircleIcon,
+} from "@heroicons/react/outline";
+import { PrimaryAnchorButton } from "components/ui/button/primary-anchor-button";
+import { SecondaryAnchorButton } from "components/ui/button/secondary-anchor-button";
+import { ReactSelect } from "components/ui/forms";
+import AsyncSelect from "react-select/async";
+import { styledReactSelectAdd } from "components/utils";
+import { useEffect, useState, useRef } from "react";
+import { toast } from "react-toastify";
+import { useAsyncDebounce } from "react-table";
+import "regenerator-runtime";
+import DateRangeFilter from "components/incidents/daterange-filter";
+import { Input, Tooltip } from "antd";
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
   const user = req.session.get("user");
@@ -31,10 +46,10 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
     };
   }
 
-  res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/incidents`, {
+  res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/incidents`, {
     headers: { Authorization: `Bearer ${user.accessToken}` },
   });
-  const data = await res.json();
+  const data = await res.data;
 
   if (res.status === 200) {
     // Pass data to the page via props
@@ -65,14 +80,143 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
 });
 
 function IncidentList({ user, data }) {
+  const [tableData, setTableData] = useState([]);
+  const [irNumber, setIRNumber] = useState("");
+  const [apps, setApps] = useState("");
+  const [incidentType, setIncidentType] = useState("");
+  const [IncidentTypeOptions, setIncidentTypeOptions] = useState([]);
+  const [incidentStatus, setIncidentStatus] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+
+  const incidentStatusOptions = [
+    { value: "Open", label: "Open" },
+    { value: "Resolved", label: "Resolved" },
+  ];
+
+  // Get data aplikai async
+  const loadApplications = (value, callback) => {
+    clearTimeout(timeoutId);
+
+    if (value.length < 3) {
+      return callback([]);
+    }
+
+    const timeoutId = setTimeout(() => {
+      axios
+        .get(
+          `${process.env.NEXT_PUBLIC_API_URL}/parameters/app?subName=${value}`
+        )
+        .then((res) => {
+          const cachedOptions = res.data.data.map((d) => ({
+            value: d.id,
+            label: d.subName,
+          }));
+
+          callback(cachedOptions);
+        })
+        .catch((err) => toast.error(`Application ${err}`));
+    }, 500);
+  };
+
+  // Get data incident type
+  useEffect(() => {
+    axios
+      .get(
+        `${process.env.NEXT_PUBLIC_API_URL}/parameters/incidenttype?isActive=Y`
+      )
+      .then((res) => {
+        const data = res.data.data.map((d) => ({
+          value: d.id,
+          label: d.incidentType,
+        }));
+        setIncidentTypeOptions(data);
+      })
+      .catch((err) => toast.error(`Fu Plan ${err}`));
+  }, []);
+
+  // Get filter
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/incidents?idApps=${apps}&idIncidentType=${incidentType}&incidentStatus=${incidentStatus}&filterStartTime=${startTime}&filterEndTime=${endTime}&incidentNumber=${irNumber}`,
+        {
+          headers: { Authorization: `Bearer ${user.accessToken}` },
+        }
+      );
+
+      const result = await response.data.data;
+      setTableData(result);
+    };
+
+    if (
+      irNumber ||
+      apps ||
+      incidentType ||
+      incidentStatus ||
+      startTime ||
+      endTime
+    ) {
+      fetchData();
+    } else {
+      setTableData(data);
+    }
+  }, [irNumber, apps, incidentType, incidentStatus, startTime, endTime, data]);
+
+  // to hanlde if clearable button clicked
+  const handleIRNumChange = (value) => {
+    if (value === "") {
+      setIRNumber("");
+    }
+  };
+
+  const handleIRNumEnter = (value) => {
+    setIRNumber(value);
+  };
+
+  const handleAppChange = (event) => {
+    if (event == null) {
+      setApps("");
+    } else {
+      setApps(event.value);
+    }
+  };
+
+  const handleIncidentTypeChange = (event) => {
+    if (event == null) {
+      setIncidentType("");
+    } else {
+      setIncidentType(event.value);
+    }
+  };
+
+  const handleIncidentStatusChange = (event) => {
+    if (event == null) {
+      setIncidentStatus("");
+    } else {
+      setIncidentStatus(event.value);
+    }
+  };
+
+  const handleDateChange = (value, dateString) => {
+    if (value == null) {
+      setStartTime("");
+      setEndTime("");
+    } else {
+      setStartTime(dateString[0]);
+      setEndTime(dateString[1]);
+    }
+  };
+
+  const tableInstance = useRef(null);
+  const count = tableData.length;
+  const [value, setValue] = useState(""); // tableInstance.current.state.globalFilter
+  const handleGlobalChange = useAsyncDebounce((value) => {
+    tableInstance.current.setGlobalFilter(value || undefined);
+  }, 1000);
+
   const columns = useMemo(
     () => [
-      // {
-      //   Header: "#",
-      //   Cell: (row) => {
-      //     return <div>{Number(row.row.id) + 1}</div>;
-      //   },
-      // },
       {
         Header: "Incident Name",
         accessor: "incidentName",
@@ -86,7 +230,7 @@ function IncidentList({ user, data }) {
               </Link>
               <p className="mt-1 flex items-center text-xs text-gray-500">
                 {props.row.original.incidentNumber
-                  ? `#${props.row.original.incidentNumber}`
+                  ? `${props.row.original.incidentNumber}`
                   : ""}
               </p>
             </div>
@@ -115,15 +259,15 @@ function IncidentList({ user, data }) {
         disableSortBy: true,
       },
       {
-        Header: "Start Time",
-        accessor: "logStartTime",
+        Header: "Started At",
+        accessor: "startTime",
         // Filter: DateRangeFilter,
         Cell: (props) => {
           return (
             <div>
               <div className="text-xs text-gray-900">
                 {format(
-                  new Date(props.row.original.logStartTime),
+                  new Date(props.row.original.startTime),
                   "dd MMM yyyy HH:mm"
                 )}
               </div>
@@ -154,27 +298,140 @@ function IncidentList({ user, data }) {
     <>
       <Layout session={user}>
         <Head>
-          <title>Incident Report - Shield</title>
+          <title>Incident Report</title>
         </Head>
         <section>
           {/* Page title & actions */}
           <PageHeader title="Incident Report">
             <Link href="/incidents/search" passHref>
-              <ButtonSecondary type="button">
-                <SearchIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+              <SecondaryAnchorButton>
+                <DocumentSearchIcon
+                  className="-ml-1 mr-2 h-5 w-5"
+                  aria-hidden="true"
+                />
                 Search Incident
-              </ButtonSecondary>
+              </SecondaryAnchorButton>
             </Link>
             <Link href="/incidents/add" passHref>
-              <ButtonSmall type="button">
+              <PrimaryAnchorButton>
                 <PlusSmIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
                 New Incident
-              </ButtonSmall>
+              </PrimaryAnchorButton>
             </Link>
           </PageHeader>
           <div className="hidden sm:block mt-3">
             <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-12">
-              <Table columns={columns} data={data} />
+              <div className="flex gap-x-2">
+                <div>
+                  <label
+                    htmlFor="search"
+                    className="mb-1 block text-sm font-medium text-gray-700"
+                  >
+                    Search
+                  </label>
+                  <Input
+                    allowClear
+                    value={value || ""}
+                    onChange={(e) => {
+                      setValue(e.target.value);
+                      handleGlobalChange(e.target.value);
+                    }}
+                    placeholder={`${count} records...`}
+                    prefix={
+                      <SearchIcon
+                        className="h-5 w-5 text-gray-400"
+                        aria-hidden="true"
+                      />
+                    }
+                    style={{
+                      borderRadius: "0.375rem",
+                      width: "100%",
+                      height: "38px",
+                    }}
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="incidentNumber"
+                    className="mb-1 block text-sm font-medium text-gray-700"
+                  >
+                    IR Number
+                  </label>
+                  <Input
+                    allowClear
+                    onPressEnter={(e) => handleIRNumEnter(e.target.value)}
+                    onChange={(e) => handleIRNumChange(e.target.value)}
+                    placeholder="IR-____-______"
+                    suffix={
+                      <Tooltip title="Press Enter to Search">
+                        <InformationCircleIcon
+                          className="h-5 w-5 text-gray-400"
+                          aria-hidden="true"
+                        />
+                      </Tooltip>
+                    }
+                    style={{
+                      borderRadius: "0.375rem",
+                      width: "10rem",
+                      height: "38px",
+                    }}
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="application"
+                    className="mb-1 block text-sm font-medium text-gray-700"
+                  >
+                    Application
+                  </label>
+                  <AsyncSelect
+                    isClearable
+                    loadOptions={loadApplications}
+                    styles={styledReactSelectAdd}
+                    className="text-sm focus:ring-blue-300 focus:border-blue-300 w-60"
+                    placeholder="Search App"
+                    onChange={handleAppChange}
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="IncidentTypeOptions"
+                    className="mb-1 block text-sm font-medium text-gray-700"
+                  >
+                    Incident Type
+                  </label>
+                  <ReactSelect
+                    options={IncidentTypeOptions}
+                    isClearable
+                    className="block w-auto"
+                    onChange={handleIncidentTypeChange}
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="IncidentStatus"
+                    className="mb-1 block text-sm font-medium text-gray-700"
+                  >
+                    Status
+                  </label>
+                  <ReactSelect
+                    options={incidentStatusOptions}
+                    isClearable
+                    className="block w-auto"
+                    onChange={handleIncidentStatusChange}
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="date-filter"
+                    className="mb-1 block text-sm font-medium text-gray-700"
+                  >
+                    Date
+                  </label>
+                  <DateRangeFilter onChange={handleDateChange} />
+                </div>
+              </div>
+              <Table columns={columns} data={tableData} ref={tableInstance} />
             </div>
           </div>
         </section>

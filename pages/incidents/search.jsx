@@ -6,6 +6,8 @@ import { useRouter } from "next/router";
 import { format } from "date-fns";
 import { SearchIcon, CodeIcon } from "@heroicons/react/solid";
 import { classNames } from "components/utils";
+import { Alert } from "antd";
+import { PrimaryAnchorButton as Button } from "components/ui/button/primary-anchor-button";
 
 export const getServerSideProps = withSession(async function ({ req, query }) {
   const user = req.session.get("user");
@@ -44,6 +46,7 @@ function SearchIncident({ user, search }) {
       router.push(`/incidents/search?q=${e.target.value}`);
     }
   };
+
   return (
     <>
       <Layout session={user}>
@@ -90,76 +93,123 @@ function SearchIncident({ user, search }) {
           </header>
 
           <div className="mt-10 max-w-full sm:px-6 lg:max-w-full lg:px-12">
-            <ul className="divide-y divide-gray-200">
-              {search.data.map((result) => (
-                <li
-                  key={result.id}
-                  className="relative bg-white sm:rounded-lg py-5 px-4 hover:bg-gray-50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-500"
-                >
-                  <div className="flex justify-between space-x-3">
-                    <div className="min-w-0 flex-1">
-                      <Link href={`/incidents/${result.id}`}>
-                        <a href="#" className="block focus:outline-none">
-                          <span
-                            className="absolute inset-0"
-                            aria-hidden="true"
-                          />
-                          <p className="text-sm font-bold text-gray-900">
-                            {result.incidentName}
-                          </p>
-                          <div className="mt-1 flex space-x-4">
-                            <p className="flex items-center text-sm text-gray-500 truncate">
-                              <CodeIcon
-                                className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-700"
-                                aria-hidden="true"
-                              />{" "}
-                              {result.paramApps.subName}
-                            </p>
-                            <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                              {result.paramIncidentType
-                                ? result.paramIncidentType.incidentType
-                                : "-"}
-                            </p>
-                            <p
-                              className={classNames(
-                                result.incidentStatus === "Open"
-                                  ? "bg-red-100 text-red-800"
-                                  : "bg-green-100 text-green-800",
-                                "px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-                              )}
-                            >
-                              {result.incidentStatus}
-                            </p>
-                          </div>
-                        </a>
+            {router.asPath === router.pathname && (
+              <>
+                <Alert
+                  message="This page is specifically for searches related to incident name, root causes and actions of incidents. Please type a word related to these three things"
+                  type="info"
+                  showIcon
+                  style={{ borderRadius: "0.375rem" }}
+                />
+                <div className="relative mx-auto">
+                  <div className="relative">
+                    <img
+                      className="mx-auto w-1/2"
+                      src="/search-engines-rafiki.svg"
+                      alt="Workcation"
+                    />
+                    <div className="-mt-12 mb-3 max-w-3xl mx-auto text-center">
+                      <Link href="/incidents" passHref>
+                        <Button>Back to incident menu</Button>
                       </Link>
                     </div>
-                    <time
-                      dateTime={result.logStartTime}
-                      className="flex-shrink-0 whitespace-nowrap text-sm text-gray-500"
-                    >
-                      {result.logStartTime
-                        ? format(
-                            new Date(result.logStartTime),
-                            "dd MMMM yyyy HH:mm",
-                            "id-ID"
-                          )
-                        : "-"}{" "}
-                    </time>
                   </div>
-                  <div className="mt-4">
-                    <p className="line-clamp-2 text-sm text-gray-600 truncate">
-                      Impacted System : {result.impactedSystem}
-                    </p>
-                    <p className="line-clamp-2 text-sm text-gray-600 truncate">
-                      Root Cause : {result.rootCause}
-                    </p>
-                    <p className="line-clamp-2 text-sm text-gray-600 truncate">
-                      Action : {result.actionItem}
-                    </p>
+                </div>
+              </>
+            )}
+            <ul className="divide-y divide-gray-200">
+              {search.data.length === 0 && router.asPath !== router.pathname ? (
+                <>
+                  <div className="relative mx-auto">
+                    <div className="relative">
+                      <img
+                        className="mx-auto w-1/2"
+                        src="/nodata-rafiki.svg"
+                        alt="Workcation"
+                      />
+                      <div className="-mt-20 mb-3 max-w-3xl mx-auto text-center leading-9">
+                        <p className="text-2xl font-bold text-gray-900">
+                          Oops, Incident not found
+                        </p>
+                        <p className="mb-3">Try another keyword</p>
+                        <Link href="/incidents" passHref>
+                          <Button>Back to incident menu</Button>
+                        </Link>
+                      </div>
+                    </div>
                   </div>
-                </li>
-              ))}
+                </>
+              ) : (
+                search.data.map((result) => (
+                  <li
+                    key={result.id}
+                    className="relative bg-white sm:rounded-lg py-5 px-4 hover:bg-gray-50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-500"
+                  >
+                    <div className="flex justify-between space-x-3">
+                      <div className="min-w-0 flex-1">
+                        <Link href={`/incidents/${result.id}`}>
+                          <a href="#" className="block focus:outline-none">
+                            <span
+                              className="absolute inset-0"
+                              aria-hidden="true"
+                            />
+                            <p className="text-sm font-bold text-gray-900">
+                              {result.incidentName}
+                            </p>
+                            <div className="mt-1 flex space-x-4">
+                              <p className="flex items-center text-sm text-gray-500 truncate">
+                                <CodeIcon
+                                  className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-700"
+                                  aria-hidden="true"
+                                />{" "}
+                                {result.paramApps.subName}
+                              </p>
+                              <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                {result.paramIncidentType
+                                  ? result.paramIncidentType.incidentType
+                                  : "-"}
+                              </p>
+                              <p
+                                className={classNames(
+                                  result.incidentStatus === "Open"
+                                    ? "bg-red-100 text-red-800"
+                                    : "bg-green-100 text-green-800",
+                                  "px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                                )}
+                              >
+                                {result.incidentStatus}
+                              </p>
+                            </div>
+                          </a>
+                        </Link>
+                      </div>
+                      <time
+                        dateTime={result.logStartTime}
+                        className="flex-shrink-0 whitespace-nowrap text-sm text-gray-500"
+                      >
+                        {result.logStartTime
+                          ? format(
+                              new Date(result.logStartTime),
+                              "dd MMMM yyyy HH:mm",
+                              "id-ID"
+                            )
+                          : "-"}{" "}
+                      </time>
+                    </div>
+                    <div className="mt-4">
+                      <p className="line-clamp-2 text-sm text-gray-600 truncate">
+                        Impacted System : {result.impactedSystem}
+                      </p>
+                      <p className="line-clamp-2 text-sm text-gray-600 truncate">
+                        Root Cause : {result.rootCause}
+                      </p>
+                      <p className="line-clamp-2 text-sm text-gray-600 truncate">
+                        Action : {result.actionItem}
+                      </p>
+                    </div>
+                  </li>
+                ))
+              )}
             </ul>
           </div>
         </div>
