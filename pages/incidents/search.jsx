@@ -21,7 +21,7 @@ export const getServerSideProps = withSession(async function ({ req, query }) {
   }
 
   // search incident data to API
-  const queryParam = query.q;
+  const queryParam = query.q === undefined ? "" : query.q;
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/incidents/search?q=${queryParam}`,
     {
@@ -29,6 +29,8 @@ export const getServerSideProps = withSession(async function ({ req, query }) {
     }
   );
   const data = await res.json();
+
+  console.log(queryParam);
 
   return {
     props: {
