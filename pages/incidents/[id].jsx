@@ -12,7 +12,7 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { CardTitle } from "components/ui/card-title";
 import { CardContent } from "components/ui/card-content";
-import { ButtonCircle } from "components/ui/button-circle";
+import { ButtonCircle } from "components/ui/button/button-circle";
 import { classNames, styledReactSelect } from "components/utils";
 import { Spinner } from "components/ui/spinner";
 import { Listbox, Transition, Switch } from "@headlessui/react";

@@ -20,9 +20,11 @@ import {
 import {
   PlusSmIcon,
   SearchIcon,
+  DocumentSearchIcon,
   InformationCircleIcon,
 } from "@heroicons/react/outline";
-import { ButtonSmall } from "../../components/ui/button";
+import { PrimaryAnchorButton } from "components/ui/button/primary-anchor-button";
+import { SecondaryAnchorButton } from "components/ui/button/secondary-anchor-button";
 import { ReactSelect } from "components/ui/forms";
 import AsyncSelect from "react-select/async";
 import { styledReactSelectAdd } from "components/utils";
@@ -302,16 +304,19 @@ function IncidentList({ user, data }) {
           {/* Page title & actions */}
           <PageHeader title="Incident Report">
             <Link href="/incidents/search" passHref>
-              <ButtonSecondary type="button">
-                <SearchIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+              <SecondaryAnchorButton>
+                <DocumentSearchIcon
+                  className="-ml-1 mr-2 h-5 w-5"
+                  aria-hidden="true"
+                />
                 Search Incident
-              </ButtonSecondary>
+              </SecondaryAnchorButton>
             </Link>
             <Link href="/incidents/add" passHref>
-              <ButtonSmall type="button">
+              <PrimaryAnchorButton>
                 <PlusSmIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
                 New Incident
-              </ButtonSmall>
+              </PrimaryAnchorButton>
             </Link>
           </PageHeader>
           <div className="hidden sm:block mt-3">

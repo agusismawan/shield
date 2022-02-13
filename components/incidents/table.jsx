@@ -12,7 +12,7 @@ import {
   ChevronRightIcon,
   ChevronDoubleRightIcon,
 } from "@heroicons/react/solid";
-import { PageButton } from "../ui/pagination-button";
+import { PageButton } from "../ui/button/pagination-button";
 import { SortIcon, SortUpIcon, SortDownIcon } from "../ui/short-icon";
 import { classNames } from "../utils";
 

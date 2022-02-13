@@ -19,6 +19,8 @@ import {
   styledReactSelectAdd,
 } from "../../components/utils";
 import { ButtonSmall, ButtonSecondary } from "../../components/ui/button";
+import { PrimaryButton } from "../../components/ui/button/primary-button";
+import { SecondaryButton } from "../../components/ui/button/secondary-button";
 import { Spinner } from "../../components/ui/spinner";
 import PageHeader from "../../components/incidents/page-header";
 import docs from "../../components/incidents/docs.json";
@@ -717,7 +719,7 @@ function addIncident({ user }) {
 
                   {/* Card Footer */}
                   <div className="px-4 py-3 bg-gray-50 text-right sm:px-6 space-x-2">
-                    <ButtonSmall
+                    <PrimaryButton
                       type="submit"
                       className={
                         isSubmitting
@@ -728,14 +730,14 @@ function addIncident({ user }) {
                     >
                       {isSubmitting && <Spinner />}
                       Save
-                    </ButtonSmall>
-                    <ButtonSecondary
+                    </PrimaryButton>
+                    <SecondaryButton
                       onClick={() => {
                         reset(defaultValues);
                       }}
                     >
                       Reset
-                    </ButtonSecondary>
+                    </SecondaryButton>
                   </div>
                 </div>
               </form>
