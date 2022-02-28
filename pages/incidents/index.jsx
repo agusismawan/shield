@@ -372,7 +372,7 @@ function IncidentList({ user, data }) {
                     }
                     style={{
                       borderRadius: "0.375rem",
-                      width: "10rem",
+                      width: "11rem",
                       height: "38px",
                     }}
                   />

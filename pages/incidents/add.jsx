@@ -59,7 +59,7 @@ function addIncident({ user }) {
     rootCause: "",
     actionItem: "",
     responsibleEngineer: "",
-    idFollowUpPlan: null,
+    idProblemType: null,
     proposedEnhancement: "",
     lessonLearned: "",
   };
@@ -83,9 +83,10 @@ function addIncident({ user }) {
   const [enabled, setEnabled] = useState(false);
   const [urgencyOptions, setUrgencyOptions] = useState([]);
   const [impactOptions, setImpactOptions] = useState([]);
-  const [fuPlanOptions, setFuPlanOptions] = useState([]);
+  const [problemTypeOptions, setProblemTypeOptions] = useState([]);
   const [incidentTypeOptions, setIncidentTypeOptions] = useState([]);
-  const [fuPlan, setFuPlan] = useState();
+  const [permanentFixEnabled, setPermanenFixEnabled] = useState(false); // Untuk toggle permanent fix
+  const [isProblem, setIsProblem] = useState("N");
 
   // Get data urgency
   useEffect(() => {
@@ -148,18 +149,20 @@ function addIncident({ user }) {
     );
   };
 
-  // Get data fu plan
+  // Get data Problem Type
   useEffect(() => {
     axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}/parameters/fuplan`)
+      .get(
+        `${process.env.NEXT_PUBLIC_API_URL}/parameters/problemtype?isActive=Y`
+      )
       .then((res) => {
         const data = res.data.data.map((d) => ({
           value: d.id,
-          label: d.followUpPlan,
+          label: d.problemType,
         }));
-        setFuPlanOptions(data);
+        setProblemTypeOptions(data);
       })
-      .catch((err) => toast.error(`Fu Plan ${err}`));
+      .catch((err) => toast.error(`Problem Type ${err}`));
   }, []);
 
   // Get data incident type
@@ -196,7 +199,7 @@ function addIncident({ user }) {
         shouldValidate: false,
         shouldDirty: false,
       });
-      setValue("idFollowUpPlan", null, {
+      setValue("idProblemType", null, {
         shouldValidate: false,
         shouldDirty: false,
       });
@@ -231,17 +234,27 @@ function addIncident({ user }) {
   const handleStartTime = () => ls.setSeconds(0, 0) <= st.setSeconds(0, 0);
 
   // Hanlde permanent fix select
-  const handlePFChange = (event) => {
-    if (event.target.value === "") {
-      setFuPlan(false);
+  const handlePFChange = () => {
+    if (permanentFixEnabled) {
+      setPermanenFixEnabled(!permanentFixEnabled);
+      setIsProblem("N");
+      setValue("idProblemType", null, {
+        shouldValidate: false,
+        shouldDirty: false,
+      });
       setValue("proposedEnhancement", "", {
         shouldValidate: false,
         shouldDirty: false,
       });
+      unregister("idProblemType");
       unregister("proposedEnhancement");
     } else {
-      setFuPlan(true);
+      setPermanenFixEnabled(true);
+      setIsProblem("W");
     }
+
+    // console.log(permanentFixEnabled);
+    // console.log(isProblem);
   };
 
   const onSubmit = async (data, e) => {
@@ -265,6 +278,7 @@ function addIncident({ user }) {
         idImpact: data.idImpact.value,
         endTime: format(new Date(data.endTime), "yyyy-MM-dd HH:mm"),
         incidentStatus: "Resolved",
+        isProblem: isProblem,
       });
     }
 
@@ -291,6 +305,7 @@ function addIncident({ user }) {
           toast.error(`Msg: ${error.message}`);
         }
       });
+    // console.log(data);
   };
 
   return (
@@ -379,7 +394,6 @@ function addIncident({ user }) {
                             />
                           )}
                         />
-
                         {errors.logStartTime && (
                           <p className="mt-2 text-sm text-red-600">
                             {errors.logStartTime.message}
@@ -650,47 +664,91 @@ function addIncident({ user }) {
                             <label
                               htmlFor="idFollowUpPlan"
                               className="block text-sm font-medium text-gray-700"
+
+                          <div className="flex items-center space-x-3 col-span-6 sm:col-span-6">
+                            <Switch.Group
+                              as="div"
+                              className="flex items-center"
                             >
-                              Permanent Fix{" "}
-                              <span className="text-gray-500 font-normal">
-                                (Optional)
-                              </span>
-                            </label>
-                            <select
-                              {...register("idFollowUpPlan")}
-                              id="idFollowUpPlan"
-                              name="idFollowUpPlan"
-                              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md text-gray-700"
-                              defaultValue={null}
-                              onChange={handlePFChange}
-                            >
-                              <option value="">Select...</option>
-                              {fuPlanOptions.map((plan) => (
-                                <option value={plan.value}>{plan.label}</option>
-                              ))}
-                            </select>
+                              <Switch
+                                checked={permanentFixEnabled}
+                                onChange={handlePFChange}
+                                className={classNames(
+                                  permanentFixEnabled
+                                    ? "bg-blue-600"
+                                    : "bg-gray-200",
+                                  "relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                )}
+                              >
+                                <span
+                                  aria-hidden="true"
+                                  className={classNames(
+                                    permanentFixEnabled
+                                      ? "translate-x-5"
+                                      : "translate-x-0",
+                                    "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200"
+                                  )}
+                                />
+                              </Switch>
+                              <Switch.Label as="span" className="ml-3" passive>
+                                <span className="text-sm font-medium text-gray-900">
+                                  Need Improvemnt or Permanent Fix
+                                </span>
+                              </Switch.Label>
+                            </Switch.Group>
                           </div>
-                          {fuPlan && (
-                            <div className="col-span-6 sm:col-span-6">
-                              <label className="mb-1 block text-sm font-medium text-gray-700">
-                                Proposed Enhancement
-                              </label>
-                              <textarea
-                                {...register("proposedEnhancement", {
-                                  required: "This is required",
-                                })}
-                                id="proposedEnhancement"
-                                name="proposedEnhancement"
-                                rows={3}
-                                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
-                                placeholder="What should be done to avoid this in future ? This is mandatory if you choose the permanent fix"
-                              />
-                              {errors.proposedEnhancement && (
-                                <p className="mt-2 text-sm text-red-600">
-                                  {errors.proposedEnhancement.message}
-                                </p>
-                              )}
-                            </div>
+                          {permanentFixEnabled && (
+                            <>
+                              <div className="col-span-3 sm:col-span-3">
+                                <label
+                                  htmlFor="idProblemType"
+                                  className="block text-sm font-medium text-gray-700"
+                                >
+                                  Problem Type
+                                </label>
+                                <select
+                                  {...register("idProblemType", {
+                                    required: "This is required",
+                                  })}
+                                  id="idProblemType"
+                                  name="idProblemType"
+                                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md text-gray-700"
+                                  defaultValue={null}
+                                >
+                                  <option value="">Select...</option>
+                                  {problemTypeOptions.map((type) => (
+                                    <option value={type.value} key={type.value}>
+                                      {type.label}
+                                    </option>
+                                  ))}
+                                </select>
+                                {errors.idProblemType && (
+                                  <p className="mt-2 text-sm text-red-600">
+                                    {errors.idProblemType.message}
+                                  </p>
+                                )}
+                              </div>
+                              <div className="col-span-6 sm:col-span-6">
+                                <label className="mb-1 block text-sm font-medium text-gray-700">
+                                  Proposed Enhancement
+                                </label>
+                                <textarea
+                                  {...register("proposedEnhancement", {
+                                    required: "This is required",
+                                  })}
+                                  id="proposedEnhancement"
+                                  name="proposedEnhancement"
+                                  rows={3}
+                                  className="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                                  placeholder="What should be done to avoid this in future ? This is mandatory if you choose the permanent fix"
+                                />
+                                {errors.proposedEnhancement && (
+                                  <p className="mt-2 text-sm text-red-600">
+                                    {errors.proposedEnhancement.message}
+                                  </p>
+                                )}
+                              </div>
+                            </>
                           )}
                           <div className="col-span-6 sm:col-span-6">
                             <label className="mb-1 block text-sm font-medium text-gray-700">

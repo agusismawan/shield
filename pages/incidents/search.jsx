@@ -75,7 +75,7 @@ function SearchIncident({ user, search }) {
                         name="search"
                         id="incident-search"
                         className="h-full w-full border-transparent py-2 pl-8 pr-3 text-base text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-0 focus:border-transparent focus:placeholder-gray-400 sm:hidden"
-                        placeholder="Search incident report"
+                        placeholder="Search incident name, root cause &amp; action"
                         type="search"
                         onKeyPress={onSearch}
                       />
@@ -83,7 +83,7 @@ function SearchIncident({ user, search }) {
                         name="search"
                         id="search-field"
                         className="hidden h-full w-full border-transparent py-2 pl-8 pr-3 text-base text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-0 focus:border-transparent focus:placeholder-gray-400 sm:block"
-                        placeholder="Search incident report"
+                        placeholder="Search incident name, root cause &amp; action"
                         type="search"
                         onKeyPress={onSearch}
                       />
@@ -106,7 +106,7 @@ function SearchIncident({ user, search }) {
                 <div className="relative mx-auto">
                   <div className="relative">
                     <img
-                      className="mx-auto w-1/2"
+                      className="mx-auto w-2/5"
                       src="/search-engines-rafiki.svg"
                       alt="Workcation"
                     />
@@ -125,15 +125,17 @@ function SearchIncident({ user, search }) {
                   <div className="relative mx-auto">
                     <div className="relative">
                       <img
-                        className="mx-auto w-1/2"
+                        className="mx-auto w-2/5"
                         src="/nodata-rafiki.svg"
                         alt="Workcation"
                       />
-                      <div className="-mt-20 mb-3 max-w-3xl mx-auto text-center leading-9">
+                      <div className="-mt-16 mb-3 max-w-3xl mx-auto text-center leading-9">
                         <p className="text-2xl font-bold text-gray-900">
                           Oops, Incident not found
                         </p>
-                        <p className="mb-3">Try another keyword</p>
+                        <p className="mb-3">
+                          Try another keyword or back to incident menu
+                        </p>
                         <Link href="/incidents" passHref>
                           <Button>Back to incident menu</Button>
                         </Link>

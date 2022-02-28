@@ -7,7 +7,7 @@ const DateRangeFilter = ({ ...rest }) => {
     <RangePicker
       style={{
         borderRadius: "0.375rem",
-        width: "100%",
+        width: "15rem",
         height: "38px",
       }}
       {...rest}
