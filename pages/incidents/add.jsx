@@ -645,6 +645,7 @@ function addIncident({ user }) {
                               </p>
                             )}
                           </div>
+                          
                           <div className="col-span-3 sm:col-span-3">
                             <label
                               htmlFor="idFollowUpPlan"
