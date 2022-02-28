@@ -147,13 +147,13 @@ function IncidentDetail({ user, incident }) {
   const [enhanceOptions, setEnhanceOptions] = useState([]);
   useEffect(() => {
     axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}/parameters/fuplan?isActive=Y`, {
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/parameters/problemtype?isActive=Y`, {
         headers: { Authorization: `Bearer ${user.accessToken}` },
       })
       .then((response) => {
         const data = response.data.data.map((item) => ({
           value: item.id,
-          label: item.followUpPlan,
+          label: item.problemType,
         }));
         setEnhanceOptions(data);
       })
@@ -202,12 +202,10 @@ function IncidentDetail({ user, incident }) {
       endTime: incident.data.endTime
         ? parseISO(incident.data.endTime, new Date())
         : false,
-      idFollowUpPlan: incident.data.idFollowUpPlan
-        ? {
-          label: incident.data.paramFollowUpPlan.followUpPlan,
-          value: incident.data.paramFollowUpPlan.id,
-        }
-        : false,
+      idProblemType: incident.data.idProblemType ? {
+        label: incident.data.paramProblemType.problemType,
+        value: incident.data.paramProblemType.id,
+      } : false,
     },
   });
 
@@ -258,12 +256,12 @@ function IncidentDetail({ user, incident }) {
 
   // Handle switch button for permanent fix option
   const [enhancement, setEnhancement] = useState(
-    incident.data.idFollowUpPlan ? true : false
+    incident.data.isProblem !== 'N' ? true : false
   );
+
   const handleSwitch = () => {
     if (enhancement) {
-      console.log(enhancement);
-      unregister(["idFollowUpPlan", "proposedEnhancement"]);
+      unregister(["idProblemType", "proposedEnhancement"]);
       setValue("proposedEnhancement", null);
       setEnhancement(false);
     } else {
@@ -282,8 +280,10 @@ function IncidentDetail({ user, incident }) {
       endTime: format(new Date(data.endTime), "yyyy-MM-dd HH:mm"),
       idUrgency: data.idUrgency.value,
       idImpact: data.idImpact.value,
-      idFollowUpPlan: data.idFollowUpPlan ? data.idFollowUpPlan.value : null,
+      isProblem: enhancement === true ? 'W' : 'N',
+      idProblemType: enhancement === true ? (data.idProblemType ? data.idProblemType.value : null) : null,
     });
+
     await axios
       .patch(
         `${process.env.NEXT_PUBLIC_API_URL}/incidents/${incident.data.id}`,
@@ -305,6 +305,8 @@ function IncidentDetail({ user, incident }) {
         // Error 😨
         toast.error(`Failed to update: ${error.response.data.message}`);
       });
+
+    console.log(data);
   };
 
   return (
@@ -889,10 +891,10 @@ function IncidentDetail({ user, incident }) {
                                   htmlFor="log-start"
                                   className="mb-1 block text-sm font-medium text-gray-900"
                                 >
-                                  Permanent Fix
+                                  Problem Type
                                 </label>
                                 <Controller
-                                  name="idFollowUpPlan"
+                                  name="idProblemType"
                                   control={control}
                                   rules={{ required: "This is required!" }}
                                   render={({ field }) => (
@@ -900,22 +902,22 @@ function IncidentDetail({ user, incident }) {
                                       {...field}
                                       isClearable
                                       className={classNames(
-                                        errors.idFollowUpPlan
+                                        errors.idProblemType
                                           ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
                                           : "focus:ring-blue-500 focus:border-blue-500",
                                         "block w-full py-2 text-base border-gray-300 sm:text-sm rounded-md"
                                       )}
                                       options={enhanceOptions}
                                       styles={styledReactSelect}
-                                      placeholder="Select permanent fix..."
+                                      placeholder="Select Problem Type"
                                     />
                                   )}
                                 />
-                                {errors.idFollowUpPlan && (
+                                {errors.idProblemType && (
                                   <p className="text-sm text-red-600">
-                                    {errors.idFollowUpPlan.message}
+                                    {errors.idProblemType.message}
                                   </p>
-                                )}
+                                )}                              
                               </div>
                               <div className="sm:col-span-2">
                                 <dt className="text-sm font-medium text-gray-900">
@@ -943,7 +945,7 @@ function IncidentDetail({ user, incident }) {
                                     incident.data.proposedEnhancement
                                       ? incident.data.proposedEnhancement
                                       : ""
-                                  }
+                                  }                                
                                 />
                                 {errors.proposedEnhancement && (
                                   <p className="mt-1 text-sm text-red-600">
@@ -975,7 +977,7 @@ function IncidentDetail({ user, incident }) {
                               <p className="mt-1 text-sm text-red-600">
                                 {errors.lessonLearned.message}
                               </p>
-                            )}
+                            )}                            
                           </div>
                           <div className="sm:col-span-2">
                             <dt className="text-sm font-medium text-gray-900">
@@ -1112,7 +1114,7 @@ function IncidentDetail({ user, incident }) {
                               : "Not defined yet"}
                           </dd>
                         </div>
-                        {incident.data.idFollowUpPlan != null && (
+                        {incident.data.isProblem !== 'N' && (
                           <>
                             <div className="sm:col-span-2">
                               <dt className="text-sm font-medium text-gray-900">

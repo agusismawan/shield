@@ -659,6 +659,12 @@ function addIncident({ user }) {
                               </p>
                             )}
                           </div>
+                          
+                          <div className="col-span-3 sm:col-span-3">
+                            <label
+                              htmlFor="idFollowUpPlan"
+                              className="block text-sm font-medium text-gray-700"
+
                           <div className="flex items-center space-x-3 col-span-6 sm:col-span-6">
                             <Switch.Group
                               as="div"
