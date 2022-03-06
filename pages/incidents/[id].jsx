@@ -25,6 +25,7 @@ import {
   RefreshIcon,
   UserCircleIcon,
 } from "@heroicons/react/solid";
+import { message } from "antd";
 
 export const getServerSideProps = withSession(async function ({ req, params }) {
   const user = req.session.get("user");
@@ -257,16 +258,29 @@ function IncidentDetail({ user, incident }) {
   // Handle switch button for permanent fix option
   const [enhancement, setEnhancement] = useState(
     incident.data.isProblem !== 'N' ? true : false
+    
   );
 
   const handleSwitch = () => {
-    if (enhancement) {
-      unregister(["idProblemType", "proposedEnhancement"]);
-      setValue("proposedEnhancement", null);
-      setEnhancement(false);
-    } else {
+    if (incident.data.isProblem !== 'N') {
       setEnhancement(true);
+      message.warning({
+        content: 'There is already a improvement or permanent fix',
+        style: {
+          borderRadius: "0.500rem"
+        },
+      });
+    } else {
+      if (enhancement) {
+        unregister(["idProblemType", "proposedEnhancement"]);
+        setValue("proposedEnhancement", null);
+        setEnhancement(false);
+      } else {
+        setEnhancement(true);
+      }
     }
+
+    console.log(enhancement);
   };
 
   // handle form submit
@@ -304,7 +318,7 @@ function IncidentDetail({ user, incident }) {
         toast.error(`Failed to update: ${error.response.data.message}`);
       });
 
-    console.log(data);
+    //console.log(data);
   };
 
   return (
