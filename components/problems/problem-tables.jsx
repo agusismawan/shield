@@ -4,9 +4,16 @@ import {
   useGlobalFilter,
   useFilters,
   usePagination,
-} from "react-table"
-import { classNames } from "../utils"
-import { SortIcon, SortUpIcon, SortDownIcon } from "../ui/short-icon"
+} from "react-table";
+import { classNames } from "../utils";
+import {
+  ChevronDoubleLeftIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ChevronDoubleRightIcon,
+} from "@heroicons/react/solid";
+import { SortIcon, SortUpIcon, SortDownIcon } from "../ui/short-icon";
+import { PageButton } from "../ui/button/pagination-button";
 
 function ProblemTables({ columns, data }) {
   const {
@@ -24,19 +31,20 @@ function ProblemTables({ columns, data }) {
     pageOptions,
     prepareRow,
     state,
-  } = useTable({ columns, data }, useFilters, useSortBy, usePagination)
+  } = useTable({ columns, data }, useFilters, useSortBy, usePagination);
 
-  const { pageIndex, pageSize } = state
+  const { pageIndex, pageSize } = state;
 
   return (
     <>
-      <table {...getTableProps()} className="min-w-full">
+      <table {...getTableProps()} className="min-w-full mt-3">
         <thead>
-          {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
+          {headerGroups.map((headerGroup, i) => (
+            <tr key={`row-problem-${i}`} {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map((column) => (
                 // <th {...column.getHeaderProps(column.getSortByToggleProps())} className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 <th
+                  key={`col-problem-${i}`}
                   {...column.getHeaderProps(column.getSortByToggleProps())}
                   className={classNames(
                     "px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider",
@@ -68,27 +76,92 @@ function ProblemTables({ columns, data }) {
           {...getTableBodyProps()}
           className="bg-white divide-y divide-gray-100"
         >
-          {page.map((row) => {
-            prepareRow(row)
+          {page.map((row, i) => {
+            prepareRow(row);
             return (
-              <tr {...row.getRowProps()}>
+              <tr key={`cell-problem-${i}`} {...row.getRowProps()}>
                 {row.cells.map((cell) => {
                   return (
                     <td
+                      key={`data-problem-${i}`}
                       {...cell.getCellProps()}
                       className="px-6 py-3 text-sm text-gray-500 font-normal"
                     >
                       {cell.render("Cell")}
                     </td>
-                  )
+                  );
                 })}
               </tr>
-            )
+            );
           })}
         </tbody>
       </table>
+
+      {/* START Pagination */}
+      <div className="py-3 flex items-center justify-between">
+        <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+          <div className="flex gap-x-2 items-baseline">
+            <span className="text-sm text-gray-700">
+              Page <span className="font-medium">{pageIndex + 1}</span> of{" "}
+              <span className="font-medium">{pageOptions.length}</span>{" "}
+            </span>
+            <select
+              id="page-size"
+              value={pageSize}
+              onChange={(e) => setPageSize(Number(e.target.value))}
+              className="mt-1 ml-1 block text-base text-gray-700 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+              defaultValue={10}
+            >
+              {[10, 25, 50].map((pageSize) => (
+                <option key={pageSize} value={pageSize}>
+                  Show {pageSize}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <nav
+              className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+              aria-label="Pagination"
+            >
+              <PageButton
+                onClick={() => gotoPage(0)}
+                disabled={!canPreviousPage}
+                className="rounded-l-md"
+              >
+                <span className="sr-only">First</span>
+                <ChevronDoubleLeftIcon className="h-5 w-5" aria-hidden="true" />
+              </PageButton>
+              <PageButton
+                onClick={() => previousPage()}
+                disabled={!canPreviousPage}
+              >
+                <span className="sr-only">Previous</span>
+                <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
+              </PageButton>
+              <PageButton onClick={() => nextPage()} disabled={!canNextPage}>
+                <span className="sr-only">Next</span>
+                <ChevronRightIcon className="h-5 w-5" aria-hidden="true" />
+              </PageButton>
+              <PageButton
+                onClick={() => gotoPage(pageCount - 1)}
+                disabled={!canNextPage}
+                className="rounded-r-md"
+              >
+                <span className="sr-only">Last</span>
+                <ChevronDoubleRightIcon
+                  className="h-5 w-5"
+                  aria-hidden="true"
+                />
+              </PageButton>
+            </nav>
+          </div>
+        </div>
+      </div>
+      {/* END of Pagination */}
     </>
-  )
+  );
 }
 
-export default ProblemTables
+export default ProblemTables;
