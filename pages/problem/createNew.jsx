@@ -14,7 +14,7 @@ function CreateNew({ user, incidents }) {
         <section>
           <PageHeader title="Create New Problem" />
 
-          <div className="hidden mt-8 sm:block">
+          <div className="hidden sm:block">
             <div className="align-middle px-4 pb-4 sm:px-6 lg:px-8 border-b border-gray-200">
               <CreateForm incidents={incidents} />
             </div>
@@ -29,7 +29,6 @@ export default CreateNew
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
   const user = req.session.get("user")
-  console.log({username: user.username, email: user.email})
   if (!user) {
     return {
       redirect: {

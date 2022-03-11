@@ -39,7 +39,7 @@ const SourcePill = ({ value }) => {
     <span className="px-2 text-xs font-semibold rounded-full bg-red-100 text-gray-800">
       {value}
     </span>
-  ) : source.startsWith("problem") ? (
+  ) : source.startsWith("nota dinas") ? (
     <span className="px-2 text-xs font-semibold rounded-full bg-yellow-100 text-gray-800">
       {value}
     </span>
@@ -47,8 +47,16 @@ const SourcePill = ({ value }) => {
     <span className="px-2 text-xs font-semibold rounded-full bg-green-100 text-gray-800">
       {value}
     </span>
-  ) : (
+  ) : source.startsWith("proactive") ? (
+    <span className="px-2 text-xs font-semibold rounded-full bg-blue-100 text-gray-800">
+      {value}
+    </span>
+  ) : source.startsWith("deep") ? (
     <span className="px-2 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+      {value}
+    </span>
+  ) : (
+    <span className="px-2 text-xs font-semibold rounded-full bg-black-100 text-gray-800">
       Others
     </span>
   );
@@ -57,20 +65,48 @@ const SourcePill = ({ value }) => {
 const StatusPill = ({ value }) => {
   const status = value ? value.toLowerCase() : "-";
 
-  return status.startsWith("draft" || "unassigned") ? (
+  return status.startsWith("wowow") ? (
     <span className="px-2 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+      {value}
+    </span>
+  ) : status.startsWith("waiting") ? (
+    <span className="px-2 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+      {value}
+    </span>
+  ) : status.startsWith("unassigned") ? (
+    <span className="px-2 text-xs font-semibold rounded-full bg-red-100 text-gray-800">
+      {value}
+    </span>
+  ) : status.startsWith("cancelled") ? (
+    <span className="px-2 text-xs font-semibold rounded-full bg-red-100 text-gray-800">
       {value}
     </span>
   ) : status.startsWith("analyzing rca") ? (
     <span className="px-2 text-xs font-semibold rounded-full bg-yellow-100 text-gray-800">
       {value}
     </span>
-  ) : status.startsWith("workaround implementation") ? (
+  ) : status.startsWith("approval rca") ? (
+    <span className="px-2 text-xs font-semibold rounded-full bg-yellow-100 text-gray-800">
+      {value}
+    </span>
+  ) : status.startsWith("priority queue") ? (
+    <span className="px-2 text-xs font-semibold rounded-full bg-yellow-100 text-gray-800">
+      {value}
+    </span>
+  ) : status.startsWith("ongoing") ? (
     <span className="px-2 text-xs font-semibold rounded-full bg-blue-100 text-gray-800">
       {value}
     </span>
-  ) : status.startsWith("need acknowledged" || "problem solved") ? (
+  ) : status.startsWith("done") ? (
     <span className="px-2 text-xs font-semibold rounded-full bg-green-100 text-gray-800">
+      {value}
+    </span>
+  ) : status.startsWith("investigate") ? (
+    <span className="px-2 text-xs font-semibold rounded-full bg-blue-100 text-gray-800">
+      {value}
+    </span>
+  ) : status.startsWith("request re-investigate") ? (
+    <span className="px-2 text-xs font-semibold rounded-full bg-yellow-100 text-gray-800">
       {value}
     </span>
   ) : (
