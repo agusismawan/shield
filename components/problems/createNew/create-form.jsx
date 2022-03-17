@@ -1,9 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import SelectFilterApps from "./select-filter-apps";
-import SelectFilterIncidents from "./select-filter-incidents";
 import { ExclamationIcon } from "@heroicons/react/outline";
-import { Switch } from "@headlessui/react";
 import {
   classNames,
   styledReactSelect,
@@ -12,18 +9,17 @@ import {
 import { Controller, useForm } from "react-hook-form";
 import Select, { components } from "react-select";
 import { toast } from "react-toastify";
-import withSession from "lib/session";
 import { useRouter } from "next/router";
 import format from "date-fns/format";
+import AsyncSelect from "react-select/async";
 
-const CreateForm = (user) => {
+const CreateForm = ({ user }) => {
   const {
     register,
     unregister,
     handleSubmit,
     control,
     formState,
-    reset,
     getValues,
     setValue,
   } = useForm({
@@ -32,28 +28,53 @@ const CreateForm = (user) => {
     defaultValues: {},
   });
 
-  const arrSource = [
-    { id: 1, source: "IM" },
-    { id: 2, source: "Incident Berulang" },
-    { id: 3, source: "HC" },
-    { id: 4, source: "PROACTIVE" },
-    { id: 5, source: "DEEP" },
-  ];
-
   const { errors, isSubmitting } = formState;
   const [enabled, setEnabled] = useState(false);
   const [typeOptions, setTypeOptions] = useState([]);
   const [sourceOptions, setSourceOptions] = useState([]);
   const [urgencyOptions, setUrgencyOptions] = useState([]);
   const [impactOptions, setImpactOptions] = useState([]);
+  const [followupOptions, setFollowupOptions] = useState([]);
   const router = useRouter();
 
-  // Handle switch button when problem from incident
-  const handleSwitch = () => {
-    if (enabled) {
-      setEnabled(false);
+  // Get Data Aplikasi Async
+  const loadApplications = (value, callback) => {
+    clearTimeout(timeoutId);
+
+    if (value.length < 3) {
+      return callback([]);
+    }
+
+    const timeoutId = setTimeout(() => {
+      axios
+        .get(
+          `${process.env.NEXT_PUBLIC_API_URL}/parameters/app?subName=${value}`
+        )
+        .then((res) => {
+          const cachedOptions = res.data.data.map((d) => ({
+            value: d.id,
+            label: d.subName,
+          }));
+
+          callback(cachedOptions);
+        })
+        .catch((err) => toast.error(`Application ${err}`));
+    }, 500);
+  };
+
+  const NoOptionsMessage = (props) => {
+    return (
+      <components.NoOptionsMessage {...props}>
+        <span>Type at least 3 letters of application name</span>
+      </components.NoOptionsMessage>
+    );
+  };
+
+  const handleAppChange = (event) => {
+    if (event == null) {
+      setApps("");
     } else {
-      setEnabled(true);
+      setApps(event.value);
     }
   };
 
@@ -71,7 +92,7 @@ const CreateForm = (user) => {
       .catch((err) => toast.error(`Urgency ${err}`));
   }, []);
 
-  // Get data impact
+  // Get data Impact
   useEffect(() => {
     axios
       .get(`${process.env.NEXT_PUBLIC_API_URL}/parameters/impact?isActive=Y`)
@@ -85,7 +106,7 @@ const CreateForm = (user) => {
       .catch((err) => toast.error(`Impact ${err}`));
   }, []);
 
-  // Get data type
+  // Get data Type
   useEffect(() => {
     axios
       .get("http://127.0.0.1:3030/v1/probman/type/all")
@@ -99,7 +120,7 @@ const CreateForm = (user) => {
       .catch((err) => toast.error(`Type ${err}`));
   }, []);
 
-  // Get data type
+  // Get data Source Problem
   useEffect(() => {
     axios
       .get("http://127.0.0.1:3030/v1/probman/source/all")
@@ -113,53 +134,67 @@ const CreateForm = (user) => {
       .catch((err) => toast.error(`Type ${err}`));
   }, []);
 
-  const createProblem = async (event, user) => {
-    event.preventDefault();
-
-    let valIncident;
-    if (enabled === false) {
-      valIncident = null;
-    } else {
-      valIncident = event.target.idIncident.value;
-    }
-    const postProblem = await fetch(
-      "http://127.0.0.1:3030/v1/probman/problem/create",
-      {
-        body: JSON.stringify({
-          idType: parseInt(event.target.idType.value),
-          idApps: parseInt(event.target.idApps.value),
-          idImpact: parseInt(event.target.idImpact.value),
-          idUrgency: parseInt(event.target.idUrgency.value),
-
-          // hardcode
-          idPriorityMatrix: Math.floor(Math.random() * (8 - 1 + 1)) + 1,
-
-          problemName: event.target.problemName.value,
-          problemNumber: event.target.problemNumber.value,
-          sourceProblem: event.target.selectSource.value,
-          status: "Draft",
-          followUp: "Not Yet",
-          updatedBy: Math.floor(Math.random() * (42 - 1 + 1)) + 1,
-          idIncident: parseInt(valIncident),
-          cekIncident: enabled,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6dHJ1ZSwiaWF0IjoxNjQ1NTE4MjQ4LCJqdGkiOiI4OTdhNTVhMy1kNDhjLTRkNjYtOWY1ZC0yNzczNTU5MGM0YzIiLCJ0eXBlIjoiYWNjZXNzIiwic3ViIjo2MiwibmJmIjoxNjQ1NTE4MjQ4LCJleHAiOjE2NDU5NTAyNDgsIm1hdHJpeElkIjo0LCJtYXRyaXhEZXBhcnRtZW50IjoyLCJtYXRyaXhHcm91cCI6MiwibWF0cml4R3JhbnQiOiJ2aWV3ZXIifQ.uuV4tlKLQvwmA3N4TRA0hDDKj90MPjTwDl531-s9-bY`,
-        },
-        method: "POST",
-      }
-    )
+  // Get data Follow Up Plan
+  useEffect(() => {
+    axios
+      .get("http://127.0.0.1:3030/v1/probman/followup/all")
       .then((response) => {
-        if (response.status === 201) {
-          toast.success("Incident successfully updated");
+        const data = response.data.data.map((d) => ({
+          value: d.id,
+          label: d.label,
+        }));
+        setFollowupOptions(data);
+      })
+      .catch((err) => toast.error(`Type ${err}`));
+  }, []);
+
+  // Ini dilakukan saat onSubmit
+  const createProblem = async (data, event) => {
+    event.preventDefault();
+    let checkFollowup = null
+    if (event.target.idFollowup.value !== null) {
+      checkFollowup = parseInt(event.target.idFollowup.value)
+    } else if (event.target.idFollowup.value === null) {
+      checkFollowup = 4
+    }
+    Object.assign(data, {
+      problemName: event.target.problemName.value,
+      jiraProblem: event.target.jiraProblem.value,
+      idApps: data.idApps.value,
+      idType: parseInt(event.target.idType.value),
+      idSource: parseInt(event.target.idSource.value),
+      idUrgency: parseInt(event.target.idUrgency.value),
+      idImpact: parseInt(event.target.idImpact.value),
+      idFollowup: checkFollowup,
+      assignedTo: user.id,
+      createdBy: user.id,
+      updatedBy: user.id,
+    });
+
+    axios
+      .post(`http://127.0.0.1:3030/v1/probman/problem/create`, data, {
+        headers: { Authorization: `Bearer ${user.accessToken}` },
+      })
+      .then(function (response) {
+        if (response.status === 201 || postProblem) {
+          toast.success("Problem Sucessfully Created");
           router.push("/problem");
         }
       })
       .catch((error) => {
-        console.log(error);
+        if (error.response) {
+          toast.error(
+            `${error.response.data.message} (Code: ${error.response.status})`
+          );
+        } else if (error.request) {
+          toast.error(`Request: ${error.request}`);
+        } else {
+          toast.error(`Message: ${error.message}`);
+        }
       });
   };
+
+  const [apps, setApps] = useState("");
 
   return (
     <>
@@ -169,13 +204,13 @@ const CreateForm = (user) => {
             aria-labelledby="create-problem"
             className="space-y-6 lg:col-start-1 lg:col-span-2"
           >
-            <form onSubmit={createProblem}>
-              <div className="bg-white shadow overflow-hidden sm:rounded-lg static">
-                <div className="mt-6 px-6">
+            <form onSubmit={handleSubmit(createProblem)}>
+              <div className="bg-white shadow overflow-visible sm:rounded-lg static">
+                <div className="pt-6 px-6">
                   <label className="block text-sm font-medium text-gray-700">
                     Problem Name
                   </label>
-                  <div className="mt-1">
+                  <div className="pt-1">
                     <input
                       id="problemName"
                       name="problemName"
@@ -183,26 +218,57 @@ const CreateForm = (user) => {
                       type="text"
                     />
                   </div>
-                  <p className="mt-2 text-sm text-gray-500">
+                  <p className="pt-2 text-sm text-gray-500">
                     Write a few sentences about problem.
                   </p>
                 </div>
 
-                <div className="grid grid-cols-6 gap-6 mt-6 px-6">
+                <div className="pt-6 px-6">
+                  <label className="block text-sm font-medium text-gray-700">
+                    JIRA Link
+                  </label>
+                  <div className="pt-1">
+                    <input
+                      id="jiraProblem"
+                      name="jiraProblem"
+                      className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 rounded-md"
+                      type="text"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-6 gap-6 pt-6 px-6">
                   <div className="col-span-6 sm:col-span-3">
                     <label className="block text-sm font-medium text-gray-700">
                       Application
                     </label>
-                    <div className="mt-1 block rounded-md shadow-sm">
-                      {/* ini nanti diganti dengan controller */}
-                      <SelectFilterApps />
-                    </div>
+                    <Controller
+                      name="idApps"
+                      control={control}
+                      rules={{ required: "This is required" }}
+                      render={({ field }) => (
+                        <AsyncSelect
+                          {...field}
+                          isClearable
+                          loadOptions={loadApplications}
+                          styles={styledReactSelectAdd}
+                          className="pt-1 text-sm focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="Search for application"
+                          components={{ NoOptionsMessage }}
+                        />
+                      )}
+                    />
+                    {errors.idApps && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {errors.idApps.message}
+                      </p>
+                    )}
                   </div>
                   <div className="col-span-6 sm:col-span-3">
                     <label className="block text-sm font-medium text-gray-700">
                       Problem Number
                     </label>
-                    <div className="mt-1">
+                    <div className="pt-1">
                       <input
                         id="problemNumber"
                         name="problemNumber"
@@ -212,18 +278,18 @@ const CreateForm = (user) => {
                         value={`PR-**-${format(new Date(), "MMyyyy")}`}
                       />
                     </div>
-                    <p className="mt-2 text-sm text-gray-500">
+                    <p className="pt-2 text-sm text-gray-500">
                       Generate a number for problem definied.
                     </p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-6 gap-6 mt-6 px-6">
+                <div className="grid grid-cols-6 gap-6 pt-6 px-6">
                   <div className="col-span-6 sm:col-span-3">
                     <label className="block text-sm font-medium text-gray-700">
                       Type
                     </label>
-                    <div className="mt-1">
+                    <div className="pt-1">
                       <Controller
                         name="idType"
                         control={control}
@@ -239,7 +305,7 @@ const CreateForm = (user) => {
                         )}
                       />
                       {errors.idType && (
-                        <p className="mt-2 text-sm text-red-600">
+                        <p className="pt-2 text-sm text-red-600">
                           {errors.idType.message}
                         </p>
                       )}
@@ -250,7 +316,7 @@ const CreateForm = (user) => {
                     <label className="block text-sm font-medium text-gray-700">
                       Source
                     </label>
-                    <div className="mt-1">
+                    <div className="pt-1">
                       <Controller
                         name="idSource"
                         control={control}
@@ -266,139 +332,105 @@ const CreateForm = (user) => {
                         )}
                       />
                       {errors.idSource && (
-                        <p className="mt-2 text-sm text-red-600">
+                        <p className="pt-2 text-sm text-red-600">
                           {errors.idSource.message}
                         </p>
                       )}
-                      {/* <select
-                        name="selectSource"
-                        id="selectSource"
-                        className="text-sm focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        {arrSource.map((item) => (
-                          <option
-                            key={`opt-${item.source}`}
-                            value={item.source}
-                          >
-                            {item.source}
-                          </option>
-                        ))}
-                      </select> */}
                     </div>
                   </div>
                 </div>
 
-                {/* Toggle Insiden */}
-                {/* <div className="mt-6 px-6">
-                  <Switch.Group as="div" className="flex items-center">
-                    <Switch
-                      checked={enabled}
-                      onChange={handleSwitch}
-                      className={classNames(
-                        enabled ? "bg-blue-600" : "bg-gray-200",
-                        "relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                <div className="pt-6 px-6">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Urgency
+                  </label>
+                  <div className="pt-1">
+                    <Controller
+                      name="idUrgency"
+                      control={control}
+                      rules={{ required: "This is required" }}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          isClearable
+                          options={urgencyOptions}
+                          styles={styledReactSelect}
+                          className="text-sm focus:ring-blue-500 focus:border-blue-500"
+                        />
                       )}
-                    >
-                      <span
-                        aria-hidden="true"
-                        className={classNames(
-                          enabled ? "translate-x-5" : "translate-x-0",
-                          "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200"
-                        )}
-                      />
-                    </Switch>
-                    <Switch.Label as="span" className="ml-3" passive>
-                      <span className="text-sm font-medium text-gray-900">
-                        From Incident{" "}
-                      </span>
-                      <span className="text-sm text-gray-500">
-                        (Switch the toggle if the problem from incident)
-                      </span>
-                    </Switch.Label>
-                  </Switch.Group>
-                </div> */}
-                {/* JIka Insiden Enabled */}
-                {/* {enabled === true && (
-                  <>
-                    <div className="mt-6 px-6">
-                      <label className="block text-sm font-medium text-gray-700">
-                        Incident
-                      </label>
-                      <div className="mt-1 block rounded-md shadow-sm">
-                        <SelectFilterIncidents />
-                      </div>
-                    </div>
-                  </>
-                )} */}
-                {/* End of Toggle Insiden */}
-
-                <div className="grid grid-cols-6 gap-6 mt-6 px-6">
-                  <div className="col-span-6 sm:col-span-3">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Urgency
-                    </label>
-                    <div className="mt-1">
-                      <Controller
-                        name="idUrgency"
-                        control={control}
-                        rules={{ required: "This is required" }}
-                        render={({ field }) => (
-                          <Select
-                            {...field}
-                            isClearable
-                            options={urgencyOptions}
-                            styles={styledReactSelect}
-                            className="text-sm focus:ring-blue-500 focus:border-blue-500"
-                          />
-                        )}
-                      />
-                      {errors.idUrgency && (
-                        <p className="mt-2 text-sm text-red-600">
-                          {errors.idUrgency.message}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="col-span-6 sm:col-span-3">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Impact
-                    </label>
-                    <div className="mt-1">
-                      <Controller
-                        name="idImpact"
-                        control={control}
-                        rules={{ required: "This is required" }}
-                        render={({ field }) => (
-                          <Select
-                            {...field}
-                            isClearable
-                            options={impactOptions}
-                            styles={styledReactSelect}
-                            className="text-sm focus:ring-blue-500 focus:border-blue-500"
-                          />
-                        )}
-                      />
-                      {errors.idImpact && (
-                        <p className="mt-2 text-sm text-red-600">
-                          {errors.idImpact.message}
-                        </p>
-                      )}
-                    </div>
+                    />
+                    {errors.idUrgency && (
+                      <p className="pt-2 text-sm text-red-600">
+                        {errors.idUrgency.message}
+                      </p>
+                    )}
                   </div>
                 </div>
 
-                <div className="my-3 pr-6">
+                <div className="pt-6 px-6">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Impact
+                  </label>
+                  <div className="pt-1">
+                    <Controller
+                      name="idImpact"
+                      control={control}
+                      rules={{ required: "This is required" }}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          isClearable
+                          options={impactOptions}
+                          styles={styledReactSelect}
+                          className="text-sm focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      )}
+                    />
+                    {errors.idImpact && (
+                      <p className="pt-2 text-sm text-red-600">
+                        {errors.idImpact.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="pt-6 px-6">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Follow Up Plan
+                  </label>
+                  <div className="pt-1">
+                    <Controller
+                      name="idFollowup"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          isClearable
+                          options={followupOptions}
+                          styles={styledReactSelect}
+                          className="text-sm focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      )}
+                    />
+                    {errors.idFollowup && (
+                      <p className="pt-2 text-sm text-red-600">
+                        {errors.idFollowup.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="py-6 pr-6">
                   <div className="flex justify-end">
                     <button
                       type="button"
-                      className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                      className="mr-1 bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                      className="ml-1 pl-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
                       Submit
                     </button>
@@ -421,11 +453,11 @@ const CreateForm = (user) => {
                   aria-hidden="true"
                 />
               </div>
-              <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+              <div className="pt-3 text-center sm:pt-0 sm:pl-4 sm:text-left">
                 <h3 className="text-lg leading-6 font-medium text-gray-900">
                   Create New Problem
                 </h3>
-                <div className="mt-2">
+                <div className="pt-2">
                   <p className="text-sm text-gray-500">
                     <b>
                       Are all of Problem&#39;s requirements already prepared?

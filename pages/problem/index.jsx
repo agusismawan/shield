@@ -27,6 +27,7 @@ import AsyncSelect from "react-select/async";
 import { ReactSelect } from "components/ui/forms";
 import { styledReactSelectAdd } from "components/utils";
 import { PrimaryAnchorButton } from "components/ui/button/primary-anchor-button";
+import { SecondaryAnchorButton } from "components/ui/button/secondary-anchor-button";
 import { Input } from "antd";
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
@@ -193,10 +194,7 @@ export default function ProblemList({ user, problems }) {
                       })
                     : "Multiple Incident"}
                 </text>
-                {` | PR-${props.row.original.id}-${format(
-                  new Date(props.row.original.createdAt),
-                  "MMddyy"
-                )}`}
+                {` | ${props.row.original.problemNumber}`}
               </div>
               <div className="text-base text-gray-900">
                 {props.row.original.problemName}
@@ -277,6 +275,7 @@ export default function ProblemList({ user, problems }) {
   return (
     <>
       <Layout key="LayoutProblem" session={user}>
+        {console.log(user)}
         <Head>
           <title>All Problem List</title>
         </Head>
@@ -289,6 +288,17 @@ export default function ProblemList({ user, problems }) {
                 New Problem
               </PrimaryAnchorButton>
             </Link>
+            {user.username === "haritsf" ?(
+                <Link href="/problem/assign" passHref>
+                  <SecondaryAnchorButton>
+                    <PlusSmIcon
+                      className="-ml-1 mr-2 h-5 w-5"
+                      aria-hidden="true"
+                    />
+                    Need Assign
+                  </SecondaryAnchorButton>
+                </Link>
+              ) : ""}
           </PageHeader>
 
           {/* Cards */}
