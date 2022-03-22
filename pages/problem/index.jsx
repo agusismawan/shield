@@ -22,6 +22,7 @@ import {
   PuzzleIcon,
   SparklesIcon,
   BadgeCheckIcon,
+  AtSymbolIcon
 } from "@heroicons/react/outline";
 import AsyncSelect from "react-select/async";
 import { ReactSelect } from "components/ui/forms";
@@ -187,7 +188,7 @@ export default function ProblemList({ user, problems }) {
               <div className="text-sm text-gray-500">
                 <text className="text-indigo-600 hover:text-indigo-900">
                   {props.row.original.incidents.length == 0
-                    ? "Without Incident"
+                    ? "Standalone Problem"
                     : props.row.original.multipleIncident == "N"
                     ? props.row.original.incidents.map((incident) => {
                         return incident.incidentNumber;
@@ -275,7 +276,7 @@ export default function ProblemList({ user, problems }) {
   return (
     <>
       <Layout key="LayoutProblem" session={user}>
-        {console.log(user)}
+        {console.log([user.id, user.username, user.fullname])}
         <Head>
           <title>All Problem List</title>
         </Head>
@@ -291,7 +292,7 @@ export default function ProblemList({ user, problems }) {
             {user.username === "haritsf" ?(
                 <Link href="/problem/assign" passHref>
                   <SecondaryAnchorButton>
-                    <PlusSmIcon
+                    <AtSymbolIcon
                       className="-ml-1 mr-2 h-5 w-5"
                       aria-hidden="true"
                     />

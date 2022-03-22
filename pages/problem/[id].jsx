@@ -1,10 +1,9 @@
 import Head from "next/head";
 import Layout from "../../components/layout";
-import { useRef, useState } from "react";
-import { SourcePill, StatusPill } from "components/problems/status-badge";
+import { useEffect, useState } from "react";
+import { SourcePill } from "components/problems/status-badge";
 import { CardTitle } from "components/ui/card-title";
-import { ButtonCircle } from "components/ui/button/button-circle";
-import { CardContent } from "components/ui/card-content";
+import { styledReactSelect } from "../../components/utils";
 import {
   PencilIcon,
   CalendarIcon,
@@ -12,6 +11,32 @@ import {
 } from "@heroicons/react/solid";
 import format from "date-fns/format";
 import withSession from "lib/session";
+import { Controller, useForm } from "react-hook-form";
+import Select from "react-select";
+import axios from "axios";
+
+export const getServerSideProps = withSession(async function ({ req, params }) {
+  const user = req.session.get("user");
+  if (!user) {
+    return {
+      redirect: {
+        destination: "/auth",
+        permanent: false,
+      },
+    };
+  }
+
+  const res = await fetch(
+    `http://127.0.0.1:3030/v1/probman/problem/${params.id}`
+  );
+  const data = await res.json();
+  return {
+    props: {
+      user: user,
+      problem: data,
+    },
+  };
+});
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -27,7 +52,37 @@ function ProblemDetail({ user, problem }) {
     };
   }
 
-  const [editMode, setEditMode] = useState(false);
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const { handleSubmit, control, formState } = useForm();
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const [assignOptions, setAssignOptions] = useState([]);
+  const { errors, isSubmitting } = formState;
+
+  // Get data User
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    axios
+      .get("http://127.0.0.1:3030/v1/probman/user/all")
+      .then((response) => {
+        const data = response.data.data.map((d) => ({
+          value: d.id,
+          label: d.fullName,
+        }));
+        setAssignOptions(data);
+      })
+      .catch((err) => toast.error(`Assign ${err}`));
+  }, []);
+
+  const makeAssign = async (data, event) => {
+    event.preventDefault();
+    Object.assign(data, {
+      // idSource: ini masih bingung
+      idStatus: 2,
+      isProblem: "Y",
+      updatedBy: user.id,
+      updatedAt: new Date
+    })
+  };
 
   return (
     <>
@@ -102,23 +157,7 @@ function ProblemDetail({ user, problem }) {
                     <CardTitle
                       title={`Problem Number ${problem.data.problemNumber}`}
                       subtitle={`wasweswos fafifu`}
-                    >
-                      <div className="px-4 flex">
-                        {user.grant != "viewer" && (
-                          <ButtonCircle
-                            action={() => {
-                              setEditMode(true);
-                            }}
-                            className="border-gray-300 text-gray-700 bg-gray-100 hover:bg-gray-50"
-                          >
-                            <PencilIcon
-                              className="h-5 w-5"
-                              aria-hidden="true"
-                            />
-                          </ButtonCircle>
-                        )}
-                      </div>
-                    </CardTitle>
+                    ></CardTitle>
                     <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
                       <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
                         <div className="sm:col-span-1">
@@ -227,7 +266,7 @@ function ProblemDetail({ user, problem }) {
                       <tbody className="bg-white divide-y divide-gray-100">
                         {problem.data.incidents.map((incident) => (
                           <>
-                            <tr>
+                            <tr key={`${incident.incidentNumber}`}>
                               <td className="px-6 py-3 text-sm text-gray-500 font-normal">
                                 {incident.incidentNumber}
                               </td>
@@ -235,10 +274,13 @@ function ProblemDetail({ user, problem }) {
                                 {incident.incidentName}
                               </td>
                               <td className="px-6 py-3 text-sm text-gray-500 font-normal">
-                                {incident.createdBy}
+                                {incident.user.fullName}
                               </td>
                               <td className="px-6 py-3 text-sm text-gray-500 font-normal">
-                                {incident.createdAt}
+                                {format(
+                                  new Date(incident.createdAt),
+                                  "d LLLL yyyy hh:mm"
+                                )}
                               </td>
                             </tr>
                           </>
@@ -347,17 +389,49 @@ function ProblemDetail({ user, problem }) {
                     <h2 className="text-sm font-medium text-gray-900">
                       Assigned To
                     </h2>
-                    <div className="flex items-center space-x-2">
-                      <UserCircleIcon
-                        className="h-6 w-6 text-gray-500"
-                        aria-hidden="true"
-                      />
-                      <span className="text-gray-600 text-sm">
-                        {problem.data.assigned_to
-                          ? problem.data.assigned_to.fullName
-                          : "Undefined"}
-                      </span>
-                    </div>
+
+                    {problem.data.assigned_to ? (
+                      <div className="flex items-center space-x-2">
+                        <UserCircleIcon
+                          className="h-6 w-6 text-gray-500"
+                          aria-hidden="true"
+                        />
+                        <span className="text-gray-600 text-sm">
+                          {problem.data.assigned_to.fullName}
+                        </span>
+                      </div>
+                    ) : (
+                      <>
+                        <form onSubmit={handleSubmit(makeAssign)}>
+                          <Controller
+                            name="assignedTo"
+                            control={control}
+                            rules={{ required: "This is required" }}
+                            render={({ field }) => (
+                              <Select
+                                {...field}
+                                isClearable
+                                options={assignOptions}
+                                styles={styledReactSelect}
+                                className="block w-60 text-sm focus:ring-blue-500 focus:border-blue-500"
+                              />
+                            )}
+                          />
+                          <button
+                            type="submit"
+                            className="mt-4 w-60 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                          >
+                            Submit
+                          </button>
+                          {errors.assignedTo && (
+                            <p className="pt-2 text-sm text-red-600">
+                              {errors.assignedTo.message}
+                            </p>
+                          )}
+                        </form>
+                      </>
+                    )}
+
                     <div className="flex items-center space-x-2">
                       <span className="text-gray-600 text-sm">
                         Last updated on{" "}
@@ -391,26 +465,3 @@ function ProblemDetail({ user, problem }) {
 }
 
 export default ProblemDetail;
-
-export const getServerSideProps = withSession(async function ({ req, params }) {
-  const user = req.session.get("user");
-  if (!user) {
-    return {
-      redirect: {
-        destination: "/auth",
-        permanent: false,
-      },
-    };
-  }
-
-  const res = await fetch(
-    `http://127.0.0.1:3030/v1/probman/problem/${params.id}`
-  );
-  const data = await res.json();
-  return {
-    props: {
-      user: user,
-      problem: data,
-    },
-  };
-});

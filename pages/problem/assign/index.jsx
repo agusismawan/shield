@@ -1,6 +1,6 @@
 import Head from "next/head";
-import Layout from "../../components/layout";
-import PageHeader from "../../components/problems/page-header";
+import Layout from "../../../components/layout";
+import PageHeader from "../../../components/problems/page-header";
 import ProblemTables from "components/problems/problem-tables";
 import { EyeIcon } from "@heroicons/react/solid";
 import { useEffect, useState, useMemo, useRef } from "react";
@@ -8,11 +8,13 @@ import format from "date-fns/format";
 import {
   PriorityArrow,
   SourcePill,
-} from "../../components/problems/status-badge";
-import axios from "axios";
-import { useAsyncDebounce } from "react-table";
-import withSession from "../../lib/session";
+} from "../../../components/problems/status-badge";
+import { StatusIncident } from "components/problems/status-badge";
+import withSession from "../../../lib/session";
 import { toast } from "react-toastify";
+import { Controller, useForm } from "react-hook-form";
+import Select from "react-select";
+import { styledReactSelect } from "components/utils";
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
   const user = req.session.get("user");
@@ -31,27 +33,66 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
   const getAssign = await assignProblem.json();
 
   if (assignProblem.status === 200) {
-    // Pass data to the page via props
     return {
       props: {
         user: user,
         assign: getAssign.data,
       },
     };
+  } else {
+    return {
+      props: {
+        user: user,
+        assign: null,
+      },
+    };
   }
-  // else {
-  //   return {
-  //     redirect: {
-  //       destination: "/problem",
-  //       permanent: false,
-  //     },
-  //   };
-  // }
 });
 
 export default function AssignList({ user, assign }) {
+  const { handleSubmit, control, formState } = useForm({
+    mode: "onSubmit",
+    reValidateMode: "onChange",
+    defaultValues: {},
+  });
+
+  // const hitUpdateAssign = async (data, event, props) => {
+  //   event.preventDefault();
+  //   Object.assign(data, {
+  //     assignedTo: event.target.idAssign,
+  //     updatedBy: 62, // Hardcode ke Pemberi Assign
+  //   });
+  //   axios
+  //     .put(
+  //       `http://127.0.0.1:3030/v1/probman/incident/recprob/${props.row.original.problem.id}`,
+  //       data,
+  //       {
+  //         headers: { Authorization: `Bearer ${user.accessToken}` },
+  //       }
+  //     )
+  //     // .then(function (response) {
+  //     //   if (response.status === 201 || postProblem) {
+  //     //     toast.success("Problem Sucessfully Created");
+  //     //     router.push("/problem");
+  //     //   }
+  //     // })
+  //     .catch((error) => {
+  //       if (error.response) {
+  //         toast.error(
+  //           `${error.response.data.message} (Code: ${error.response.status})`
+  //         );
+  //       } else if (error.request) {
+  //         toast.error(`Request: ${error.request}`);
+  //       } else {
+  //         toast.error(`Message: ${error.message}`);
+  //       }
+  //     });
+  // };
+
   const tableInstance = useRef(null);
-  const count = assign.length;
+
+  const [assignOptions, setAssignOptions] = useState([]);
+  const { errors, isSubmitting } = formState;
 
   // begin of define column
   const columns = useMemo(
@@ -68,11 +109,13 @@ export default function AssignList({ user, assign }) {
         Cell: (props) => {
           return (
             <>
-              <div style={{ textAlign: "-webkit-center" }}>
+              <div style={{ textAlign: "-webkit-center" }} className="w-100">
                 <PriorityArrow
                   value={props.row.original.priorityMatrix.mapping}
                 />
-                <SourcePill value={props.row.original.problem.problemSource.label} />
+                <SourcePill
+                  value={props.row.original.problem.problemSource.label}
+                />
               </div>
             </>
           );
@@ -105,28 +148,26 @@ export default function AssignList({ user, assign }) {
         },
       },
       {
-        Header: "Impacted System",
+        Header: "Status",
         Cell: (props) => {
           return (
-            <div className="text-sm">
-              {props.row.original.impactedSystem
-                ? props.row.original.impactedSystem
-                : "-"}
+            <div>
+              {props.row.original.incidentStatus ? (
+                <StatusIncident value={props.row.original.incidentStatus} />
+              ) : (
+                "-"
+              )}
             </div>
           );
         },
       },
       {
-        Header: "Assign",
-        Cell: () => {
+        Header: "Application",
+        Cell: (props) => {
           return (
-            <select name="" id="">
-              <option value="Harits">Harits</option>
-              <option value="Dimas">Dimas</option>
-              <option value="Rizky">Rizky</option>
-              <option value="Bima">Bima</option>
-              <option value="Edo">Edo</option>
-            </select>
+            <div className="text-base text-gray-900">
+              {props.row.original.app.subname}
+            </div>
           );
         },
       },
@@ -135,9 +176,10 @@ export default function AssignList({ user, assign }) {
         Cell: (props) => {
           return (
             <>
+              {/* <form onSubmit={handleSubmit(hitUpdateAssign)}> */}
               <div style={{ textAlign: "-webkit-center" }}>
                 <a
-                  href={`/problem/${props.row.original.id}`}
+                  href={`/problem/${props.row.original.problem.id}`}
                   className="bg-gray-100 text-gray-900"
                 >
                   <EyeIcon
@@ -146,6 +188,7 @@ export default function AssignList({ user, assign }) {
                   />
                 </a>
               </div>
+              {/* </form> */}
             </>
           );
         },
@@ -168,7 +211,12 @@ export default function AssignList({ user, assign }) {
           {/* Problem Tables table (small breakpoint and up) */}
           <div className="hidden sm:block mt-3">
             <div className="align-middle px-4 pb-4 sm:px-6 lg:px-8 border-b border-gray-200">
-              <ProblemTables columns={columns} data={assign} />
+              {assign ? (
+                <ProblemTables columns={columns} data={assign} />
+              ) : (
+                "No Need to be Assign"
+                // <ProblemTables columns={columns} data={false} />
+              )}
             </div>
           </div>
         </section>
