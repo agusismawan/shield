@@ -1,4 +1,5 @@
 import Head from "next/head";
+import Link from "next/link";
 import Layout from "../../components/layout";
 import { useEffect, useState } from "react";
 import { SourcePill } from "components/problems/status-badge";
@@ -14,6 +15,8 @@ import withSession from "lib/session";
 import { Controller, useForm } from "react-hook-form";
 import Select from "react-select";
 import axios from "axios";
+import { toast } from "react-toastify";
+import { useRouter } from "next/router";
 
 export const getServerSideProps = withSession(async function ({ req, params }) {
   const user = req.session.get("user");
@@ -34,6 +37,7 @@ export const getServerSideProps = withSession(async function ({ req, params }) {
     props: {
       user: user,
       problem: data,
+      idProblem: params.id,
     },
   };
 });
@@ -42,7 +46,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-function ProblemDetail({ user, problem }) {
+function ProblemDetail({ user, problem, idProblem }) {
   if (!user) {
     return {
       redirect: {
@@ -57,7 +61,8 @@ function ProblemDetail({ user, problem }) {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [assignOptions, setAssignOptions] = useState([]);
   const { errors, isSubmitting } = formState;
-
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const router = useRouter();
   // Get data User
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
@@ -75,20 +80,47 @@ function ProblemDetail({ user, problem }) {
 
   const makeAssign = async (data, event) => {
     event.preventDefault();
+    // console.log(idProblem)
     Object.assign(data, {
-      // idSource: ini masih bingung
       idStatus: 2,
-      isProblem: "Y",
       updatedBy: user.id,
-      updatedAt: new Date
-    })
+    });
+
+    axios
+      .put(
+        `http://127.0.0.1:3030/v1/probman/incident/recprob/${idProblem}`,
+        data,
+        {
+          headers: { Authorization: `Bearer ${user.accessToken}` },
+        }
+      )
+      .then(function (response) {
+        if (response) {
+          toast.success("Problem Sucessfully Assigned");
+          router.push("/problem");
+        }
+      })
+      .catch((error) => {
+        if (error.response) {
+          toast.error(
+            `${error.response.data.message} (Code: ${error.response.status})`
+          );
+        } else if (error.request) {
+          toast.error(`Request: ${error.request}`);
+        } else {
+          toast.error(`Message: ${error.message}`);
+        }
+      });
   };
 
   return (
     <>
-      <Layout key="LayoutProblemDetail" session={user}>
+      <Layout key={`LayoutProblemDetail-${problem.data.id}`} session={user}>
         <Head>
-          <title>{problem.data.problemNumber}</title>
+          <title>
+            {problem.data.problemNumber}{" "}
+            {problem.data.app ? problem.data.app.subname : ""} - Shield
+          </title>
         </Head>
         <section>
           <div className="py-6">
@@ -156,7 +188,7 @@ function ProblemDetail({ user, problem }) {
                   <div className="bg-white shadow sm:rounded-lg">
                     <CardTitle
                       title={`Problem Number ${problem.data.problemNumber}`}
-                      subtitle={`wasweswos fafifu`}
+                      subtitle={`Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla a maximus ex, at maximus lectus. Etiam sed mi vitae massa bibendum maximus non ac ante. Aliquam erat volutpat. Etiam ac ultrices ipsum. Curabitur ultrices risus nec justo ornare venenatis. Maecenas non ligula eu sem fermentum ultrices. Proin a eleifend ante.`}
                     ></CardTitle>
                     <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
                       <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
@@ -244,51 +276,65 @@ function ProblemDetail({ user, problem }) {
                   </div>
                 </section>
 
-                <section aria-labelledby="incident-detail">
-                  <div className="bg-white shadow sm:rounded-lg">
-                    <table className="min-w-full" role="table">
-                      <thead>
-                        <tr>
-                          <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Number
-                          </th>
-                          <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Name
-                          </th>
-                          <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Reported by
-                          </th>
-                          <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Reported at
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-100">
-                        {problem.data.incidents.map((incident) => (
-                          <>
-                            <tr key={`${incident.incidentNumber}`}>
-                              <td className="px-6 py-3 text-sm text-gray-500 font-normal">
-                                {incident.incidentNumber}
-                              </td>
-                              <td className="px-6 py-3 text-sm text-gray-500 font-normal">
-                                {incident.incidentName}
-                              </td>
-                              <td className="px-6 py-3 text-sm text-gray-500 font-normal">
-                                {incident.user.fullName}
-                              </td>
-                              <td className="px-6 py-3 text-sm text-gray-500 font-normal">
-                                {format(
-                                  new Date(incident.createdAt),
-                                  "d LLLL yyyy hh:mm"
-                                )}
-                              </td>
-                            </tr>
-                          </>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </section>
+                {/* Condition Incident Table */}
+                {problem.data.incidents.length > 0 ? (
+                  <section aria-labelledby="incident-table">
+                    <div className="bg-white shadow sm:rounded-lg">
+                      <table className="min-w-full" role="table">
+                        <thead>
+                          <tr>
+                            <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Number
+                            </th>
+                            <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Name
+                            </th>
+                            <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Reported by
+                            </th>
+                            <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Reported at
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-100">
+                          {problem.data.incidents.map((incident) => (
+                            <>
+                              <tr key={`${incident.incidentNumber}`}>
+                                <td className="px-6 py-3 text-sm text-gray-500 font-normal">
+                                  <Link
+                                    href={`/incidents/${incident.id}`}
+                                    passHref
+                                  >
+                                    <a
+                                      className="text-blue-500 hover:text-blue-900"
+                                      target="_blank"
+                                      rel="noreferrer"
+                                    >
+                                      {incident.incidentNumber}
+                                    </a>
+                                  </Link>
+                                </td>
+                                <td className="px-6 py-3 text-sm text-gray-500 font-normal">
+                                  {incident.incidentName}
+                                </td>
+                                <td className="px-6 py-3 text-sm text-gray-500 font-normal">
+                                  {incident.user.fullName}
+                                </td>
+                                <td className="px-6 py-3 text-sm text-gray-500 font-normal">
+                                  {format(
+                                    new Date(incident.createdAt),
+                                    "d LLLL yyyy hh:mm"
+                                  )}
+                                </td>
+                              </tr>
+                            </>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+                ) : null}
               </div>
 
               <section
@@ -400,7 +446,7 @@ function ProblemDetail({ user, problem }) {
                           {problem.data.assigned_to.fullName}
                         </span>
                       </div>
-                    ) : (
+                    ) : user.username === "haritsf" ? (
                       <>
                         <form onSubmit={handleSubmit(makeAssign)}>
                           <Controller
@@ -430,6 +476,8 @@ function ProblemDetail({ user, problem }) {
                           )}
                         </form>
                       </>
+                    ) : (
+                      "Not Assigned"
                     )}
 
                     <div className="flex items-center space-x-2">

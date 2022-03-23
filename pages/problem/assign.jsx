@@ -1,20 +1,18 @@
 import Head from "next/head";
-import Layout from "../../../components/layout";
-import PageHeader from "../../../components/problems/page-header";
+import Image from "next/image";
+import Layout from "../../components/layout";
+import PageHeader from "../../components/problems/page-header";
 import ProblemTables from "components/problems/problem-tables";
 import { EyeIcon } from "@heroicons/react/solid";
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useMemo } from "react";
+import { useForm } from "react-hook-form";
 import format from "date-fns/format";
 import {
   PriorityArrow,
   SourcePill,
-} from "../../../components/problems/status-badge";
+} from "../../components/problems/status-badge";
 import { StatusIncident } from "components/problems/status-badge";
-import withSession from "../../../lib/session";
-import { toast } from "react-toastify";
-import { Controller, useForm } from "react-hook-form";
-import Select from "react-select";
-import { styledReactSelect } from "components/utils";
+import withSession from "../../lib/session";
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
   const user = req.session.get("user");
@@ -22,6 +20,13 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
     return {
       redirect: {
         destination: "/auth",
+        permanent: false,
+      },
+    };
+  } else if (user.username !== "haritsf") {
+    return {
+      redirect: {
+        destination: "/problem",
         permanent: false,
       },
     };
@@ -50,49 +55,11 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
 });
 
 export default function AssignList({ user, assign }) {
-  const { handleSubmit, control, formState } = useForm({
+  const { formState } = useForm({
     mode: "onSubmit",
     reValidateMode: "onChange",
     defaultValues: {},
   });
-
-  // const hitUpdateAssign = async (data, event, props) => {
-  //   event.preventDefault();
-  //   Object.assign(data, {
-  //     assignedTo: event.target.idAssign,
-  //     updatedBy: 62, // Hardcode ke Pemberi Assign
-  //   });
-  //   axios
-  //     .put(
-  //       `http://127.0.0.1:3030/v1/probman/incident/recprob/${props.row.original.problem.id}`,
-  //       data,
-  //       {
-  //         headers: { Authorization: `Bearer ${user.accessToken}` },
-  //       }
-  //     )
-  //     // .then(function (response) {
-  //     //   if (response.status === 201 || postProblem) {
-  //     //     toast.success("Problem Sucessfully Created");
-  //     //     router.push("/problem");
-  //     //   }
-  //     // })
-  //     .catch((error) => {
-  //       if (error.response) {
-  //         toast.error(
-  //           `${error.response.data.message} (Code: ${error.response.status})`
-  //         );
-  //       } else if (error.request) {
-  //         toast.error(`Request: ${error.request}`);
-  //       } else {
-  //         toast.error(`Message: ${error.message}`);
-  //       }
-  //     });
-  // };
-
-  const tableInstance = useRef(null);
-
-  const [assignOptions, setAssignOptions] = useState([]);
-  const { errors, isSubmitting } = formState;
 
   // begin of define column
   const columns = useMemo(
@@ -214,8 +181,24 @@ export default function AssignList({ user, assign }) {
               {assign ? (
                 <ProblemTables columns={columns} data={assign} />
               ) : (
-                "No Need to be Assign"
-                // <ProblemTables columns={columns} data={false} />
+                <>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Image
+                      width={400}
+                      height={400}
+                      src="/search-engines-rafiki.svg"
+                      alt="Workstation"
+                    />
+                  </div>
+                  <div className="mt-4 mb-3 max-w-3xl mx-auto text-center">
+                    Seems Like Problem is Empty, nothing to be Assigned
+                  </div>
+                </>
               )}
             </div>
           </div>

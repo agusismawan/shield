@@ -22,7 +22,8 @@ import {
   PuzzleIcon,
   SparklesIcon,
   BadgeCheckIcon,
-  AtSymbolIcon
+  AtSymbolIcon,
+  BanIcon,
 } from "@heroicons/react/outline";
 import AsyncSelect from "react-select/async";
 import { ReactSelect } from "components/ui/forms";
@@ -188,7 +189,7 @@ export default function ProblemList({ user, problems }) {
               <div className="text-sm text-gray-500">
                 <text className="text-indigo-600 hover:text-indigo-900">
                   {props.row.original.incidents.length == 0
-                    ? "Standalone Problem"
+                    ? "Problem Non Incident"
                     : props.row.original.multipleIncident == "N"
                     ? props.row.original.incidents.map((incident) => {
                         return incident.incidentNumber;
@@ -224,14 +225,21 @@ export default function ProblemList({ user, problems }) {
         },
       },
       {
-        Header: "Followup By",
-        accessor: "updated_by.userName",
+        Header: "Assigned To",
+        accessor: "assigned_to.userName",
         Cell: (props) => {
           return (
             <div className="text-sm text-gray-900">
-              {props.row.original.updated_by
-                ? props.row.original.updated_by.fullName
-                : null}
+              {props.row.original.assigned_to ? (
+                props.row.original.assigned_to.fullName
+              ) : (
+                <>
+                  <div className="inline-flex">
+                    Not Assigned
+                    <BanIcon className="pl-1 h-5 w-5" aria-hidden="true" />
+                  </div>
+                </>
+              )}
             </div>
           );
         },
@@ -257,6 +265,8 @@ export default function ProblemList({ user, problems }) {
                 <a
                   href={`/problem/${props.row.original.id}`}
                   className="bg-gray-100 text-gray-900"
+                  target="_blank"
+                  rel="noreferrer"
                 >
                   <EyeIcon
                     className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"
@@ -276,30 +286,31 @@ export default function ProblemList({ user, problems }) {
   return (
     <>
       <Layout key="LayoutProblem" session={user}>
-        {console.log([user.id, user.username, user.fullname])}
         <Head>
           <title>All Problem List</title>
         </Head>
         <section>
           {/* Page title & actions */}
           <PageHeader title="Problem List">
-            <Link href="/problem/createNew" passHref>
+            <Link href="/problem/create" passHref>
               <PrimaryAnchorButton>
                 <PlusSmIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
                 New Problem
               </PrimaryAnchorButton>
             </Link>
-            {user.username === "haritsf" ?(
-                <Link href="/problem/assign" passHref>
-                  <SecondaryAnchorButton>
-                    <AtSymbolIcon
-                      className="-ml-1 mr-2 h-5 w-5"
-                      aria-hidden="true"
-                    />
-                    Need Assign
-                  </SecondaryAnchorButton>
-                </Link>
-              ) : ""}
+            {user.username === "haritsf" ? (
+              <Link href="/problem/assign" passHref>
+                <SecondaryAnchorButton>
+                  <AtSymbolIcon
+                    className="-ml-1 mr-2 h-5 w-5"
+                    aria-hidden="true"
+                  />
+                  Need Assign
+                </SecondaryAnchorButton>
+              </Link>
+            ) : (
+              ""
+            )}
           </PageHeader>
 
           {/* Cards */}
