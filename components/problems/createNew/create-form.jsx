@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { ExclamationIcon } from "@heroicons/react/outline";
 import {
-  classNames,
   styledReactSelect,
   styledReactSelectAdd,
 } from "../../utils";
@@ -151,6 +150,7 @@ const CreateForm = ({ user }) => {
   // Ini dilakukan saat onSubmit
   const createProblem = async (data, event) => {
     event.preventDefault();
+    console.log(event)
     let checkFollowup = null
     if (event.target.idFollowup.value !== null) {
       checkFollowup = parseInt(event.target.idFollowup.value)
@@ -225,7 +225,7 @@ const CreateForm = ({ user }) => {
 
                 <div className="pt-6 px-6">
                   <label className="block text-sm font-medium text-gray-700">
-                    JIRA Link
+                    Link JIRA
                   </label>
                   <div className="pt-1">
                     <input
