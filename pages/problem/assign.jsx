@@ -23,14 +23,15 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
         permanent: false,
       },
     };
-  } else if (user.username !== "haritsf") {
-    return {
-      redirect: {
-        destination: "/problem",
-        permanent: false,
-      },
-    };
   }
+  // else if (user.username !== "haritsf") {
+  //   return {
+  //     redirect: {
+  //       destination: "/problem",
+  //       permanent: false,
+  //     },
+  //   };
+  // }
 
   const assignProblem = await fetch(
     "http://127.0.0.1:3030/v1/probman/incident/filter"
@@ -145,9 +146,11 @@ export default function AssignList({ user, assign }) {
             <>
               {/* <form onSubmit={handleSubmit(hitUpdateAssign)}> */}
               <div style={{ textAlign: "-webkit-center" }}>
-                <a
-                  href={`/problem/${props.row.original.problem.id}`}
+              <a
+                  href={`/problem/${props.row.original.id}`}
                   className="bg-gray-100 text-gray-900"
+                  target="_blank"
+                  rel="noreferrer"
                 >
                   <EyeIcon
                     className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"

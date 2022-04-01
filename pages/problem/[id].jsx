@@ -125,7 +125,7 @@ function ProblemDetail({ user, problem, idProblem }) {
     Object.assign(data, {
       id: problem.data.id,
     });
-    console.log(data)
+    console.log(data);
     axios
       .put(
         `http://127.0.0.1:3030/v1/probman/problem/${problem.data.id}`,
@@ -144,20 +144,18 @@ function ProblemDetail({ user, problem, idProblem }) {
         }
       })
       .catch(function (error) {
-        // Error 😨
         toast.error(`Failed to update: ${error.response.data.message}`);
       });
   };
 
   const makeAssign = async (data, event) => {
     event.preventDefault();
-    let dataAssign = {}
+    let dataAssign = {};
     Object.assign(dataAssign, {
       idStatus: 2,
       updatedBy: user.id,
-      assignedTo: parseInt(event.target.assignedTo.value)
+      assignedTo: parseInt(event.target.assignedTo.value),
     });
-    // console.log(dataAssign)
     axios
       .put(
         `http://127.0.0.1:3030/v1/probman/incident/recprob/${idProblem}`,
@@ -350,7 +348,22 @@ function ProblemDetail({ user, problem, idProblem }) {
                           <section aria-labelledby="edit-problem">
                             <CardTitle
                               title={`Problem Number ${problem.data.problemNumber}`}
-                              subtitle={problem.data.diffSLA}
+                              subtitle={
+                                <li className="inline">
+                                  <div className="relative inline-flex items-center rounded-full border border-gray-500 px-3 py-0.5">
+                                    <div className="absolute flex-shrink-0 flex items-center justify-center">
+                                      <span
+                                        className="h-1.5 w-1.5 rounded-full bg-indigo-500"
+                                        aria-hidden="true"
+                                      />
+                                    </div>
+                                    <div className="ml-3.5 text-sm font-medium text-gray-900">
+                                      Criticality :{" "}
+                                      {problem.data.app.criticalityApp}
+                                    </div>
+                                  </div>{" "}
+                                </li>
+                              }
                             >
                               <div className="px-4 flex">
                                 <ButtonCircle
@@ -578,21 +591,43 @@ function ProblemDetail({ user, problem, idProblem }) {
                       <>
                         <CardTitle
                           title={`Problem Number ${problem.data.problemNumber}`}
-                          subtitle={problem.data.diffSLA}
+                          subtitle={
+                            <li className="inline">
+                              <div className="relative inline-flex items-center rounded-full border border-gray-500 px-3 py-0.5">
+                                <div className="absolute flex-shrink-0 flex items-center justify-center">
+                                  <span
+                                    className="h-1.5 w-1.5 rounded-full bg-indigo-500"
+                                    aria-hidden="true"
+                                  />
+                                </div>
+                                <div className="ml-3.5 text-sm font-medium text-gray-900">
+                                  Criticality :{" "}
+                                  {problem.data.app.criticalityApp}
+                                </div>
+                              </div>{" "}
+                            </li>
+                          }
                         >
                           <div className="px-4 flex">
-                            {user.grant != "viewer" && (
-                              <ButtonCircle
-                                action={() => {
-                                  setEditMode(true);
-                                }}
-                                className="border-gray-300 text-gray-700 bg-gray-100 hover:bg-gray-50"
-                              >
-                                <PencilIcon
-                                  className="h-5 w-5"
-                                  aria-hidden="true"
-                                />
-                              </ButtonCircle>
+                            {problem.data.assigned_to ? (
+                              user.username ===
+                              problem.data.assigned_to.userName ? (
+                                <ButtonCircle
+                                  action={() => {
+                                    setEditMode(true);
+                                  }}
+                                  className="border-gray-300 text-gray-700 bg-gray-100 hover:bg-gray-50"
+                                >
+                                  <PencilIcon
+                                    className="h-5 w-5"
+                                    aria-hidden="true"
+                                  />
+                                </ButtonCircle>
+                              ) : (
+                                ""
+                              )
+                            ) : (
+                              ""
                             )}
                           </div>
                         </CardTitle>
@@ -613,19 +648,17 @@ function ProblemDetail({ user, problem, idProblem }) {
                                 Link JIRA
                               </dt>
                               <dd className="mt-1 text-sm text-gray-900">
-                                <a
-                                  href={
-                                    problem.data.jiraProblem
-                                      ? problem.data.jiraProblem
-                                      : "Not defined yet"
-                                  }
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                >
-                                  {problem.data.jiraProblem
-                                    ? problem.data.jiraProblem
-                                    : "Not defined yet"}
-                                </a>
+                                {problem.data.jiraProblem ? (
+                                  <a
+                                    href={problem.data.jiraProblem}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    {problem.data.jiraProblem}
+                                  </a>
+                                ) : (
+                                  "Not Defined Yet"
+                                )}
                               </dd>
                             </div>
                             <div className="sm:col-span-1">
@@ -673,62 +706,69 @@ function ProblemDetail({ user, problem, idProblem }) {
 
                 {/* Condition Incident Table */}
                 {problem.data.incidents.length > 0 ? (
-                  <section aria-labelledby="incident-table">
-                    <div className="bg-white shadow sm:rounded-lg">
-                      <table className="min-w-full" role="table">
-                        <thead>
-                          <tr>
-                            <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Number
-                            </th>
-                            <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Related Incident
-                            </th>
-                            <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Root Cause
-                            </th>
-                            <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Reported at
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-100">
-                          {problem.data.incidents.map((incident) => (
-                            <>
-                              <tr key={`${incident.incidentNumber}`}>
-                                <td className="px-6 py-3 text-sm text-gray-500 font-normal">
-                                  <Link
-                                    href={`/incidents/${incident.id}`}
-                                    passHref
-                                  >
-                                    <a
-                                      className="text-blue-500 hover:text-blue-900"
-                                      target="_blank"
-                                      rel="noreferrer"
+                  <>
+                    <h1 className="text-2xl font-bold text-gray-400">
+                      Related Incident
+                    </h1>
+                    <section aria-labelledby="incident-table">
+                      <div className="bg-white shadow sm:rounded-lg">
+                        <table className="min-w-full" role="table">
+                          <thead>
+                            <tr>
+                              <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">
+                                Number
+                              </th>
+                              <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">
+                                Incident Name
+                              </th>
+                              <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">
+                                Root Cause
+                              </th>
+                              <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">
+                                Reported at
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-100">
+                            {problem.data.incidents.map((incident) => (
+                              <>
+                                <tr key={`${incident.incidentNumber}`}>
+                                  <td className="px-6 py-3 text-sm text-gray-500 font-normal">
+                                    <Link
+                                      href={`/incidents/${incident.id}`}
+                                      passHref
                                     >
-                                      {incident.incidentNumber}
-                                    </a>
-                                  </Link>
-                                </td>
-                                <td className="px-6 py-3 text-sm text-gray-500 font-normal">
-                                  {incident.incidentName}
-                                </td>
-                                <td className="px-6 py-3 text-sm text-gray-500 font-normal">
-                                  {incident.rootCause ? incident.rootCause : null}
-                                </td>
-                                <td className="px-6 py-3 text-sm text-gray-500 font-normal">
-                                  {format(
-                                    new Date(incident.createdAt),
-                                    "d LLLL yyyy hh:mm"
-                                  )}
-                                </td>
-                              </tr>
-                            </>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </section>
+                                      <a
+                                        className="text-blue-500 hover:text-blue-900"
+                                        target="_blank"
+                                        rel="noreferrer"
+                                      >
+                                        {incident.incidentNumber}
+                                      </a>
+                                    </Link>
+                                  </td>
+                                  <td className="px-6 py-3 text-sm text-gray-500 font-normal">
+                                    {incident.incidentName}
+                                  </td>
+                                  <td className="px-6 py-3 text-sm text-gray-500 font-normal">
+                                    {incident.rootCause
+                                      ? incident.rootCause
+                                      : null}
+                                  </td>
+                                  <td className="px-6 py-3 text-sm text-gray-500 font-normal">
+                                    {format(
+                                      new Date(incident.createdAt),
+                                      "d LLLL yyyy hh:mm"
+                                    )}
+                                  </td>
+                                </tr>
+                              </>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </>
                 ) : null}
               </div>
 
@@ -745,10 +785,7 @@ function ProblemDetail({ user, problem, idProblem }) {
                       </h2>
                       <ul className="mt-2 leading-8">
                         <li className="inline">
-                          <a
-                            href="#"
-                            className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5"
-                          >
+                          <div className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5">
                             <div className="absolute flex-shrink-0 flex items-center justify-center">
                               <span
                                 className="h-1.5 w-1.5 rounded-full bg-rose-500"
@@ -758,13 +795,10 @@ function ProblemDetail({ user, problem, idProblem }) {
                             <div className="ml-3.5 text-sm font-medium text-gray-900">
                               Priority : {problem.data.priorityMatrix.mapping}
                             </div>
-                          </a>{" "}
+                          </div>{" "}
                         </li>
-                        <li className="inline">
-                          <a
-                            href="#"
-                            className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5"
-                          >
+                        {/* <li className="inline">
+                          <div className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5">
                             <div className="absolute flex-shrink-0 flex items-center justify-center">
                               <span
                                 className="h-1.5 w-1.5 rounded-full bg-indigo-500"
@@ -774,13 +808,10 @@ function ProblemDetail({ user, problem, idProblem }) {
                             <div className="ml-3.5 text-sm font-medium text-gray-900">
                               Criticality : {problem.data.app.criticalityApp}
                             </div>
-                          </a>{" "}
-                        </li>
+                          </div>{" "}
+                        </li> */}
                         <li className="inline">
-                          <a
-                            href="#"
-                            className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5"
-                          >
+                          <div className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5">
                             <div className="absolute flex-shrink-0 flex items-center justify-center">
                               <span
                                 className="h-1.5 w-1.5 rounded-full bg-yellow-500"
@@ -790,7 +821,7 @@ function ProblemDetail({ user, problem, idProblem }) {
                             <div className="ml-3.5 text-sm font-medium text-gray-900">
                               Type : {problem.data.paramType.type}
                             </div>
-                          </a>{" "}
+                          </div>{" "}
                         </li>
                       </ul>
                     </div>
@@ -823,7 +854,7 @@ function ProblemDetail({ user, problem, idProblem }) {
                         aria-hidden="true"
                       />
                       <span className="text-gray-900 text-sm">
-                        Review on{" "}
+                        Updated on{" "}
                         <time
                           dateTime={format(
                             new Date(problem.data.updatedAt),
@@ -863,7 +894,6 @@ function ProblemDetail({ user, problem, idProblem }) {
                           <Controller
                             name="assignedTo"
                             control={control}
-                            // rules={{ required: "This is required" }}
                             render={({ field }) => (
                               <Select
                                 {...field}
@@ -888,7 +918,7 @@ function ProblemDetail({ user, problem, idProblem }) {
                         </form>
                       </>
                     ) : (
-                      "Not Assigned"
+                      "Not Yet Assigned"
                     )}
 
                     <div className="flex items-center space-x-2">

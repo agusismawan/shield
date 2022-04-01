@@ -7,6 +7,7 @@ import ProblemTables from "components/problems/problem-tables";
 import { EyeIcon } from "@heroicons/react/solid";
 import { useEffect, useState, useMemo, useRef } from "react";
 import format from "date-fns/format";
+import { toast } from "react-toastify";
 import {
   PriorityArrow,
   SourcePill,
@@ -46,59 +47,36 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
   const resAllJoin = await fetch(
     "http://127.0.0.1:3030/v1/probman/problem/alljoin"
   );
+  const resCount = await fetch(
+    "http://127.0.0.1:3030/v1/probman/problem/count"
+  );
   const problems = await resAllJoin.json();
+  const counts = await resCount.json();
 
   if (resAllJoin.status === 200) {
-    // Pass data to the page via props
     return {
       props: {
         user: user,
         problems: problems.data,
+        counts: counts.data,
       },
     };
   }
-  // else {
-  //   return {
-  //     redirect: {
-  //       destination: "/problem",
-  //       permanent: false,
-  //     },
-  //   };
-  // }
 });
 
-export default function ProblemList({ user, problems }) {
+export default function ProblemList({ user, problems, counts }) {
   const [tableData, setTableData] = useState([]);
-  const [apps, setApps] = useState("");
-  const [value, setValue] = useState(""); // tableInstance.current.state.globalFilter
+  const [idApps, setIdApps] = useState("");
+  const [problemName] = useState("");
+  const [sourceProblem, setSourceProblem] = useState("");
+  const [statusproblem, setStatusProblem] = useState("");
+
   const tableInstance = useRef(null);
-  const count = problems.length;
+  // const count = tableData.length;
+  const [value, setValue] = useState(""); // tableInstance.current.state.globalFilter
   const handleGlobalChange = useAsyncDebounce((value) => {
     tableInstance.current.setGlobalFilter(value || undefined);
   }, 1000);
-
-  const SourceProblemOptions = [
-    { value: "IM", label: "IM" },
-    { value: "Insiden Berulang", label: "Insiden Berulang" },
-    { value: "HC", label: "HC" },
-    { value: "PROACTIVE", label: "PROACTIVE" },
-    { value: "DEEP", label: "DEEP" },
-  ];
-
-  const ProblemStatusOptions = [
-    { value: "Unassigned", label: "Unassigned" },
-    { value: "Draft", label: "Draft" },
-    { value: "Rejected", label: "Rejected" },
-    { value: "Cancelled", label: "Cancelled" },
-    { value: "Investigate", label: "Investigate" },
-    { value: "Priority Queue", label: "Priority Queue" },
-    { value: "Approval RCA", label: "Approval RCA" },
-    { value: "Ongoing Resolution", label: "Ongoing Resolution" },
-    { value: "Request Re-Investigate", label: "Request Re-Investigate" },
-    { value: "KEDB Evaluation", label: "KEDB Evaluation" },
-    { value: "Approval KEDB", label: "Approval KEDB" },
-    { value: "Problem Solved", label: "Problem Solved" },
-  ];
 
   // Get Data Aplikasi Async
   const loadApplications = (value, callback) => {
@@ -125,11 +103,70 @@ export default function ProblemList({ user, problems }) {
     }, 500);
   };
 
+  // Get Source Problem
+  useEffect(() => {
+    axios
+      .get("http://127.0.0.1:3030/v1/probman/source/all")
+      .then((response) => {
+        const data = response.data.data.map((d) => ({
+          value: d.id,
+          label: d.label,
+        }));
+        setSourceProblem(data);
+      })
+      .catch((err) => toast.error(`Source ${err}`));
+  }, []);
+
+  // Get Status Problem
+  useEffect(() => {
+    axios
+      .get("http://127.0.0.1:3030/v1/probman/status/all")
+      .then((response) => {
+        const data = response.data.data.map((d) => ({
+          value: d.id,
+          label: d.label,
+        }));
+        setStatusProblem(data);
+      })
+      .catch((err) => toast.error(`Source ${err}`));
+  }, []);
+
+  // Hit to Filter Problem
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await axios.get(
+        `http://127.0.0.1:3030/v1/probman/problem/filtersapujagat/all?idApps=${idApps}`,
+        {
+          headers: { Authorization: `Bearer ${user.accessToken}` },
+        }
+      );
+
+      const result = await response.data.data;
+      if (!result) {
+        toast.info(`Problem Not Found`);
+      } else {
+        setTableData(result);
+      }
+    };
+    if (idApps) {
+      fetchData();
+    } else {
+      setTableData(problems);
+    }
+  }, [
+    idApps,
+    problemName,
+    sourceProblem,
+    statusproblem,
+    problems,
+    user.accessToken,
+  ]);
+
   const handleAppChange = (event) => {
     if (event == null) {
-      setApps("");
+      setIdApps("");
     } else {
-      setApps(event.value);
+      setIdApps(event.value);
     }
   };
 
@@ -141,18 +178,13 @@ export default function ProblemList({ user, problems }) {
     }
   };
 
-  const handleProblemStatusChange = (event) => {
+  const handleStatusProblemChange = (event) => {
     if (event == null) {
-      setProblemStatus("");
+      setStatusProblem("");
     } else {
-      setProblemStatus(event.value);
+      setStatusProblem(event.value);
     }
   };
-
-  useEffect(() => {
-    // gatau mesti gimana
-    // ini harus nya nge get filter
-  });
 
   // begin of define column
   const columns = useMemo(
@@ -173,7 +205,13 @@ export default function ProblemList({ user, problems }) {
                 <PriorityArrow
                   value={props.row.original.priorityMatrix.mapping}
                 />
-                <SourcePill value={props.row.original.problemSource.label} />
+                <SourcePill
+                  value={
+                    props.row.original.problemSource.label.startsWith("Nota")
+                      ? props.row.original.problemSource.label.slice(13)
+                      : props.row.original.problemSource.label
+                  }
+                />
               </div>
             </>
           );
@@ -187,18 +225,19 @@ export default function ProblemList({ user, problems }) {
           return (
             <>
               <div className="text-sm text-gray-500">
-                <text className="text-indigo-600 hover:text-indigo-900">
-                  {props.row.original.incidents.length == 0
-                    ? "Problem Non Incident"
-                    : props.row.original.multipleIncident == "N"
-                    ? props.row.original.incidents.map((incident) => {
-                        return incident.incidentNumber;
-                      })
-                    : "Multiple Incident"}
+                {props.row.original.incidents.length == 0
+                  ? "Problem Non Incident"
+                  : props.row.original.multipleIncident == "N"
+                  ? props.row.original.incidents.map((incident) => {
+                      return incident.incidentNumber;
+                    })
+                  : "Multiple Incident"}{" "}
+                |
+                <text className="text-gray-600 hover:text-gray-900">
+                  {` ${props.row.original.problemNumber}`}
                 </text>
-                {` | ${props.row.original.problemNumber}`}
               </div>
-              <div className="text-base text-gray-900">
+              <div className="text-base text-gray-900 font-medium">
                 {props.row.original.problemName}
               </div>
               <div className="text-xs text-gray-500">
@@ -214,12 +253,20 @@ export default function ProblemList({ user, problems }) {
       {
         Header: "Status",
         accessor: "problemStatus.label",
-        // Filter: balbalblabla,
-        // filter: 'includes',
         Cell: (props) => {
           return (
             <div>
-              <StatusPill value={props.row.original.problemStatus.label} />
+              {props.row.original.jiraProblem !== "" ? (
+                <a
+                  href={props.row.original.jiraProblem}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <StatusPill value={props.row.original.problemStatus.label} />
+                </a>
+              ) : (
+                <StatusPill value={props.row.original.problemStatus.label} />
+              )}
             </div>
           );
         },
@@ -235,7 +282,7 @@ export default function ProblemList({ user, problems }) {
               ) : (
                 <>
                   <div className="inline-flex">
-                    Not Assigned
+                    Not Yet Assigned
                     <BanIcon className="pl-1 h-5 w-5" aria-hidden="true" />
                   </div>
                 </>
@@ -245,7 +292,7 @@ export default function ProblemList({ user, problems }) {
         },
       },
       {
-        Header: "Latest Progress",
+        Header: "Follow Up Plan",
         Cell: (props) => {
           return (
             <div className="text-sm">
@@ -298,19 +345,19 @@ export default function ProblemList({ user, problems }) {
                 New Problem
               </PrimaryAnchorButton>
             </Link>
-            {user.username === "haritsf" ? (
-              <Link href="/problem/assign" passHref>
-                <SecondaryAnchorButton>
-                  <AtSymbolIcon
-                    className="-ml-1 mr-2 h-5 w-5"
-                    aria-hidden="true"
-                  />
-                  Need Assign
-                </SecondaryAnchorButton>
-              </Link>
-            ) : (
+            {/* {user.username === "haritsf" ? ( */}
+            <Link href="/problem/assign" passHref>
+              <SecondaryAnchorButton>
+                <AtSymbolIcon
+                  className="-ml-1 mr-2 h-5 w-5"
+                  aria-hidden="true"
+                />
+                Need Assign
+              </SecondaryAnchorButton>
+            </Link>
+            {/* ) : (
               ""
-            )}
+            )} */}
           </PageHeader>
 
           {/* Cards */}
@@ -318,23 +365,18 @@ export default function ProblemList({ user, problems }) {
             <ul className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 xl:grid-cols-4 mt-3">
               <CardHeader
                 id="1"
-                bgColor="bg-gray-500"
+                bgColor="bg-red-400"
                 initials={<DocumentAddIcon className="w-6 h-6" />}
                 title="Draft and Unassigned"
                 desc={`${
                   problems.filter(
                     (data) => data.problemStatus.label === "Draft"
                   ).length
-                } Draft | ${
-                  problems.filter(
-                    (data) => data.problemStatus.label === "Unassigned"
-                  ).length
-                } Unassigned`}
+                } Draft | ${counts.count - problems.length} Unassigned`}
               />
               <CardHeader
                 id="2"
-                bgColor="bg-yellow-500"
-                // style={{backgroundColor: 'green'}}
+                bgColor="bg-gray-400"
                 initials={<PuzzleIcon className="w-6 h-6" />}
                 title="Review"
                 desc={`${
@@ -345,7 +387,7 @@ export default function ProblemList({ user, problems }) {
               />
               <CardHeader
                 id="3"
-                bgColor="bg-blue-500"
+                bgColor="bg-blue-400"
                 initials={<SparklesIcon className="w-6 h-6" />}
                 title="Ongoing"
                 desc={`${
@@ -356,7 +398,7 @@ export default function ProblemList({ user, problems }) {
               />
               <CardHeader
                 id="4"
-                bgColor="bg-green-500"
+                bgColor="bg-green-400"
                 initials={<BadgeCheckIcon className="w-6 h-6" />}
                 title="Done"
                 desc={`${
@@ -384,14 +426,18 @@ export default function ProblemList({ user, problems }) {
                     Search
                   </label>
                   <Input
-                    disabled={true}
+                    disabled={false}
                     allowClear
                     value={value || ""}
                     onChange={(e) => {
                       setValue(e.target.value);
                       handleGlobalChange(e.target.value);
                     }}
-                    placeholder={`${count} records...`}
+                    placeholder={
+                      tableData
+                        ? `${tableData.length} records...`
+                        : `0 records...`
+                    }
                     prefix={
                       <SearchIcon
                         className="h-5 w-5 text-gray-400"
@@ -414,6 +460,7 @@ export default function ProblemList({ user, problems }) {
                     Application
                   </label>
                   <AsyncSelect
+                    isDisabled={false}
                     isClearable
                     loadOptions={loadApplications}
                     styles={styledReactSelectAdd}
@@ -433,7 +480,7 @@ export default function ProblemList({ user, problems }) {
                   </label>
                   <ReactSelect
                     isDisabled={true}
-                    options={SourceProblemOptions}
+                    options={sourceProblem}
                     isClearable
                     className="block w-60"
                     onChange={handleSourceProblemChange}
@@ -450,15 +497,18 @@ export default function ProblemList({ user, problems }) {
                   </label>
                   <ReactSelect
                     isDisabled={true}
-                    options={ProblemStatusOptions}
+                    options={statusproblem}
                     isClearable
                     className="block w-60"
-                    onChange={handleProblemStatusChange}
+                    onChange={handleStatusProblemChange}
                   />
                 </div>
               </div>
-
-              <ProblemTables columns={columns} data={problems} />
+              <ProblemTables
+                columns={columns}
+                data={tableData}
+                ref={tableInstance}
+              />
             </div>
           </div>
         </section>

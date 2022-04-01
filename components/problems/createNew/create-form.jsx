@@ -150,7 +150,6 @@ const CreateForm = ({ user }) => {
   // Ini dilakukan saat onSubmit
   const createProblem = async (data, event) => {
     event.preventDefault();
-    console.log(event)
     let checkFollowup = null
     if (event.target.idFollowup.value !== null) {
       checkFollowup = parseInt(event.target.idFollowup.value)
@@ -216,6 +215,7 @@ const CreateForm = ({ user }) => {
                       name="problemName"
                       className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 rounded-md"
                       type="text"
+                      required
                     />
                   </div>
                   <p className="pt-2 text-sm text-gray-500">
@@ -231,6 +231,7 @@ const CreateForm = ({ user }) => {
                     <input
                       id="jiraProblem"
                       name="jiraProblem"
+                      required
                       className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 rounded-md"
                       type="text"
                     />

@@ -47,12 +47,16 @@ const SourcePill = ({ value }) => {
     <span className="px-2 text-xs font-semibold rounded-full bg-green-100 text-gray-800">
       {value}
     </span>
-  ) : source.startsWith("proactive") ? (
-    <span className="px-2 text-xs font-semibold rounded-full bg-blue-100 text-gray-800">
+  ) : source.startsWith("temuan") ? (
+    <span className="px-2 text-xs font-semibold rounded-full bg-yellow-100 text-gray-800">
       {value}
     </span>
-  ) : source.startsWith("deep") ? (
-    <span className="px-2 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+  ) : source.startsWith("enhancement") ? (
+    <span className="px-2 text-xs font-semibold rounded-full bg-yellow-100 text-gray-800">
+      {value}
+    </span>
+  ) : source.startsWith("pembaruan") ? (
+    <span className="px-2 text-xs font-semibold rounded-full bg-yellow-100 text-gray-800">
       {value}
     </span>
   ) : (

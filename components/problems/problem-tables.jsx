@@ -14,8 +14,18 @@ import {
 } from "@heroicons/react/solid";
 import { SortIcon, SortUpIcon, SortDownIcon } from "../ui/short-icon";
 import { PageButton } from "../ui/button/pagination-button";
+import React, { useImperativeHandle } from "react";
 
-function ProblemTables({ columns, data }) {
+// eslint-disable-next-line react/display-name
+const ProblemTables = React.forwardRef(({ columns, data }, ref) => {
+  const instance = useTable(
+    { columns, data },
+    useGlobalFilter,
+    useFilters,
+    useSortBy,
+    usePagination
+  );
+
   const {
     getTableProps,
     getTableBodyProps,
@@ -31,10 +41,12 @@ function ProblemTables({ columns, data }) {
     pageOptions,
     prepareRow,
     state,
-  } = useTable({ columns, data }, useFilters, useSortBy, usePagination);
+    setGlobalFilter,
+    preGlobalFilteredRows,
+  } = instance;
 
-  const { pageIndex, pageSize } = state;
-
+  const { globalFilter, pageIndex, pageSize } = state;
+  useImperativeHandle(ref, () => instance);
   return (
     <>
       <table {...getTableProps()} className="min-w-full mt-3">
@@ -162,6 +174,6 @@ function ProblemTables({ columns, data }) {
       {/* END of Pagination */}
     </>
   );
-}
+});
 
 export default ProblemTables;
