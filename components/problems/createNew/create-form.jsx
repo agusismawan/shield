@@ -1,16 +1,18 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { ExclamationIcon } from "@heroicons/react/outline";
-import {
-  styledReactSelect,
-  styledReactSelectAdd,
-} from "../../utils";
+import { styledReactSelect, styledReactSelectAdd } from "../../utils";
 import { Controller, useForm } from "react-hook-form";
 import Select, { components } from "react-select";
 import { toast } from "react-toastify";
+import { Spinner } from "components/ui/spinner";
 import { useRouter } from "next/router";
 import format from "date-fns/format";
 import AsyncSelect from "react-select/async";
+
+function classNames(...classes) {
+  return classes.filter(Boolean).join(" ");
+}
 
 const CreateForm = ({ user }) => {
   const {
@@ -29,6 +31,7 @@ const CreateForm = ({ user }) => {
 
   const { errors, isSubmitting } = formState;
   const [enabled, setEnabled] = useState(false);
+  const [spinner, setSpinner] = useState(false);
   const [typeOptions, setTypeOptions] = useState([]);
   const [sourceOptions, setSourceOptions] = useState([]);
   const [urgencyOptions, setUrgencyOptions] = useState([]);
@@ -124,10 +127,14 @@ const CreateForm = ({ user }) => {
     axios
       .get("http://127.0.0.1:3030/v1/probman/source/all")
       .then((response) => {
-        const data = response.data.data.map((d) => ({
-          value: d.id,
-          label: d.label,
-        }));
+        const data = response.data.data
+          .filter((value) => {
+            return !value.label.startsWith("Incident");
+          })
+          .map((d) => ({
+            value: d.id,
+            label: d.label,
+          }));
         setSourceOptions(data);
       })
       .catch((err) => toast.error(`Type ${err}`));
@@ -150,11 +157,11 @@ const CreateForm = ({ user }) => {
   // Ini dilakukan saat onSubmit
   const createProblem = async (data, event) => {
     event.preventDefault();
-    let checkFollowup = null
+    let checkFollowup = null;
     if (event.target.idFollowup.value !== null) {
-      checkFollowup = parseInt(event.target.idFollowup.value)
+      checkFollowup = parseInt(event.target.idFollowup.value);
     } else if (event.target.idFollowup.value === null) {
-      checkFollowup = 4
+      checkFollowup = 4;
     }
     Object.assign(data, {
       problemName: event.target.problemName.value,
@@ -170,6 +177,7 @@ const CreateForm = ({ user }) => {
       updatedBy: user.id,
     });
 
+    setSpinner(true);
     axios
       .post(`http://127.0.0.1:3030/v1/probman/problem/create`, data, {
         headers: { Authorization: `Bearer ${user.accessToken}` },
@@ -177,7 +185,7 @@ const CreateForm = ({ user }) => {
       .then(function (response) {
         if (response.status === 201 || postProblem) {
           toast.success("Problem Sucessfully Created");
-          router.push("/problem");
+          setTimeout(() => router.push("/problem/list"), 1000);
         }
       })
       .catch((error) => {
@@ -186,8 +194,10 @@ const CreateForm = ({ user }) => {
             `${error.response.data.message} (Code: ${error.response.status})`
           );
         } else if (error.request) {
+          setSpinner(false);
           toast.error(`Request: ${error.request}`);
         } else {
+          setSpinner(false);
           toast.error(`Message: ${error.message}`);
         }
       });
@@ -231,7 +241,6 @@ const CreateForm = ({ user }) => {
                     <input
                       id="jiraProblem"
                       name="jiraProblem"
-                      required
                       className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 rounded-md"
                       type="text"
                     />
@@ -431,8 +440,15 @@ const CreateForm = ({ user }) => {
                     </button>
                     <button
                       type="submit"
-                      className="ml-1 pl-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                      className={classNames(
+                        spinner
+                          ? "px-4 disabled:opacity-50 cursor-not-allowed"
+                          : "",
+                        "ml-1 pl-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                      )}
+                      disabled={spinner}
                     >
+                      {spinner && <Spinner />}
                       Submit
                     </button>
                   </div>

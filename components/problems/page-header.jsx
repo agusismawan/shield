@@ -3,9 +3,9 @@ const PageHeader = ({ title, children }) => {
     <>
       <div className="border-b border-gray-200 px-4 py-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <div className="min-w-0">
-          <h1 className="inline-block py-1 text-lg font-medium text-gray-900 sm:truncate">
+          <text className="inline-block py-1 text-3xl font-bold text-gray-500 sm:truncate">
             {title}
-          </h1>
+          </text>
         </div>
         <div className="mt-4 flex space-x-3 sm:mt-0 sm:ml-4">{children}</div>
       </div>

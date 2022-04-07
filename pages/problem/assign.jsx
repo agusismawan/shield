@@ -24,7 +24,7 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
       },
     };
   }
-  // else if (user.username !== "haritsf") {
+  // else if (user.username !== "denisukma") {
   //   return {
   //     redirect: {
   //       destination: "/problem",

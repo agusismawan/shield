@@ -1,37 +1,18 @@
 import Link from "next/link";
 import Head from "next/head";
+import { useMemo } from "react";
 import Layout from "../../components/layout";
 import PageHeader from "../../components/problems/page-header";
-import CardHeader from "../../components/problems/card-header";
-import ProblemTables from "components/problems/problem-tables";
-import { EyeIcon } from "@heroicons/react/solid";
-import { useEffect, useState, useMemo, useRef } from "react";
 import format from "date-fns/format";
-import { toast } from "react-toastify";
+import ProblemTables from "components/problems/problem-tables";
 import {
   PriorityArrow,
   SourcePill,
   StatusPill,
-} from "../../components/problems/status-badge";
-import axios from "axios";
-import { useAsyncDebounce } from "react-table";
+} from "components/problems/status-badge";
 import withSession from "../../lib/session";
-import {
-  PlusSmIcon,
-  SearchIcon,
-  DocumentAddIcon,
-  PuzzleIcon,
-  SparklesIcon,
-  BadgeCheckIcon,
-  AtSymbolIcon,
-  BanIcon,
-} from "@heroicons/react/outline";
-import AsyncSelect from "react-select/async";
-import { ReactSelect } from "components/ui/forms";
-import { styledReactSelectAdd } from "components/utils";
+import { PlusSmIcon, BanIcon, EyeIcon } from "@heroicons/react/outline";
 import { PrimaryAnchorButton } from "components/ui/button/primary-anchor-button";
-import { SecondaryAnchorButton } from "components/ui/button/secondary-anchor-button";
-import { Input } from "antd";
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
   const user = req.session.get("user");
@@ -42,150 +23,44 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
         permanent: false,
       },
     };
+  } else if (user.username === "denisukma") {
+    return {
+      redirect: {
+        destination: "/problem/list",
+        permanent: false,
+      },
+    };
   }
+  const getTask = await fetch("http://127.0.0.1:3030/v1/probman/problem/task", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      userSession: user.id,
+    }),
+  });
+  const taskData = await getTask.json();
 
-  const resAllJoin = await fetch(
-    "http://127.0.0.1:3030/v1/probman/problem/alljoin"
-  );
-  const resCount = await fetch(
-    "http://127.0.0.1:3030/v1/probman/problem/count"
-  );
-  const problems = await resAllJoin.json();
-  const counts = await resCount.json();
-
-  if (resAllJoin.status === 200) {
+  if (taskData.status === 200) {
     return {
       props: {
         user: user,
-        problems: problems.data,
-        counts: counts.data,
+        task: taskData.data.filter((task) => task.idStatus !== 4),
+        done: taskData.data.filter((task) => task.idStatus === 4)
+      },
+    };
+  } else {
+    return {
+      props: {
+        user: user,
+        task: null,
       },
     };
   }
 });
 
-export default function ProblemList({ user, problems, counts }) {
-  const [tableData, setTableData] = useState([]);
-  const [idApps, setIdApps] = useState("");
-  const [problemName] = useState("");
-  const [sourceProblem, setSourceProblem] = useState("");
-  const [statusproblem, setStatusProblem] = useState("");
-
-  const tableInstance = useRef(null);
-  // const count = tableData.length;
-  const [value, setValue] = useState(""); // tableInstance.current.state.globalFilter
-  const handleGlobalChange = useAsyncDebounce((value) => {
-    tableInstance.current.setGlobalFilter(value || undefined);
-  }, 1000);
-
-  // Get Data Aplikasi Async
-  const loadApplications = (value, callback) => {
-    clearTimeout(timeoutId);
-
-    if (value.length < 3) {
-      return callback([]);
-    }
-
-    const timeoutId = setTimeout(() => {
-      axios
-        .get(
-          `${process.env.NEXT_PUBLIC_API_URL}/parameters/app?subName=${value}`
-        )
-        .then((res) => {
-          const cachedOptions = res.data.data.map((d) => ({
-            value: d.id,
-            label: d.subName,
-          }));
-
-          callback(cachedOptions);
-        })
-        .catch((err) => toast.error(`Application ${err}`));
-    }, 500);
-  };
-
-  // Get Source Problem
-  useEffect(() => {
-    axios
-      .get("http://127.0.0.1:3030/v1/probman/source/all")
-      .then((response) => {
-        const data = response.data.data.map((d) => ({
-          value: d.id,
-          label: d.label,
-        }));
-        setSourceProblem(data);
-      })
-      .catch((err) => toast.error(`Source ${err}`));
-  }, []);
-
-  // Get Status Problem
-  useEffect(() => {
-    axios
-      .get("http://127.0.0.1:3030/v1/probman/status/all")
-      .then((response) => {
-        const data = response.data.data.map((d) => ({
-          value: d.id,
-          label: d.label,
-        }));
-        setStatusProblem(data);
-      })
-      .catch((err) => toast.error(`Source ${err}`));
-  }, []);
-
-  // Hit to Filter Problem
-  useEffect(() => {
-    const fetchData = async () => {
-      const response = await axios.get(
-        `http://127.0.0.1:3030/v1/probman/problem/filtersapujagat/all?idApps=${idApps}`,
-        {
-          headers: { Authorization: `Bearer ${user.accessToken}` },
-        }
-      );
-
-      const result = await response.data.data;
-      if (!result) {
-        toast.info(`Problem Not Found`);
-      } else {
-        setTableData(result);
-      }
-    };
-    if (idApps) {
-      fetchData();
-    } else {
-      setTableData(problems);
-    }
-  }, [
-    idApps,
-    problemName,
-    sourceProblem,
-    statusproblem,
-    problems,
-    user.accessToken,
-  ]);
-
-  const handleAppChange = (event) => {
-    if (event == null) {
-      setIdApps("");
-    } else {
-      setIdApps(event.value);
-    }
-  };
-
-  const handleSourceProblemChange = (event) => {
-    if (event == null) {
-      setSourceProblem("");
-    } else {
-      setSourceProblem(event.value);
-    }
-  };
-
-  const handleStatusProblemChange = (event) => {
-    if (event == null) {
-      setStatusProblem("");
-    } else {
-      setStatusProblem(event.value);
-    }
-  };
-
+export default function TaskList({ user, task, done }) {
   // begin of define column
   const columns = useMemo(
     () => [
@@ -334,181 +209,32 @@ export default function ProblemList({ user, problems, counts }) {
     <>
       <Layout key="LayoutProblem" session={user}>
         <Head>
-          <title>All Problem List</title>
+          <title>My Task</title>
         </Head>
         <section>
           {/* Page title & actions */}
-          <PageHeader title="Problem List">
-            <Link href="/problem/create" passHref>
+          <PageHeader title="My Task">
+            <Link href="/problem/list" passHref>
               <PrimaryAnchorButton>
-                <PlusSmIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-                New Problem
+                <EyeIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+                All Problem List
               </PrimaryAnchorButton>
             </Link>
-            {/* {user.username === "haritsf" ? ( */}
-            <Link href="/problem/assign" passHref>
-              <SecondaryAnchorButton>
-                <AtSymbolIcon
-                  className="-ml-1 mr-2 h-5 w-5"
-                  aria-hidden="true"
-                />
-                Need Assign
-              </SecondaryAnchorButton>
-            </Link>
-            {/* ) : (
-              ""
-            )} */}
           </PageHeader>
 
-          {/* Cards */}
-          <div className="px-4 sm:px-6 lg:px-8">
-            <ul className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 xl:grid-cols-4 mt-3">
-              <CardHeader
-                id="1"
-                bgColor="bg-red-400"
-                initials={<DocumentAddIcon className="w-6 h-6" />}
-                title="Draft and Unassigned"
-                desc={`${
-                  problems.filter(
-                    (data) => data.problemStatus.label === "Draft"
-                  ).length
-                } Draft | ${counts.count - problems.length} Unassigned`}
-              />
-              <CardHeader
-                id="2"
-                bgColor="bg-gray-400"
-                initials={<PuzzleIcon className="w-6 h-6" />}
-                title="Review"
-                desc={`${
-                  problems.filter(
-                    (data) => data.problemStatus.label === "Waiting for Review"
-                  ).length
-                } Waiting for Review`}
-              />
-              <CardHeader
-                id="3"
-                bgColor="bg-blue-400"
-                initials={<SparklesIcon className="w-6 h-6" />}
-                title="Ongoing"
-                desc={`${
-                  problems.filter(
-                    (data) => data.problemStatus.label === "Ongoing at JIRA"
-                  ).length
-                } Ongoing at JIRA`}
-              />
-              <CardHeader
-                id="4"
-                bgColor="bg-green-400"
-                initials={<BadgeCheckIcon className="w-6 h-6" />}
-                title="Done"
-                desc={`${
-                  problems.filter(
-                    (data) => data.problemStatus.label === "Need Acknowledged"
-                  ).length
-                } Acknowledged | ${
-                  problems.filter((data) => data.problemStatus.label === "Done")
-                    .length
-                } Resolved`}
-              />
-            </ul>
-          </div>
-
-          {/* Problem Tables table (small breakpoint and up) */}
+          {/* Problem Tables on Going */}
           <div className="hidden sm:block mt-3">
             <div className="align-middle px-4 pb-4 sm:px-6 lg:px-8 border-b border-gray-200">
-              <div className="flex gap-x-2">
-                {/* Search Component */}
-                <div className="flex-auto">
-                  <label
-                    htmlFor="search"
-                    className="mb-1 block text-sm font-medium text-gray-700"
-                  >
-                    Search
-                  </label>
-                  <Input
-                    disabled={false}
-                    allowClear
-                    value={value || ""}
-                    onChange={(e) => {
-                      setValue(e.target.value);
-                      handleGlobalChange(e.target.value);
-                    }}
-                    placeholder={
-                      tableData
-                        ? `${tableData.length} records...`
-                        : `0 records...`
-                    }
-                    prefix={
-                      <SearchIcon
-                        className="h-5 w-5 text-gray-400"
-                        aria-hidden="true"
-                      />
-                    }
-                    style={{
-                      borderRadius: "0.375rem",
-                      height: "38px",
-                    }}
-                  />
-                </div>
+              <text className="text-2xl font-medium text-gray-900">Ongoing</text>
+              <ProblemTables columns={columns} data={task} />
+            </div>
+          </div>
 
-                {/* Application Filter */}
-                <div>
-                  <label
-                    htmlFor="application"
-                    className="mb-1 block text-sm font-medium text-gray-700"
-                  >
-                    Application
-                  </label>
-                  <AsyncSelect
-                    isDisabled={false}
-                    isClearable
-                    loadOptions={loadApplications}
-                    styles={styledReactSelectAdd}
-                    className="text-sm focus:ring-blue-300 focus:border-blue-300 w-80"
-                    placeholder="Search App"
-                    onChange={handleAppChange}
-                  />
-                </div>
-
-                {/* Source Problem Filter */}
-                <div className="flex-intitial">
-                  <label
-                    htmlFor="SourceProblemOptions"
-                    className="mb-1 block text-sm font-medium text-gray-700"
-                  >
-                    Source Problem
-                  </label>
-                  <ReactSelect
-                    isDisabled={true}
-                    options={sourceProblem}
-                    isClearable
-                    className="block w-60"
-                    onChange={handleSourceProblemChange}
-                  />
-                </div>
-
-                {/* Problem Status Filter */}
-                <div>
-                  <label
-                    htmlFor="ProblemStatus"
-                    className="mb-1 block text-sm font-medium text-gray-700"
-                  >
-                    Status Problem
-                  </label>
-                  <ReactSelect
-                    isDisabled={true}
-                    options={statusproblem}
-                    isClearable
-                    className="block w-60"
-                    onChange={handleStatusProblemChange}
-                  />
-                </div>
-              </div>
-              <ProblemTables
-                columns={columns}
-                data={tableData}
-                ref={tableInstance}
-              />
+          {/* Problem Tables Done */}
+          <div className="hidden sm:block mt-3">
+            <div className="align-middle px-4 pb-4 sm:px-6 lg:px-8 border-b border-gray-200">
+              <text className="text-2xl font-medium text-gray-900">Done</text>
+              <ProblemTables columns={columns} data={done} />
             </div>
           </div>
         </section>

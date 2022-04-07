@@ -7,7 +7,7 @@ import withSession from "lib/session";
 import axios from "axios";
 import AsyncSelect from "react-select/async";
 import { useEffect, useState } from "react";
-import { SourcePill } from "components/problems/status-badge";
+import { StatusPill, SourcePill } from "components/problems/status-badge";
 import { CardTitle } from "components/ui/card-title";
 import { Controller, useForm } from "react-hook-form";
 import Select, { components } from "react-select";
@@ -42,11 +42,25 @@ export const getServerSideProps = withSession(async function ({ req, params }) {
     `http://127.0.0.1:3030/v1/probman/problem/${params.id}`
   );
   const data = await res.json();
+  let step = [];
+  if (data.data.idStatus) {
+    for (let loop = 1; loop <= 4; loop++) {
+      if (loop < data.data.idStatus) {
+        step.push({ name: `Step ${loop}`, status: "complete" });
+      } else if (loop == data.data.idStatus) {
+        step.push({ name: `Step ${loop}`, status: "current" });
+      } else if (loop > data.data.idStatus) {
+        step.push({ name: `Step ${loop}`, status: "upcoming" });
+      } else {
+      }
+    }
+  }
   return {
     props: {
       user: user,
-      problem: data,
+      problem: data.data,
       idProblem: params.id,
+      steps: step,
     },
   };
 });
@@ -55,7 +69,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-function ProblemDetail({ user, problem, idProblem }) {
+function ProblemDetail({ user, problem, idProblem, steps }) {
   if (!user) {
     return {
       redirect: {
@@ -75,30 +89,36 @@ function ProblemDetail({ user, problem, idProblem }) {
     reset,
   } = useForm({
     defaultValues: {
-      problemName: problem.data.problemName,
-      idApps: problem.data.app
+      problemName: problem.problemName,
+      idApps: problem.app
         ? {
-            label: problem.data.app.subname,
-            value: problem.data.app.id,
+            label: problem.app.subname,
+            value: problem.app.id,
           }
         : false,
-      jiraProblem: problem.data.jiraProblem,
-      idUrgency: problem.data.urgency
+      jiraProblem: problem.jiraProblem,
+      idUrgency: problem.urgency
         ? {
-            label: problem.data.urgency.urgency,
-            value: problem.data.urgency.id,
+            label: problem.urgency.urgency,
+            value: problem.urgency.id,
           }
         : false,
-      idImpact: problem.data.impact
+      idImpact: problem.impact
         ? {
-            label: problem.data.impact.impact,
-            value: problem.data.impact.id,
+            label: problem.impact.impact,
+            value: problem.impact.id,
           }
         : false,
-      idSource: problem.data.problemSource
+      idSource: problem.problemSource
         ? {
-            label: problem.data.problemSource.label,
-            value: problem.data.problemSource.id,
+            label: problem.problemSource.labelFilterSource,
+            value: problem.problemSource.id,
+          }
+        : false,
+      idStatus: problem.problemStatus
+        ? {
+            label: problem.problemStatus.label,
+            value: problem.problemStatus.id,
           }
         : false,
     },
@@ -121,31 +141,57 @@ function ProblemDetail({ user, problem, idProblem }) {
       .catch((err) => toast.error(`Assign ${err}`));
   }, []);
 
+  const onUpdateStatus = async (data) => {
+    Object.assign(data, {
+      idStatus: { value: data.idStatus.value + 1 },
+    });
+    if (data.jiraProblem === "" || problem.jiraProblem == null) {
+      toast.error(`Failed to update: Link JIRA harus diisi`);
+    } else {
+      setSpinner(true);
+      axios
+        .put(`http://127.0.0.1:3030/v1/probman/problem/${problem.id}`, data, {
+          headers: { Authorization: `Bearer ${user.accessToken}` },
+        })
+        .then(function (response) {
+          if (response) {
+            toast.success("Status Successfully Updated");
+            setTimeout(() => router.reload(), 1000);
+          } else {
+            toast.error(`Failed to update: ${response.data.message}`);
+          }
+        })
+        .catch(function (error) {
+          setSpinner(false);
+          toast.error(`Failed to update: ${error.response.data.message}`);
+        });
+    }
+  };
+
   const onSubmit = async (data) => {
     Object.assign(data, {
-      id: problem.data.id,
+      id: problem.id,
     });
-    console.log(data);
-    axios
-      .put(
-        `http://127.0.0.1:3030/v1/probman/problem/${problem.data.id}`,
-        data,
-        {
+    if (data.jiraProblem === "") {
+      toast.error(`Failed to update: Link JIRA harus diisi`);
+    } else {
+      setSpinner(true);
+      axios
+        .put(`http://127.0.0.1:3030/v1/probman/problem/${problem.id}`, data, {
           headers: { Authorization: `Bearer ${user.accessToken}` },
-        }
-      )
-      .then(function (response) {
-        !isSubmitting;
-        if (response) {
-          toast.success("Problem Successfully Updated");
-          setTimeout(() => router.reload(), 500);
-        } else {
-          toast.error(`Failed to update: ${response.data.message}`);
-        }
-      })
-      .catch(function (error) {
-        toast.error(`Failed to update: ${error.response.data.message}`);
-      });
+        })
+        .then(function (response) {
+          if (response) {
+            toast.success("Problem Successfully Updated");
+            setTimeout(() => router.reload(), 1000);
+          } else {
+            toast.error(`Failed to update: ${response.data.message}`);
+          }
+        })
+        .catch(function (error) {
+          toast.error(`Failed to update: ${error.response.data.message}`);
+        });
+    }
   };
 
   const makeAssign = async (data, event) => {
@@ -156,6 +202,7 @@ function ProblemDetail({ user, problem, idProblem }) {
       updatedBy: user.id,
       assignedTo: parseInt(event.target.assignedTo.value),
     });
+    setSpinner(true);
     axios
       .put(
         `http://127.0.0.1:3030/v1/probman/incident/recprob/${idProblem}`,
@@ -167,7 +214,7 @@ function ProblemDetail({ user, problem, idProblem }) {
       .then(function (response) {
         if (response) {
           toast.success("Problem Sucessfully Assigned");
-          setTimeout(() => router.reload(), 500);
+          setTimeout(() => router.reload(), 1000);
         }
       })
       .catch((error) => {
@@ -214,14 +261,6 @@ function ProblemDetail({ user, problem, idProblem }) {
         <span>Type at least 3 letters of application name</span>
       </components.NoOptionsMessage>
     );
-  };
-
-  const handleAppChange = (event) => {
-    if (event == null) {
-      setApps("");
-    } else {
-      setApps(event.value);
-    }
   };
 
   // Get data Urgency
@@ -271,11 +310,11 @@ function ProblemDetail({ user, problem, idProblem }) {
 
   return (
     <>
-      <Layout key={`LayoutProblemDetail-${problem.data.id}`} session={user}>
+      <Layout key={`LayoutProblemDetail-${problem.id}`} session={user}>
         <Head>
           <title>
-            {problem.data.problemNumber}{" "}
-            {problem.data.app ? problem.data.app.subname : ""} - Shield
+            {problem.problemNumber} {problem.app ? problem.app.subname : ""} -
+            Shield
           </title>
         </Head>
         <section>
@@ -284,57 +323,60 @@ function ProblemDetail({ user, problem, idProblem }) {
               <div className="flex items-center space-x-5">
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">
-                    {problem.data.problemName}
+                    {problem.problemName}
                   </h1>
                   <p className="text-sm font-medium text-gray-500">
                     Created by&nbsp;
                     <a href="#" className="text-gray-900">
-                      {problem.data.created_by.fullName
-                        ? problem.data.created_by.fullName
-                        : problem.data.created_by.userName}
+                      {problem.created_by.fullName
+                        ? problem.created_by.fullName
+                        : problem.created_by.userName}
                     </a>{" "}
                     on{" "}
                     <time
                       dateTime={format(
-                        new Date(problem.data.createdAt),
+                        new Date(problem.createdAt),
                         "d LLLL yyyy hh:mm"
                       )}
                     >
-                      {format(
-                        new Date(problem.data.createdAt),
-                        "d LLLL yyyy hh:mm"
-                      )}
+                      {format(new Date(problem.createdAt), "d LLLL yyyy hh:mm")}
                     </time>
                   </p>
                 </div>
               </div>
 
-              <div className="mt-6 flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-3">
-                <span
-                  className={classNames(
-                    problem.data.problemStatus.label
-                      .toLowerCase()
-                      .startsWith("waiting")
-                      ? "bg-gray-100 text-gray-800"
-                      : problem.data.problemStatus.label
-                          .toLowerCase()
-                          .startsWith("unassigned")
-                      ? "bg-red-100 text-gray-800"
-                      : problem.data.problemStatus.label
-                          .toLowerCase()
-                          .startsWith("ongoing")
-                      ? "bg-blue-100 text-gray-800"
-                      : problem.data.problemStatus.label
-                          .toLowerCase()
-                          .startsWith("done")
-                      ? "bg-green-100 text-gray-800"
-                      : "bg-gray-100 text-gray-800",
-                    "inline-flex items-center justify-center px-3 py-0.5 rounded-full text-sm font-medium"
-                  )}
-                >
-                  {problem.data.problemStatus.label}
-                </span>
-              </div>
+              {/* coba gatau */}
+              <form onSubmit={handleSubmit(onUpdateStatus)}>
+                {problem.problemStatus.id === 2 ? (
+                  <button
+                    type="submit"
+                    className={classNames(
+                      spinner
+                        ? "px-4 disabled:opacity-50 cursor-not-allowed"
+                        : "",
+                      "w-100 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-400 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    )}
+                    disabled={spinner}
+                  >
+                    {spinner && <Spinner />}
+                    Update On Going at JIRA
+                  </button>
+                ) : problem.problemStatus.id === 3 ? (
+                  <button
+                    type="submit"
+                    className={classNames(
+                      spinner
+                        ? "px-4 disabled:opacity-50 cursor-not-allowed"
+                        : "",
+                      "w-100 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-400 hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                    )}
+                    disabled={spinner}
+                  >
+                    {spinner && <Spinner />}
+                    Update to Done
+                  </button>
+                ) : null}
+              </form>
             </div>
 
             <div className="mt-8 max-w-full mx-auto grid grid-cols-1 gap-6 sm:px-6 lg:max-w-full lg:px-12 lg:grid-flow-col-dense lg:grid-cols-3">
@@ -347,19 +389,18 @@ function ProblemDetail({ user, problem, idProblem }) {
                         <form onSubmit={handleSubmit(onSubmit)}>
                           <section aria-labelledby="edit-problem">
                             <CardTitle
-                              title={`Problem Number ${problem.data.problemNumber}`}
+                              title={`Problem Number ${problem.problemNumber}`}
                               subtitle={
                                 <li className="inline">
-                                  <div className="relative inline-flex items-center rounded-full border border-gray-500 px-3 py-0.5">
+                                  <div className="relative inline-flex items-center">
                                     <div className="absolute flex-shrink-0 flex items-center justify-center">
                                       <span
-                                        className="h-1.5 w-1.5 rounded-full bg-indigo-500"
+                                        className="h-1.5 w-1.5 rounded-full bg-gray-500"
                                         aria-hidden="true"
                                       />
                                     </div>
                                     <div className="ml-3.5 text-sm font-medium text-gray-900">
-                                      Criticality :{" "}
-                                      {problem.data.app.criticalityApp}
+                                      Criticality : {problem.app.criticalityApp}
                                     </div>
                                   </div>{" "}
                                 </li>
@@ -381,14 +422,14 @@ function ProblemDetail({ user, problem, idProblem }) {
                                 <ButtonCircle
                                   action={handleSubmit(onSubmit)}
                                   className={classNames(
-                                    isSubmitting
+                                    spinner
                                       ? "px-4 disabled:opacity-50 cursor-not-allowed"
                                       : "",
                                     "ml-3 border-transparent text-white bg-blue-600 hover:bg-blue-700"
                                   )}
-                                  disabled={isSubmitting}
+                                  disabled={spinner}
                                 >
-                                  {isSubmitting && <Spinner />}
+                                  {spinner && <Spinner />}
                                   <CheckIcon
                                     className="h-5 w-5"
                                     aria-hidden="true"
@@ -425,7 +466,7 @@ function ProblemDetail({ user, problem, idProblem }) {
                                         "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
                                       )}
                                       placeholder="Problem Happening"
-                                      defaultValue={problem.data.problemName}
+                                      defaultValue={problem.problemName}
                                     />
                                     {errors.problemName && (
                                       <p className="mt-1 text-sm text-red-600">
@@ -446,7 +487,7 @@ function ProblemDetail({ user, problem, idProblem }) {
                                     name="idApps"
                                     control={control}
                                     rules={{ required: "This is required" }}
-                                    defaultValue={problem.data.app.id}
+                                    defaultValue={problem.app.id}
                                     render={({ field }) => (
                                       <AsyncSelect
                                         {...field}
@@ -486,7 +527,7 @@ function ProblemDetail({ user, problem, idProblem }) {
                                         "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
                                       )}
                                       placeholder="Link JIRA"
-                                      defaultValue={problem.data.jiraProblem}
+                                      defaultValue={problem.jiraProblem}
                                     />
                                     {errors.jiraProblem && (
                                       <p className="mt-1 text-sm text-red-600">
@@ -590,46 +631,91 @@ function ProblemDetail({ user, problem, idProblem }) {
                     ) : (
                       <>
                         <CardTitle
-                          title={`Problem Number ${problem.data.problemNumber}`}
+                          title={`Problem Number ${problem.problemNumber}`}
                           subtitle={
                             <li className="inline">
-                              <div className="relative inline-flex items-center rounded-full border border-gray-500 px-3 py-0.5">
+                              <div className="relative inline-flex items-center">
                                 <div className="absolute flex-shrink-0 flex items-center justify-center">
                                   <span
-                                    className="h-1.5 w-1.5 rounded-full bg-indigo-500"
+                                    className="h-1.5 w-1.5 rounded-full bg-gray-500"
                                     aria-hidden="true"
                                   />
                                 </div>
                                 <div className="ml-3.5 text-sm font-medium text-gray-900">
-                                  Criticality :{" "}
-                                  {problem.data.app.criticalityApp}
+                                  Criticality : {problem.app.criticalityApp}
                                 </div>
                               </div>{" "}
                             </li>
                           }
                         >
-                          <div className="px-4 flex">
-                            {problem.data.assigned_to ? (
-                              user.username ===
-                              problem.data.assigned_to.userName ? (
-                                <ButtonCircle
-                                  action={() => {
-                                    setEditMode(true);
-                                  }}
-                                  className="border-gray-300 text-gray-700 bg-gray-100 hover:bg-gray-50"
-                                >
-                                  <PencilIcon
-                                    className="h-5 w-5"
-                                    aria-hidden="true"
-                                  />
-                                </ButtonCircle>
+                          <nav
+                            className="flex items-center justify-left"
+                            aria-label="Progress"
+                          >
+                            <p className="text-sm font-medium">
+                              {`Progress ${problem.problemStatus.id} of 4`}
+                            </p>
+                            <ol className="ml-8 flex items-center space-x-5">
+                              {steps.map((step) => (
+                                <li key={step.name}>
+                                  {step.status === "complete" ? (
+                                    <div className="block w-2.5 h-2.5 bg-indigo-600 rounded-full hover:bg-indigo-900">
+                                      <span className="sr-only">
+                                        {step.name}
+                                      </span>
+                                    </div>
+                                  ) : step.status === "current" ? (
+                                    <div
+                                      className="relative flex items-center justify-center"
+                                      aria-current="step"
+                                    >
+                                      <span
+                                        className="absolute w-5 h-5 p-px flex"
+                                        aria-hidden="true"
+                                      >
+                                        <span className="w-full h-full rounded-full bg-indigo-200" />
+                                      </span>
+                                      <span
+                                        className="relative block w-2.5 h-2.5 bg-indigo-600 rounded-full"
+                                        aria-hidden="true"
+                                      />
+                                      <span className="sr-only">
+                                        {step.name}
+                                      </span>
+                                    </div>
+                                  ) : (
+                                    <div className="block w-2.5 h-2.5 bg-gray-200 rounded-full hover:bg-gray-400">
+                                      <span className="sr-only">
+                                        {step.name}
+                                      </span>
+                                    </div>
+                                  )}
+                                </li>
+                              ))}
+                            </ol>
+                            <div className="px-4 flex ml-3 mb-4">
+                              {problem.assigned_to ? (
+                                user.username ===
+                                problem.assigned_to.userName ? (
+                                  <ButtonCircle
+                                    action={() => {
+                                      setEditMode(true);
+                                    }}
+                                    className="border-gray-300 text-gray-700 bg-gray-100 hover:bg-gray-50"
+                                  >
+                                    <PencilIcon
+                                      className="h-5 w-5"
+                                      aria-hidden="true"
+                                    />
+                                  </ButtonCircle>
+                                ) : (
+                                  ""
+                                )
                               ) : (
                                 ""
-                              )
-                            ) : (
-                              ""
-                            )}
-                          </div>
+                              )}
+                            </div>
+                          </nav>
                         </CardTitle>
                         <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
                           <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
@@ -638,8 +724,8 @@ function ProblemDetail({ user, problem, idProblem }) {
                                 Application
                               </dt>
                               <dd className="mt-1 text-sm text-gray-900">
-                                {problem.data.app.subname
-                                  ? problem.data.app.subname
+                                {problem.app.subname
+                                  ? problem.app.subname
                                   : "Not defined yet"}
                               </dd>
                             </div>
@@ -648,13 +734,13 @@ function ProblemDetail({ user, problem, idProblem }) {
                                 Link JIRA
                               </dt>
                               <dd className="mt-1 text-sm text-gray-900">
-                                {problem.data.jiraProblem ? (
+                                {problem.jiraProblem ? (
                                   <a
-                                    href={problem.data.jiraProblem}
+                                    href={problem.jiraProblem}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                   >
-                                    {problem.data.jiraProblem}
+                                    {problem.jiraProblem}
                                   </a>
                                 ) : (
                                   "Not Defined Yet"
@@ -666,8 +752,8 @@ function ProblemDetail({ user, problem, idProblem }) {
                                 Urgency
                               </dt>
                               <dd className="mt-1 text-sm text-gray-900">
-                                {problem.data.urgency.urgency
-                                  ? problem.data.urgency.urgency
+                                {problem.urgency.urgency
+                                  ? problem.urgency.urgency
                                   : "Not defined yet"}
                               </dd>
                             </div>
@@ -676,8 +762,8 @@ function ProblemDetail({ user, problem, idProblem }) {
                                 Impact
                               </dt>
                               <dd className="mt-1 text-sm text-gray-900">
-                                {problem.data.impact.impact
-                                  ? problem.data.impact.impact
+                                {problem.impact.impact
+                                  ? problem.impact.impact
                                   : "Not defined yet"}
                               </dd>
                             </div>
@@ -687,16 +773,31 @@ function ProblemDetail({ user, problem, idProblem }) {
                                 Source
                               </dt>
                               <dd className="mt-1 text-sm text-gray-900">
-                                {problem.data.problemSource.label ? (
+                                {problem.problemSource.labelFilterSource ? (
                                   <SourcePill
-                                    value={problem.data.problemSource.label}
+                                    value={
+                                      problem.problemSource.labelFilterSource
+                                    }
                                   />
                                 ) : (
                                   "Not defined yet"
                                 )}
                               </dd>
                             </div>
-                            <div className="sm:col-span-1"></div>
+                            <div className="sm:col-span-1">
+                              <dt className="text-sm font-medium text-gray-500">
+                                Status
+                              </dt>
+                              <dd>
+                                {problem.problemStatus.label ? (
+                                  <StatusPill
+                                    value={problem.problemStatus.label}
+                                  />
+                                ) : (
+                                  "Not defined yet"
+                                )}
+                              </dd>
+                            </div>
                           </dl>
                         </div>
                       </>
@@ -705,7 +806,7 @@ function ProblemDetail({ user, problem, idProblem }) {
                 </section>
 
                 {/* Condition Incident Table */}
-                {problem.data.incidents.length > 0 ? (
+                {problem.incidents.length > 0 ? (
                   <>
                     <h1 className="text-2xl font-bold text-gray-400">
                       Related Incident
@@ -730,7 +831,7 @@ function ProblemDetail({ user, problem, idProblem }) {
                             </tr>
                           </thead>
                           <tbody className="bg-white divide-y divide-gray-100">
-                            {problem.data.incidents.map((incident) => (
+                            {problem.incidents.map((incident) => (
                               <>
                                 <tr key={`${incident.incidentNumber}`}>
                                   <td className="px-6 py-3 text-sm text-gray-500 font-normal">
@@ -779,95 +880,64 @@ function ProblemDetail({ user, problem, idProblem }) {
                 <div className="bg-white px-4 py-5 shadow sm:rounded-lg sm:px-6">
                   {/* Problem Info */}
                   <div className="space-y-4">
-                    <div>
-                      <h2 className="text-sm font-medium text-gray-900">
-                        Problem Type
-                      </h2>
-                      <ul className="mt-2 leading-8">
-                        <li className="inline">
-                          <div className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5">
-                            <div className="absolute flex-shrink-0 flex items-center justify-center">
-                              <span
-                                className="h-1.5 w-1.5 rounded-full bg-rose-500"
-                                aria-hidden="true"
-                              />
-                            </div>
-                            <div className="ml-3.5 text-sm font-medium text-gray-900">
-                              Priority : {problem.data.priorityMatrix.mapping}
-                            </div>
-                          </div>{" "}
-                        </li>
-                        {/* <li className="inline">
-                          <div className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5">
-                            <div className="absolute flex-shrink-0 flex items-center justify-center">
-                              <span
-                                className="h-1.5 w-1.5 rounded-full bg-indigo-500"
-                                aria-hidden="true"
-                              />
-                            </div>
-                            <div className="ml-3.5 text-sm font-medium text-gray-900">
-                              Criticality : {problem.data.app.criticalityApp}
-                            </div>
-                          </div>{" "}
-                        </li> */}
-                        <li className="inline">
-                          <div className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5">
-                            <div className="absolute flex-shrink-0 flex items-center justify-center">
-                              <span
-                                className="h-1.5 w-1.5 rounded-full bg-yellow-500"
-                                aria-hidden="true"
-                              />
-                            </div>
-                            <div className="ml-3.5 text-sm font-medium text-gray-900">
-                              Type : {problem.data.paramType.type}
-                            </div>
-                          </div>{" "}
-                        </li>
-                      </ul>
-                    </div>
                     <h2 className="text-sm font-medium text-gray-900">
-                      Time Flying
+                      Problem Type
                     </h2>
-                    <div className="flex items-center space-x-2">
-                      <CalendarIcon
-                        className="h-5 w-5 text-rose-600"
-                        aria-hidden="true"
-                      />
-                      <span className="text-gray-900 text-sm">
-                        Started on
-                        <time
-                          dateTime={format(
-                            new Date(problem.data.createdAt),
-                            "d LLLL yyyy hh:mm"
-                          )}
-                        >
-                          {` ${format(
-                            new Date(problem.data.createdAt),
-                            "d LLLL yyyy hh:mm"
-                          )}`}
-                        </time>
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <CalendarIcon
-                        className="h-5 w-5 text-emerald-600"
-                        aria-hidden="true"
-                      />
-                      <span className="text-gray-900 text-sm">
-                        Updated on{" "}
-                        <time
-                          dateTime={format(
-                            new Date(problem.data.updatedAt),
-                            "d LLLL yyyy hh:mm"
-                          )}
-                        >
-                          {` ${format(
-                            new Date(problem.data.updatedAt),
-                            "d LLLL yyyy hh:mm"
-                          )}`}
-                        </time>
-                      </span>
-                    </div>
+                    <ul className="mt-2 leading-8">
+                      <li className="inline">
+                        <div className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5">
+                          <div className="absolute flex-shrink-0 flex items-center justify-center">
+                            <span
+                              className="h-1.5 w-1.5 rounded-full bg-rose-500"
+                              aria-hidden="true"
+                            />
+                          </div>
+                          <div className="ml-3.5 text-sm font-medium text-gray-900">
+                            Priority : {problem.priorityMatrix.mapping}
+                          </div>
+                        </div>{" "}
+                      </li>
+                      <li className="inline">
+                        <div className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5">
+                          <div className="absolute flex-shrink-0 flex items-center justify-center">
+                            <span
+                              className="h-1.5 w-1.5 rounded-full bg-yellow-500"
+                              aria-hidden="true"
+                            />
+                          </div>
+                          <div className="ml-3.5 text-sm font-medium text-gray-900">
+                            Type : {problem.paramType.type}
+                          </div>
+                        </div>{" "}
+                      </li>
+                    </ul>
+                    {problem.idStatus === 4 ? (
+                      <>
+                        <h2 className="text-sm font-medium text-gray-900">
+                          Timestamp
+                        </h2>
+                        <div className="flex items-center space-x-2">
+                          <CalendarIcon
+                            className="h-5 w-5 text-emerald-600"
+                            aria-hidden="true"
+                          />
+                          <span className="text-gray-900 text-sm">
+                            Solved on{" "}
+                            <time
+                              dateTime={format(
+                                new Date(problem.updatedAt),
+                                "d LLLL yyyy hh:mm"
+                              )}
+                            >
+                              {` ${format(
+                                new Date(problem.updatedAt),
+                                "d LLLL yyyy hh:mm"
+                              )}`}
+                            </time>
+                          </span>
+                        </div>
+                      </>
+                    ) : null}
                   </div>
                 </div>
 
@@ -878,17 +948,17 @@ function ProblemDetail({ user, problem, idProblem }) {
                       Assigned To
                     </h2>
 
-                    {problem.data.assigned_to ? (
+                    {problem.assigned_to ? (
                       <div className="flex items-center space-x-2">
                         <UserCircleIcon
                           className="h-6 w-6 text-gray-500"
                           aria-hidden="true"
                         />
                         <span className="text-gray-600 text-sm">
-                          {problem.data.assigned_to.fullName}
+                          {problem.assigned_to.fullName}
                         </span>
                       </div>
-                    ) : user.username === "haritsf" ? (
+                    ) : user.username === "denisukma" ? (
                       <>
                         <form onSubmit={handleSubmit(makeAssign)}>
                           <Controller
@@ -906,8 +976,15 @@ function ProblemDetail({ user, problem, idProblem }) {
                           />
                           <button
                             type="submit"
-                            className="mt-4 w-60 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                            className={classNames(
+                              spinner
+                                ? "px-4 disabled:opacity-50 cursor-not-allowed"
+                                : "",
+                              "mt-4 w-60 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                            )}
+                            disabled={spinner}
                           >
+                            {spinner && <Spinner />}
                             Submit
                           </button>
                           {errors.assignedTo && (
@@ -924,22 +1001,22 @@ function ProblemDetail({ user, problem, idProblem }) {
                     <div className="flex items-center space-x-2">
                       <span className="text-gray-600 text-sm">
                         Last updated on{" "}
-                        {problem.data.updatedAt
+                        {problem.updatedAt
                           ? format(
-                              new Date(problem.data.updatedAt),
+                              new Date(problem.updatedAt),
                               "dd MMM yyyy HH:mm",
                               "id-ID"
                             )
                           : format(
-                              new Date(problem.data.createdAt),
+                              new Date(problem.createdAt),
                               "dd MMM yyyy HH:mm",
                               "id-ID"
                             )}{" "}
                         <br />
                         by{" "}
-                        {problem.data.updated_by
-                          ? problem.data.updated_by.fullName
-                          : problem.data.updated_by.fullName}
+                        {problem.updated_by
+                          ? problem.updated_by.fullName
+                          : problem.updated_by.fullName}
                       </span>
                     </div>
                   </div>
