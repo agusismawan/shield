@@ -13,6 +13,7 @@ import {
 import withSession from "../../lib/session";
 import { PlusSmIcon, BanIcon, EyeIcon } from "@heroicons/react/outline";
 import { PrimaryAnchorButton } from "components/ui/button/primary-anchor-button";
+import { SecondaryAnchorButton } from "components/ui/button";
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
   const user = req.session.get("user");
@@ -47,7 +48,7 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
       props: {
         user: user,
         task: taskData.data.filter((task) => task.idStatus !== 4),
-        done: taskData.data.filter((task) => task.idStatus === 4)
+        done: taskData.data.filter((task) => task.idStatus === 4),
       },
     };
   } else {
@@ -214,6 +215,12 @@ export default function TaskList({ user, task, done }) {
         <section>
           {/* Page title & actions */}
           <PageHeader title="My Task">
+            <Link href="/problem/create" passHref>
+              <SecondaryAnchorButton>
+                <PlusSmIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+                New Problem
+              </SecondaryAnchorButton>
+            </Link>
             <Link href="/problem/list" passHref>
               <PrimaryAnchorButton>
                 <EyeIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
@@ -225,7 +232,9 @@ export default function TaskList({ user, task, done }) {
           {/* Problem Tables on Going */}
           <div className="hidden sm:block mt-3">
             <div className="align-middle px-4 pb-4 sm:px-6 lg:px-8 border-b border-gray-200">
-              <text className="text-2xl font-medium text-gray-900">Ongoing</text>
+              <text className="text-2xl font-medium text-gray-900">
+                Ongoing
+              </text>
               <ProblemTables columns={columns} data={task} />
             </div>
           </div>

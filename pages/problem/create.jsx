@@ -1,7 +1,7 @@
 import Head from "next/head";
 import Layout from "../../components/layout";
 import PageHeader from "../../components/problems/page-header";
-import CreateForm from "../../components/problems/createNew/create-form";
+import CreateForm from "../../components/problems/create-form";
 import withSession from "../../lib/session";
 
 function CreateNew({ user, incidents }) {

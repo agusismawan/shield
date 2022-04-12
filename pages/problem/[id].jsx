@@ -15,6 +15,7 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/router";
 import { ButtonCircle } from "components/ui/button/button-circle";
 import { Spinner } from "components/ui/spinner";
+import ModalRootCause from "components/problems/modal-rootcause";
 import {
   styledReactSelect,
   styledReactSelectAdd,
@@ -346,37 +347,31 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
               </div>
 
               {/* coba gatau */}
-              <form onSubmit={handleSubmit(onUpdateStatus)}>
-                {problem.problemStatus.id === 2 ? (
-                  <button
-                    type="submit"
-                    className={classNames(
-                      spinner
-                        ? "px-4 disabled:opacity-50 cursor-not-allowed"
-                        : "",
-                      "w-100 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-400 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    )}
-                    disabled={spinner}
-                  >
-                    {spinner && <Spinner />}
-                    Update On Going at JIRA
-                  </button>
-                ) : problem.problemStatus.id === 3 ? (
-                  <button
-                    type="submit"
-                    className={classNames(
-                      spinner
-                        ? "px-4 disabled:opacity-50 cursor-not-allowed"
-                        : "",
-                      "w-100 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-400 hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                    )}
-                    disabled={spinner}
-                  >
-                    {spinner && <Spinner />}
-                    Update to Done
-                  </button>
-                ) : null}
-              </form>
+              {user.username === problem.assigned_to.userName ? (
+                problem.problemStatus.id === 2 ? (
+                  <form onSubmit={handleSubmit(onUpdateStatus)}>
+                    <button
+                      type="submit"
+                      className={classNames(
+                        spinner
+                          ? "px-4 disabled:opacity-50 cursor-not-allowed"
+                          : "",
+                        "w-100 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      )}
+                      disabled={spinner}
+                    >
+                      {spinner && <Spinner />}
+                      Update Ongoing at JIRA
+                    </button>
+                  </form>
+                ) : null
+              ) : null}
+
+              {user.username === problem.assigned_to.userName ? (
+                problem.problemStatus.id === 3 ? (
+                  <ModalRootCause problem={problem} user={user} />
+                ) : null
+              ) : null}
             </div>
 
             <div className="mt-8 max-w-full mx-auto grid grid-cols-1 gap-6 sm:px-6 lg:max-w-full lg:px-12 lg:grid-flow-col-dense lg:grid-cols-3">
@@ -389,7 +384,12 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                         <form onSubmit={handleSubmit(onSubmit)}>
                           <section aria-labelledby="edit-problem">
                             <CardTitle
-                              title={`Problem Number ${problem.problemNumber}`}
+                              // title={`Problem Number ${problem.problemNumber}`}
+                              title={
+                                problem.problemNumber !== null
+                                  ? `Problem Number ${problem.problemNumber}`
+                                  : `Problem Number -`
+                              }
                               subtitle={
                                 <li className="inline">
                                   <div className="relative inline-flex items-center">
@@ -450,9 +450,14 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                                       {...register("problemName", {
                                         required: "This is required!",
                                         minLength: {
-                                          value: 5,
+                                          value: 10,
                                           message:
-                                            "Please lengthen this text to 5 characters or more.",
+                                            "Please lengthen this text to 10 characters or more.",
+                                        },
+                                        maxLength: {
+                                          value: 60,
+                                          message:
+                                            "Please shorten this text to 60 characters or less.",
                                         },
                                       })}
                                       rows={1}
@@ -515,7 +520,9 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                                     <textarea
                                       id="jiraProblem"
                                       name="jiraProblem"
-                                      {...register("jiraProblem")}
+                                      {...register("jiraProblem", {
+                                        required: "This is required!",
+                                      })}
                                       rows={1}
                                       style={{
                                         resize: "none",
@@ -631,7 +638,11 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                     ) : (
                       <>
                         <CardTitle
-                          title={`Problem Number ${problem.problemNumber}`}
+                          title={
+                            problem.problemNumber !== null
+                              ? `Problem Number ${problem.problemNumber}`
+                              : `Problem Number -`
+                          }
                           subtitle={
                             <li className="inline">
                               <div className="relative inline-flex items-center">
