@@ -258,7 +258,7 @@ function IncidentDetail({ user, incident }) {
   // Handle switch button for permanent fix option
   const [enhancement, setEnhancement] = useState(
     incident.data.isProblem !== 'N' ? true : false
-    
+
   );
 
   const handleSwitch = () => {
@@ -335,7 +335,7 @@ function IncidentDetail({ user, incident }) {
         </Head>
         <section>
           <div className="py-6">
-            <div className="max-w-full mx-auto px-4 sm:px-6 md:flex md:items-center md:justify-between md:space-x-5 lg:max-w-full lg:px-12">
+            <div className="max-w-full px-4 mx-auto sm:px-6 md:flex md:items-center md:justify-between md:space-x-5 lg:max-w-full lg:px-12">
               {/* Page header, contain incident title */}
               <div className="flex items-center space-x-5">
                 <div>
@@ -361,7 +361,7 @@ function IncidentDetail({ user, incident }) {
                 </div>
               </div>
 
-              <div className="mt-6 flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-3">
+              <div className="flex flex-col-reverse mt-6 space-y-4 space-y-reverse justify-stretch sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-3">
                 <Listbox
                   value={selectedStatus}
                   onChange={(value) => {
@@ -375,8 +375,8 @@ function IncidentDetail({ user, incident }) {
                         Change incident status
                       </Listbox.Label>
                       <div className="relative">
-                        <div className="inline-flex shadow-sm rounded-md divide-x divide-gray-200">
-                          <div className="relative z-0 inline-flex shadow-sm rounded-md divide-x divide-gray-200">
+                        <div className="inline-flex divide-x divide-gray-200 rounded-md shadow-sm">
+                          <div className="relative z-0 inline-flex divide-x divide-gray-200 rounded-md shadow-sm">
                             <div
                               className={classNames(
                                 selectedStatus == "Open"
@@ -387,7 +387,7 @@ function IncidentDetail({ user, incident }) {
                             >
                               {spinner && <Spinner />}
                               <CheckIcon
-                                className="h-5 w-5"
+                                className="w-5 h-5"
                                 aria-hidden="true"
                               />
                               <p className="ml-2.5 text-sm font-medium">
@@ -406,7 +406,7 @@ function IncidentDetail({ user, incident }) {
                                 Change incident status
                               </span>
                               <ChevronDownIcon
-                                className="h-5 w-5 text-white"
+                                className="w-5 h-5 text-white"
                                 aria-hidden="true"
                               />
                             </Listbox.Button>
@@ -422,7 +422,7 @@ function IncidentDetail({ user, incident }) {
                         >
                           <Listbox.Options
                             static
-                            className="origin-top-right absolute z-10 right-0 mt-2 w-72 rounded-md shadow-lg overflow-hidden bg-white divide-y divide-gray-200 ring-1 ring-black ring-opacity-5 focus:outline-none"
+                            className="absolute right-0 z-10 mt-2 overflow-hidden origin-top-right bg-white divide-y divide-gray-200 rounded-md shadow-lg w-72 ring-1 ring-black ring-opacity-5 focus:outline-none"
                           >
                             {incidentStatus.map((option) => (
                               <Listbox.Option
@@ -458,7 +458,7 @@ function IncidentDetail({ user, incident }) {
                                           }
                                         >
                                           <CheckIcon
-                                            className="h-5 w-5"
+                                            className="w-5 h-5"
                                             aria-hidden="true"
                                           />
                                         </span>
@@ -487,7 +487,7 @@ function IncidentDetail({ user, incident }) {
               </div>
             </div>
 
-            <div className="mt-8 max-w-full mx-auto grid grid-cols-1 gap-8 sm:px-6 lg:max-w-full lg:px-12 lg:grid-flow-col-dense lg:grid-cols-2">
+            <div className="grid max-w-full grid-cols-1 gap-8 mx-auto mt-8 sm:px-6 lg:max-w-full lg:px-12 lg:grid-flow-col-dense lg:grid-cols-2">
               <div className="space-y-6 lg:col-start-1 lg:col-span-2">
                 {/* Incident Detail */}
                 {editMode ? (
@@ -508,15 +508,15 @@ function IncidentDetail({ user, incident }) {
                               )}`
                             }`}
                         >
-                          <div className="px-4 flex">
+                          <div className="flex px-4">
                             <ButtonCircle
                               action={() => {
                                 setEditMode(false);
                                 reset();
                               }}
-                              className="border-transparent text-white bg-rose-600 hover:bg-rose-700"
+                              className="text-white border-transparent bg-rose-600 hover:bg-rose-700"
                             >
-                              <XIcon className="h-5 w-5" aria-hidden="true" />
+                              <XIcon className="w-5 h-5" aria-hidden="true" />
                             </ButtonCircle>
                             <ButtonCircle
                               action={handleSubmit(onSubmit)}
@@ -530,7 +530,7 @@ function IncidentDetail({ user, incident }) {
                             >
                               {isSubmitting && <Spinner />}
                               <CheckIcon
-                                className="h-5 w-5"
+                                className="w-5 h-5"
                                 aria-hidden="true"
                               />
                             </ButtonCircle>
@@ -582,7 +582,7 @@ function IncidentDetail({ user, incident }) {
                           <div className="sm:col-span-1">
                             <label
                               htmlFor="start-time"
-                              className="mb-1 block text-sm font-medium text-gray-900"
+                              className="block mb-1 text-sm font-medium text-gray-900"
                             >
                               Start Time
                             </label>
@@ -615,7 +615,7 @@ function IncidentDetail({ user, incident }) {
                           <div className="sm:col-span-1">
                             <label
                               htmlFor="detected-time"
-                              className="mb-1 block text-sm font-medium text-gray-900"
+                              className="block mb-1 text-sm font-medium text-gray-900"
                             >
                               Detected Time
                             </label>
@@ -656,7 +656,7 @@ function IncidentDetail({ user, incident }) {
                           <div className="sm:col-span-2">
                             <label
                               htmlFor="end-time"
-                              className="mb-1 block text-sm font-medium text-gray-900"
+                              className="block mb-1 text-sm font-medium text-gray-900"
                             >
                               End Time
                             </label>
@@ -889,10 +889,10 @@ function IncidentDetail({ user, incident }) {
                               />
                             </Switch>
                             <div>
-                              <label className="block text-sm font-regular text-gray-700">
+                              <label className="block text-sm text-gray-700 font-regular">
                                 Need improvement or permanent fix?
                               </label>
-                              <span className="inline-block align-top text-xs text-gray-400">
+                              <span className="inline-block text-xs text-gray-400 align-top">
                                 Please switch the toggle if the incident need
                                 improvement or permanent fix
                               </span>
@@ -903,7 +903,7 @@ function IncidentDetail({ user, incident }) {
                               <div className="sm:col-span-1">
                                 <label
                                   htmlFor="log-start"
-                                  className="mb-1 block text-sm font-medium text-gray-900"
+                                  className="block mb-1 text-sm font-medium text-gray-900"
                                 >
                                   Problem Type
                                 </label>
@@ -931,7 +931,7 @@ function IncidentDetail({ user, incident }) {
                                   <p className="text-sm text-red-600">
                                     {errors.idProblemType.message}
                                   </p>
-                                )}                              
+                                )}
                               </div>
                               <div className="sm:col-span-2">
                                 <dt className="text-sm font-medium text-gray-900">
@@ -959,7 +959,7 @@ function IncidentDetail({ user, incident }) {
                                     incident.data.proposedEnhancement
                                       ? incident.data.proposedEnhancement
                                       : ""
-                                  }                                
+                                  }
                                 />
                                 {errors.proposedEnhancement && (
                                   <p className="mt-1 text-sm text-red-600">
@@ -979,7 +979,7 @@ function IncidentDetail({ user, incident }) {
                                 required: "This is required!",
                               })}
                               rows={4}
-                              className="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                              className="block w-full mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                               placeholder="The lesson that we take from this incident."
                               defaultValue={
                                 incident.data.lessonLearned
@@ -991,7 +991,7 @@ function IncidentDetail({ user, incident }) {
                               <p className="mt-1 text-sm text-red-600">
                                 {errors.lessonLearned.message}
                               </p>
-                            )}                            
+                            )}
                           </div>
                           <div className="sm:col-span-2">
                             <dt className="text-sm font-medium text-gray-900">
@@ -1041,16 +1041,16 @@ function IncidentDetail({ user, incident }) {
                             )}`
                         }
                       >
-                        <div className="px-4 flex">
+                        <div className="flex px-4">
                           {user.grant != "viewer" && (
                             <ButtonCircle
                               action={() => {
                                 setEditMode(true);
                               }}
-                              className="border-gray-300 text-gray-700 bg-gray-100 hover:bg-gray-50"
+                              className="text-gray-700 bg-gray-100 border-gray-300 hover:bg-gray-50"
                             >
                               <PencilIcon
-                                className="h-5 w-5"
+                                className="w-5 h-5"
                                 aria-hidden="true"
                               />
                             </ButtonCircle>
@@ -1062,7 +1062,7 @@ function IncidentDetail({ user, incident }) {
                           <dt className="text-sm font-medium text-gray-900">
                             Application
                           </dt>
-                          <dd className="mt-1 whitespace-pre-wrap text-sm text-gray-500">
+                          <dd className="mt-1 text-sm text-gray-500 whitespace-pre-wrap">
                             {incident.data.paramApps
                               ? incident.data.paramApps.subName
                               : "Not defined yet"}
@@ -1072,7 +1072,7 @@ function IncidentDetail({ user, incident }) {
                           <dt className="text-sm font-medium text-gray-900">
                             Incident Priority
                           </dt>
-                          <dd className="mt-1 whitespace-pre-wrap text-sm text-gray-500">
+                          <dd className="mt-1 text-sm text-gray-500 whitespace-pre-wrap">
                             {incident.data.paramPriorityMatrix
                               ? incident.data.paramPriorityMatrix.mapping
                               : "Not defined yet"}
@@ -1082,7 +1082,7 @@ function IncidentDetail({ user, incident }) {
                           <dt className="text-sm font-medium text-gray-900">
                             Urgency
                           </dt>
-                          <dd className="mt-1 whitespace-pre-wrap text-sm text-gray-500">
+                          <dd className="mt-1 text-sm text-gray-500 whitespace-pre-wrap">
                             {incident.data.paramUrgency
                               ? incident.data.paramUrgency.urgency
                               : "Not defined yet"}
@@ -1092,7 +1092,7 @@ function IncidentDetail({ user, incident }) {
                           <dt className="text-sm font-medium text-gray-900">
                             Impact
                           </dt>
-                          <dd className="mt-1 whitespace-pre-wrap text-sm text-gray-500">
+                          <dd className="mt-1 text-sm text-gray-500 whitespace-pre-wrap">
                             {incident.data.paramImpact
                               ? incident.data.paramImpact.impact
                               : "Not defined yet"}
@@ -1102,7 +1102,7 @@ function IncidentDetail({ user, incident }) {
                           <dt className="text-sm font-medium text-gray-900">
                             Affected System
                           </dt>
-                          <dd className="mt-1 whitespace-pre-wrap text-sm text-gray-500">
+                          <dd className="mt-1 text-sm text-gray-500 whitespace-pre-wrap">
                             {incident.data.impactedSystem
                               ? incident.data.impactedSystem
                               : "Not defined yet"}
@@ -1112,7 +1112,7 @@ function IncidentDetail({ user, incident }) {
                           <dt className="text-sm font-medium text-gray-900">
                             Root Cause
                           </dt>
-                          <dd className="mt-1 whitespace-pre-wrap text-sm text-gray-500">
+                          <dd className="mt-1 text-sm text-gray-500 whitespace-pre-wrap">
                             {incident.data.rootCause
                               ? incident.data.rootCause
                               : "Not defined yet"}
@@ -1122,7 +1122,7 @@ function IncidentDetail({ user, incident }) {
                           <dt className="text-sm font-medium text-gray-900">
                             Action Items
                           </dt>
-                          <dd className="mt-1 whitespace-pre-wrap text-sm text-gray-500">
+                          <dd className="mt-1 text-sm text-gray-500 whitespace-pre-wrap">
                             {incident.data.actionItem
                               ? incident.data.actionItem
                               : "Not defined yet"}
@@ -1134,7 +1134,7 @@ function IncidentDetail({ user, incident }) {
                               <dt className="text-sm font-medium text-gray-900">
                                 Proposed Enhancement
                               </dt>
-                              <dd className="mt-1 whitespace-pre-wrap text-sm text-gray-500">
+                              <dd className="mt-1 text-sm text-gray-500 whitespace-pre-wrap">
                                 {incident.data.proposedEnhancement
                                   ? incident.data.proposedEnhancement
                                   : "No need improvement"}
@@ -1146,7 +1146,7 @@ function IncidentDetail({ user, incident }) {
                           <dt className="text-sm font-medium text-gray-900">
                             Lesson Learned
                           </dt>
-                          <dd className="mt-1 whitespace-pre-wrap text-sm text-gray-500">
+                          <dd className="mt-1 text-sm text-gray-500 whitespace-pre-wrap">
                             {incident.data.lessonLearned
                               ? incident.data.lessonLearned
                               : "Not defined yet"}
@@ -1156,7 +1156,7 @@ function IncidentDetail({ user, incident }) {
                           <dt className="text-sm font-medium text-gray-900">
                             Responsible Team
                           </dt>
-                          <dd className="mt-1 whitespace-pre-wrap text-sm text-gray-500">
+                          <dd className="mt-1 text-sm text-gray-500 whitespace-pre-wrap">
                             {incident.data.responsibleEngineer
                               ? incident.data.responsibleEngineer
                               : "Not defined yet"}
@@ -1174,7 +1174,7 @@ function IncidentDetail({ user, incident }) {
               >
                 <div className="bg-white shadow sm:rounded-lg">
                   {/* Incident Info */}
-                  <div className="space-y-4 px-4 py-5 sm:px-6">
+                  <div className="px-4 py-5 space-y-4 sm:px-6">
                     <div>
                       <h2 className="text-sm font-medium text-gray-900">
                         Incident Type
@@ -1185,7 +1185,7 @@ function IncidentDetail({ user, incident }) {
                             href="#"
                             className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5"
                           >
-                            <div className="absolute flex-shrink-0 flex items-center justify-center">
+                            <div className="absolute flex items-center justify-center flex-shrink-0">
                               <span
                                 className="h-1.5 w-1.5 rounded-full bg-rose-500"
                                 aria-hidden="true"
@@ -1203,7 +1203,7 @@ function IncidentDetail({ user, incident }) {
                             href="#"
                             className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5"
                           >
-                            <div className="absolute flex-shrink-0 flex items-center justify-center">
+                            <div className="absolute flex items-center justify-center flex-shrink-0">
                               <span
                                 className="h-1.5 w-1.5 rounded-full bg-blue-500"
                                 aria-hidden="true"
@@ -1223,26 +1223,26 @@ function IncidentDetail({ user, incident }) {
                     </h2>
                     <div className="flex items-center space-x-2">
                       <ExclamationCircleIcon
-                        className="h-5 w-5 text-yellow-600"
+                        className="w-5 h-5 text-yellow-600"
                         aria-hidden="true"
                       />
-                      <span className="text-gray-600 text-sm">
+                      <span className="text-sm text-gray-600">
                         {`Detect : ${incident.data.detectIntervals} minutes`}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RefreshIcon
-                        className="h-5 w-5 text-emerald-600"
+                        className="w-5 h-5 text-emerald-600"
                         aria-hidden="true"
                       />
-                      <span className="text-gray-600 text-sm">
+                      <span className="text-sm text-gray-600">
                         {incident.data.resolvedIntervals
                           ? `Recover : ${incident.data.resolvedIntervals} minutes`
                           : "Not recovered yet"}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <span className="text-gray-600 text-sm">
+                      <span className="text-sm text-gray-600">
                         From{" "}
                         {incident.data.logStartTime
                           ? format(
@@ -1254,7 +1254,7 @@ function IncidentDetail({ user, incident }) {
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <span className="text-gray-600 text-sm">
+                      <span className="text-sm text-gray-600">
                         Until{" "}
                         {incident.data.endTime
                           ? format(
@@ -1265,111 +1265,25 @@ function IncidentDetail({ user, incident }) {
                           : "(not recovered yet)"}{" "}
                       </span>
                     </div>
-                  </div>
-                </div>
-                {/* Problem Info Management*/}
-                {incident.data.isProblem !== 'N' && (
-                  <div className="bg-white shadow sm:rounded-lg mt-3">
-                    <div className="space-y-4 px-4 py-5 sm:px-6">
-                      <div>
-                        <h2 className="text-sm font-medium text-gray-900">
-                          Problem Detail
-                        </h2>
-                        {incident.data.problemDetail.problemNumber !== null && (
-                          <>
-                            <div className="ml-3.5 mt-2 text-sm font-medium text-gray-600">
-                              {`ID Problem : ${incident.data.problemDetail.problemNumber}`}
-                            </div>
-                            <div className="ml-3.5 mt-2 text-sm font-medium text-gray-600">
-                              {`Follow up CM : ${incident.data.problemDetail.followUpCM}`}
-                            </div>
-                          </>
-                        )}
-                        <ul className="mt-2 leading-8">
-                          <li className="inline">
-                            <a
-                              href="#"
-                              className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5"
-                            >
-                              <div className="absolute flex-shrink-0 flex items-center justify-center">
-                                <span
-                                  className="h-1.5 w-1.5 rounded-full bg-rose-500"
-                                  aria-hidden="true"
-                                />
-                              </div>
-                              <div className="ml-3.5 text-sm font-medium text-gray-600">
-                                {incident.data.paramProblemType
-                                  ? `Type : ${incident.data.paramProblemType.problemType}`
-                                  : "Problem Type Not yet"}
-                              </div>
-                            </a>{" "}
-                          </li>
-                          <li className="inline">
-                            <a
-                              href="#"
-                              className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5"
-                            >
-                              <div className="absolute flex-shrink-0 flex items-center justify-center">
-                                <span
-                                  className="h-1.5 w-1.5 rounded-full bg-blue-500"
-                                  aria-hidden="true"
-                                />
-                              </div>
-                              <div className="ml-3.5 text-sm font-medium text-gray-600">
-                                {`Status : ${incident.data.problemDetail.problemStatus}`}
-                              </div>
-                            </a>{" "}
-                          </li>
-                        </ul>
-                      </div>
-                      <div>
-                        {/* Improvement */}
-                        <h2 className="text-sm font-medium text-gray-900">
-                          Improvement
-                        </h2>
-                        <ul className="mt-2 leading-8">
-                          <li className="inline">
-                            <a
-                              href="#"
-                              className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5"
-                            >
-                              <div className="absolute flex-shrink-0 flex items-center justify-center">
-                                <span
-                                  className="h-1.5 w-1.5 rounded-full bg-emerald-500"
-                                  aria-hidden="true"
-                                />
-                              </div>
-                              <div className="ml-3.5 text-sm font-medium text-gray-600">
-                                {incident.data.paramFollowUpPlan
-                                  ? incident.data.paramFollowUpPlan.followUpPlan
-                                  : "None"}
-                              </div>
-                            </a>{" "}
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                {/* Reporter */}
-                <div className="bg-white shadow sm:rounded-lg mt-3">
-                  <div className="space-y-4 px-4 py-5 sm:px-6">
+                    <hr/>
+                    {/* Reporter */}
+                    <div className="px-4 py-2 space-y-4 sm:px-2">
                     <h2 className="text-sm font-medium text-gray-900">
                       Reporter
                     </h2>
                     <div className="flex items-center space-x-2">
                       <UserCircleIcon
-                        className="h-6 w-6 text-gray-500"
+                        className="w-6 h-6 text-gray-500"
                         aria-hidden="true"
                       />
-                      <span className="text-gray-600 text-sm">
+                      <span className="text-sm text-gray-600">
                         {incident.data.paramCreatedBy
                           ? incident.data.paramCreatedBy.fullname
                           : "undefined"}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <span className="text-gray-600 text-sm">
+                      <span className="text-sm text-gray-600">
                         Last updated on{" "}
                         {incident.data.updatedAt
                           ? format(
@@ -1390,7 +1304,126 @@ function IncidentDetail({ user, incident }) {
                       </span>
                     </div>
                   </div>
+                  </div>
                 </div>
+                {/* Problem Info Management*/}
+                {incident.data.isProblem !== 'N' && (
+                  <div className="mt-3 bg-white shadow sm:rounded-lg">
+                    <div className="px-4 py-5 space-y-4 sm:px-6">
+                      <div>
+                        <h2 className="text-sm font-medium text-gray-900">
+                          Problem Detail
+                        </h2>
+                        {/* Tampilan yang di atas */}
+                        <div className="ml-3.5 mt-3 text-sm font-medium text-gray-600">
+                          ID Problem : {""}
+                          {incident.data.problemDetail.problemNumber === null
+                            ? '-'
+                            : incident.data.problemDetail.problemNumber}
+                        </div>
+                        <div className="ml-3.5 mt-3 text-sm font-medium text-gray-600">
+                          Assigned AES : {""}
+                          {incident.data.problemDetail.paramAssignedTo === null
+                            ? '-'
+                            : incident.data.problemDetail.paramAssignedTo.fullname}
+                        </div>
+
+                        {/* Detail Type dan Status */}
+                        <div className="flex flex-wrap ml-3.5 mt-3 text-sm font-medium relative text-gray-600  px-3 py-0.5 items-center">
+                          <span
+                            className="absolute h-1.5 w-1.5 rounded-full bg-rose-500 items-center justify-center"
+                            aria-hidden="true"
+                          />
+                          <div className="ml-3.5 text-sm font-medium text-gray-600">
+                                {incident.data.paramProblemType
+                                  ? `Type : ${incident.data.paramProblemType.problemType}`
+                                  : "Problem Type Not yet"}
+                          </div>
+                        </div>
+                        <div className="inline-flex ml-3.5 mt-3 text-sm font-medium relative text-gray-600  px-3 py-0.5 items-center ">
+                          <span
+                            className="absolute h-1.5 w-1.5 rounded-full bg-emerald-500 items-center justify-center"
+                            aria-hidden="true"
+                          />
+                          <div className="ml-3.5 text-sm font-medium text-gray-600">
+                                {incident.data.problemDetail
+                                  ? `Status : ${incident.data.problemDetail.problemStatus}`
+                                  : "Problem Status Not yet"}
+                          </div>
+                        </div>
+                        {/* Akhir Detail Type dan Status */}                   
+                      </div>
+                      <div>
+                        {/* Improvement */}
+                        <h2 className="text-sm font-medium text-gray-900">
+                          Improvement
+                        </h2>
+                        <ul className="mt-2 leading-8 px-3">
+                          <li className="inline">
+                            <a
+                              href="#"
+                              className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5"
+                            >
+                              <div className="absolute flex items-center justify-center flex-shrink-0">
+                                <span
+                                  className="h-1.5 w-1.5 rounded-full bg-emerald-500"
+                                  aria-hidden="true"
+                                />
+                              </div>
+                              <div className="ml-3.5 text-sm font-medium text-gray-600">
+                                {incident.data.paramFollowUpPlan
+                                  ? incident.data.paramFollowUpPlan.followUpPlan
+                                  : "None"}
+                              </div>
+                            </a>{" "}
+                          </li>
+                        </ul>
+                        {/* Link */}
+                        <h2 className="mt-2 text-sm font-medium text-gray-900">
+                          Link
+                        </h2>
+                        <ul className="mt-2 leading-8">
+                          
+                          <li className="inline">
+                            <a 
+                            href="#"
+                            className="relative inline-flex items-center rounded-full border border-gray-600 bg-gray-900 px-3 py-0.5 ml-2">
+                              <div className="absolute flex items-center justify-center flex-shrink-0">
+                                <span
+                                className="h-1.5 w-1.5 rounded-full bg-gray-500"
+                                aria-hidden="true"
+                                />
+                              </div>
+                              <div className="ml-3.5 text-sm font-medium">
+                                
+                                {incident.data.problemDetail.jiraProblem === null
+                                  ? <span className="text-white">None</span>
+                                  : <a className = "text-white hover:text-blue-800 hover:transition hover:duration-300" href={incident.data.problemDetail.jiraProblem}>Jira</a>}
+                              </div>
+                            </a>{" "}
+                          </li>
+                          <li className="inline">
+                            <a 
+                            href="#"
+                            className="relative inline-flex items-center rounded-full border border-gray-600 bg-cyan-700 overflow-hidden px-3 py-0.5 ml-2">
+                              <div className="absolute flex items-center justify-center flex-shrink-0">
+                                <span
+                                className="h-1.5 w-1.5 rounded-full bg-gray-400"
+                                aria-hidden="true"
+                                />
+                              </div>
+                              <div className="ml-3.5 text-sm font-medium">
+                                {incident.data.problemDetail.followUpCM === null
+                                  ? <span className="text-white">None</span>
+                                  : <a className= "text-white hover:text-black hover:transition hover:duration-300" href={incident.data.problemDetail.followUpCM}>Change Management</a>}
+                              </div>
+                            </a>{" "}
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </section>
             </div>
           </div >
