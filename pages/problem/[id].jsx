@@ -314,7 +314,7 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
       <Layout key={`LayoutProblemDetail-${problem.id}`} session={user}>
         <Head>
           <title>
-            {problem.problemNumber} {problem.app ? problem.app.subname : ""} -
+            {problem.problemNumber} {problem.app ? problem.app.subname : null} -
             Shield
           </title>
         </Head>
@@ -337,10 +337,15 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                     <time
                       dateTime={format(
                         new Date(problem.createdAt),
-                        "d LLLL yyyy hh:mm"
+                        "d LLLL yyyy HH:mm",
+                        "id-ID"
                       )}
                     >
-                      {format(new Date(problem.createdAt), "d LLLL yyyy hh:mm")}
+                      {format(
+                        new Date(problem.createdAt),
+                        "d LLLL yyyy HH:mm",
+                        "id-ID"
+                      )}
                     </time>
                   </p>
                 </div>
@@ -355,7 +360,7 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                       className={classNames(
                         spinner
                           ? "px-4 disabled:opacity-50 cursor-not-allowed"
-                          : "",
+                          : null,
                         "w-100 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                       )}
                       disabled={spinner}
@@ -424,7 +429,7 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                                   className={classNames(
                                     spinner
                                       ? "px-4 disabled:opacity-50 cursor-not-allowed"
-                                      : "",
+                                      : null,
                                     "ml-3 border-transparent text-white bg-blue-600 hover:bg-blue-700"
                                   )}
                                   disabled={spinner}
@@ -708,23 +713,21 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                               {problem.assigned_to ? (
                                 user.username ===
                                 problem.assigned_to.userName ? (
-                                  <ButtonCircle
-                                    action={() => {
-                                      setEditMode(true);
-                                    }}
-                                    className="border-gray-300 text-gray-700 bg-gray-100 hover:bg-gray-50"
-                                  >
-                                    <PencilIcon
-                                      className="h-5 w-5"
-                                      aria-hidden="true"
-                                    />
-                                  </ButtonCircle>
-                                ) : (
-                                  ""
-                                )
-                              ) : (
-                                ""
-                              )}
+                                  problem.idStatus !== 4 ? (
+                                    <ButtonCircle
+                                      action={() => {
+                                        setEditMode(true);
+                                      }}
+                                      className="border-gray-300 text-gray-700 bg-gray-100 hover:bg-gray-50"
+                                    >
+                                      <PencilIcon
+                                        className="h-5 w-5"
+                                        aria-hidden="true"
+                                      />
+                                    </ButtonCircle>
+                                  ) : null
+                                ) : null
+                              ) : null}
                             </div>
                           </nav>
                         </CardTitle>
@@ -870,7 +873,8 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                                   <td className="px-6 py-3 text-sm text-gray-500 font-normal">
                                     {format(
                                       new Date(incident.createdAt),
-                                      "d LLLL yyyy hh:mm"
+                                      "d LLLL yyyy HH:mm",
+                                      "id-ID"
                                     )}
                                   </td>
                                 </tr>
@@ -937,12 +941,14 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                             <time
                               dateTime={format(
                                 new Date(problem.updatedAt),
-                                "d LLLL yyyy hh:mm"
+                                "d LLLL yyyy HH:mm",
+                                "id-ID"
                               )}
                             >
                               {` ${format(
                                 new Date(problem.updatedAt),
-                                "d LLLL yyyy hh:mm"
+                                "d LLLL yyyy HH:mm",
+                                "id-ID"
                               )}`}
                             </time>
                           </span>
@@ -990,7 +996,7 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                             className={classNames(
                               spinner
                                 ? "px-4 disabled:opacity-50 cursor-not-allowed"
-                                : "",
+                                : null,
                               "mt-4 w-60 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                             )}
                             disabled={spinner}
@@ -1015,12 +1021,12 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                         {problem.updatedAt
                           ? format(
                               new Date(problem.updatedAt),
-                              "dd MMM yyyy HH:mm",
+                              "d LLLL yyyy HH:mm",
                               "id-ID"
                             )
                           : format(
                               new Date(problem.createdAt),
-                              "dd MMM yyyy HH:mm",
+                              "d LLLL yyyy HH:mm",
                               "id-ID"
                             )}{" "}
                         <br />

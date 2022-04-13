@@ -22,7 +22,7 @@ export default function ModalRootCause({ user, problem }) {
     handleSubmit,
     formState: { errors },
   } = useForm();
-  
+
   const makeRootCause = async (event) => {
     setSpinner(true);
     Object.assign(event, {
@@ -31,9 +31,11 @@ export default function ModalRootCause({ user, problem }) {
       source: "Problem",
       title: problem.problemName,
       createdBy: user.id,
+      updatedBy: user.id,
+      incidents: problem.incidents,
     });
     axios
-      .post(`http://127.0.0.1:3030/v1/probman/rootcause/create`, event, {
+      .post(`http://127.0.0.1:3030/v1/probman/rootcause/insert`, event, {
         headers: { Authorization: `Bearer ${user.accessToken}` },
       })
       .then(function (response) {
@@ -153,9 +155,9 @@ export default function ModalRootCause({ user, problem }) {
                               Description
                             </dt>
                             <textarea
-                              id="desc"
-                              name="desc"
-                              {...register("desc", {
+                              id="description"
+                              name="description"
+                              {...register("description", {
                                 required: "This is required!",
                                 minLength: {
                                   value: 10,
@@ -182,9 +184,9 @@ export default function ModalRootCause({ user, problem }) {
                               Impacted System
                             </dt>
                             <textarea
-                              id="impactedSystem"
-                              name="impactedSystem"
-                              {...register("impactedSystem", {
+                              id="impactSystem"
+                              name="impactSystem"
+                              {...register("impactSystem", {
                                 required: "This is required!",
                                 minLength: {
                                   value: 10,
@@ -197,7 +199,7 @@ export default function ModalRootCause({ user, problem }) {
                                 resize: "none",
                               }}
                               className={classNames(
-                                errors.impactedSystem
+                                errors.impactSystem
                                   ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
                                   : "focus:ring-blue-500 focus:border-blue-500",
                                 "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
@@ -316,7 +318,7 @@ export default function ModalRootCause({ user, problem }) {
                       className={classNames(
                         spinner
                           ? "px-4 disabled:opacity-50 cursor-not-allowed"
-                          : "",
+                          : null,
                         "mt-3 w-full inline-flex justify-center rounded-md border border-green-300 shadow-sm px-4 py-2 bg-green-500 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                       )}
                       disabled={spinner}

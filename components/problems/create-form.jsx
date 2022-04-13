@@ -476,7 +476,7 @@ const CreateForm = ({ user }) => {
                       className={classNames(
                         spinner
                           ? "px-4 disabled:opacity-50 cursor-not-allowed"
-                          : "",
+                          : null,
                         "ml-1 pl-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                       )}
                       disabled={spinner}

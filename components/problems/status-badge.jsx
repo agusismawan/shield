@@ -138,7 +138,7 @@ const StatusText = ({ value, row }) => {
 };
 
 const StatusIncident = ({ value }) => {
-  const status = value ? value.toLowerCase() : "";
+  const status = value ? value.toLowerCase() : null;
 
   return (
     <BadgesWithDot
