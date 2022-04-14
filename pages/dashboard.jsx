@@ -23,7 +23,11 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
   res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/incidents`, {
     headers: { Authorization: `Bearer ${user.accessToken}` },
   });
+  const getProblems = await fetch(
+    `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/count`
+  );
   const data = await res.json();
+  const problems = await getProblems.json();
 
   if (res.status === 200) {
     // Pass data to the page via props
@@ -31,6 +35,7 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
       props: {
         user: req.session.get("user"),
         incidents: data,
+        problems: problems
       },
     };
   } else if (res.status === 401) {
@@ -53,7 +58,7 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
   }
 });
 
-function Home({ user, incidents }) {
+function Home({ user, incidents, problems }) {
   const cards = [
     {
       name: "Incidents Open",
@@ -64,9 +69,9 @@ function Home({ user, incidents }) {
     },
     {
       name: "Problem Management",
-      href: "#",
+      href: "/problem",
       icon: FireIcon,
-      total: 0,
+      total: problems.data.count,
     },
     {
       name: "Ticket Open",
