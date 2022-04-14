@@ -45,10 +45,10 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
   }
 
   const resAllJoin = await fetch(
-    "http://127.0.0.1:3030/v1/probman/problem/alljoin"
+    `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/alljoin`
   );
   const resCount = await fetch(
-    "http://127.0.0.1:3030/v1/probman/problem/count"
+    `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/count`
   );
   const problems = await resAllJoin.json();
   const counts = await resCount.json();
@@ -106,7 +106,7 @@ export default function ProblemList({ user, problems, counts }) {
   // Get Source Problem
   useEffect(() => {
     axios
-      .get("http://127.0.0.1:3030/v1/probman/source/all")
+      .get(`${process.env.NEXT_PUBLIC_API_PROBMAN}/source/all`)
       .then((response) => {
         const data = response.data.data.map((d) => ({
           value: d.id,
@@ -120,7 +120,7 @@ export default function ProblemList({ user, problems, counts }) {
   // Get Status Problem
   useEffect(() => {
     axios
-      .get("http://127.0.0.1:3030/v1/probman/status/all")
+      .get(`${process.env.NEXT_PUBLIC_API_PROBMAN}/status/all`)
       .then((response) => {
         const data = response.data.data.map((d) => ({
           value: d.id,
@@ -135,7 +135,7 @@ export default function ProblemList({ user, problems, counts }) {
   useEffect(() => {
     const fetchData = async () => {
       const response = await axios.get(
-        `http://127.0.0.1:3030/v1/probman/problem/filtersapujagat/all?idApps=${idApps}`,
+        `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/filtersapujagat/all?idApps=${idApps}`,
         {
           headers: { Authorization: `Bearer ${user.accessToken}` },
         }

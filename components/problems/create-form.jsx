@@ -111,7 +111,7 @@ const CreateForm = ({ user }) => {
   // Get data Type
   useEffect(() => {
     axios
-      .get("http://127.0.0.1:3030/v1/probman/type/all")
+      .get(`${process.env.NEXT_PUBLIC_API_PROBMAN}/type/all`)
       .then((response) => {
         const data = response.data.data.map((d) => ({
           value: d.id,
@@ -125,7 +125,7 @@ const CreateForm = ({ user }) => {
   // Get data Source Problem
   useEffect(() => {
     axios
-      .get("http://127.0.0.1:3030/v1/probman/source/all")
+      .get(`${process.env.NEXT_PUBLIC_API_PROBMAN}/source/all`)
       .then((response) => {
         const data = response.data.data
           .filter((value) => {
@@ -143,7 +143,7 @@ const CreateForm = ({ user }) => {
   // Get data Follow Up Plan
   useEffect(() => {
     axios
-      .get("http://127.0.0.1:3030/v1/probman/followup/all")
+      .get(`${process.env.NEXT_PUBLIC_API_PROBMAN}/followup/all`)
       .then((response) => {
         const data = response.data.data.map((d) => ({
           value: d.id,
@@ -179,7 +179,7 @@ const CreateForm = ({ user }) => {
 
     setSpinner(true);
     axios
-      .post(`http://127.0.0.1:3030/v1/probman/problem/create`, data, {
+      .post(`${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/create`, data, {
         headers: { Authorization: `Bearer ${user.accessToken}` },
       })
       .then(function (response) {

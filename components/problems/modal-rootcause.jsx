@@ -35,7 +35,7 @@ export default function ModalRootCause({ user, problem }) {
       incidents: problem.incidents,
     });
     axios
-      .post(`http://127.0.0.1:3030/v1/probman/rootcause/insert`, event, {
+      .post(`${process.env.NEXT_PUBLIC_API_PROBMAN}/rootcause/insert`, event, {
         headers: { Authorization: `Bearer ${user.accessToken}` },
       })
       .then(function (response) {

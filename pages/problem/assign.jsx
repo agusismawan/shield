@@ -24,17 +24,9 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
       },
     };
   }
-  // else if (user.username !== "denisukma") {
-  //   return {
-  //     redirect: {
-  //       destination: "/problem",
-  //       permanent: false,
-  //     },
-  //   };
-  // }
 
   const assignProblem = await fetch(
-    "http://127.0.0.1:3030/v1/probman/incident/filter"
+    `${process.env.NEXT_PUBLIC_API_PROBMAN}/incident/filter`
   );
   const getAssign = await assignProblem.json();
 

@@ -24,7 +24,7 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
         permanent: false,
       },
     };
-  } else if (user.username === "denisukma") {
+  } else if (user.username === `${process.env.NEXT_PUBLIC_TL_AES}`) {
     return {
       redirect: {
         destination: "/problem/list",
@@ -32,7 +32,7 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
       },
     };
   }
-  const getTask = await fetch("http://127.0.0.1:3030/v1/probman/problem/task", {
+  const getTask = await fetch(`${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/task`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

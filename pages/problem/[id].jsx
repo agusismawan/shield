@@ -40,7 +40,7 @@ export const getServerSideProps = withSession(async function ({ req, params }) {
   }
 
   const res = await fetch(
-    `http://127.0.0.1:3030/v1/probman/problem/${params.id}`
+    `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/${params.id}`
   );
   const data = await res.json();
   let step = [];
@@ -131,7 +131,7 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
   const [assignOptions, setAssignOptions] = useState([]);
   useEffect(() => {
     axios
-      .get("http://127.0.0.1:3030/v1/probman/user/all")
+      .get(`${process.env.NEXT_PUBLIC_API_PROBMAN}/user/all`)
       .then((response) => {
         const data = response.data.data.map((d) => ({
           value: d.id,
@@ -151,9 +151,13 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
     } else {
       setSpinner(true);
       axios
-        .put(`http://127.0.0.1:3030/v1/probman/problem/${problem.id}`, data, {
-          headers: { Authorization: `Bearer ${user.accessToken}` },
-        })
+        .put(
+          `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/${problem.id}`,
+          data,
+          {
+            headers: { Authorization: `Bearer ${user.accessToken}` },
+          }
+        )
         .then(function (response) {
           if (response) {
             toast.success("Status Successfully Updated");
@@ -178,9 +182,13 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
     } else {
       setSpinner(true);
       axios
-        .put(`http://127.0.0.1:3030/v1/probman/problem/${problem.id}`, data, {
-          headers: { Authorization: `Bearer ${user.accessToken}` },
-        })
+        .put(
+          `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/${problem.id}`,
+          data,
+          {
+            headers: { Authorization: `Bearer ${user.accessToken}` },
+          }
+        )
         .then(function (response) {
           if (response) {
             toast.success("Problem Successfully Updated");
@@ -206,7 +214,7 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
     setSpinner(true);
     axios
       .put(
-        `http://127.0.0.1:3030/v1/probman/incident/recprob/${idProblem}`,
+        `${process.env.NEXT_PUBLIC_API_PROBMAN}/incident/recprob/${idProblem}`,
         dataAssign,
         {
           headers: { Authorization: `Bearer ${user.accessToken}` },
@@ -298,7 +306,7 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
   const [sourceOptions, setSourceOptions] = useState([]);
   useEffect(() => {
     axios
-      .get("http://127.0.0.1:3030/v1/probman/source/all")
+      .get(`${process.env.NEXT_PUBLIC_API_PROBMAN}/source/all`)
       .then((response) => {
         const data = response.data.data.map((d) => ({
           value: d.id,
@@ -352,29 +360,33 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
               </div>
 
               {/* coba gatau */}
-              {user.username === problem.assigned_to.userName ? (
-                problem.problemStatus.id === 2 ? (
-                  <form onSubmit={handleSubmit(onUpdateStatus)}>
-                    <button
-                      type="submit"
-                      className={classNames(
-                        spinner
-                          ? "px-4 disabled:opacity-50 cursor-not-allowed"
-                          : null,
-                        "w-100 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                      )}
-                      disabled={spinner}
-                    >
-                      {spinner && <Spinner />}
-                      Update Ongoing at JIRA
-                    </button>
-                  </form>
+              {problem.assigned_to ? (
+                user.username === problem.assigned_to.userName ? (
+                  problem.problemStatus.id === 2 ? (
+                    <form onSubmit={handleSubmit(onUpdateStatus)}>
+                      <button
+                        type="submit"
+                        className={classNames(
+                          spinner
+                            ? "px-4 disabled:opacity-50 cursor-not-allowed"
+                            : null,
+                          "w-100 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        )}
+                        disabled={spinner}
+                      >
+                        {spinner && <Spinner />}
+                        Update Ongoing at JIRA
+                      </button>
+                    </form>
+                  ) : null
                 ) : null
               ) : null}
 
-              {user.username === problem.assigned_to.userName ? (
-                problem.problemStatus.id === 3 ? (
-                  <ModalRootCause problem={problem} user={user} />
+              {problem.assigned_to ? (
+                user.username === problem.assigned_to.userName ? (
+                  problem.problemStatus.id === 3 ? (
+                    <ModalRootCause problem={problem} user={user} />
+                  ) : null
                 ) : null
               ) : null}
             </div>
@@ -725,9 +737,15 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                                         aria-hidden="true"
                                       />
                                     </ButtonCircle>
-                                  ) : null
-                                ) : null
-                              ) : null}
+                                  ) : (
+                                    ""
+                                  )
+                                ) : (
+                                  ""
+                                )
+                              ) : (
+                                ""
+                              )}
                             </div>
                           </nav>
                         </CardTitle>
@@ -964,7 +982,7 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                     <h2 className="text-sm font-medium text-gray-900">
                       Assigned To
                     </h2>
-
+                    
                     {problem.assigned_to ? (
                       <div className="flex items-center space-x-2">
                         <UserCircleIcon
@@ -975,7 +993,7 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                           {problem.assigned_to.fullName}
                         </span>
                       </div>
-                    ) : user.username === "denisukma" ? (
+                    ) : user.username === `${process.env.NEXT_PUBLIC_TL_AES}` ? (
                       <>
                         <form onSubmit={handleSubmit(makeAssign)}>
                           <Controller
