@@ -28,6 +28,8 @@ import {
   UserCircleIcon,
 } from "@heroicons/react/solid";
 
+import * as ProblemHelper from "components/problems/problem-helper";
+
 export const getServerSideProps = withSession(async function ({ req, params }) {
   const user = req.session.get("user");
   if (!user) {
@@ -316,6 +318,8 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
       })
       .catch((err) => toast.error(`Type ${err}`));
   }, []);
+
+  console.log(ProblemHelper.checkTLAES(user))
 
   return (
     <>
@@ -993,7 +997,7 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                           {problem.assigned_to.fullName}
                         </span>
                       </div>
-                    ) : user.username === `${process.env.NEXT_PUBLIC_TL_AES}` ? (
+                    ) : ProblemHelper.checkTLAES(user) ? (
                       <>
                         <form onSubmit={handleSubmit(makeAssign)}>
                           <Controller

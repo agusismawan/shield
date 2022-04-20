@@ -14,6 +14,9 @@ import withSession from "../../lib/session";
 import { PlusSmIcon, BanIcon, EyeIcon } from "@heroicons/react/outline";
 import { PrimaryAnchorButton } from "components/ui/button/primary-anchor-button";
 import { SecondaryAnchorButton } from "components/ui/button";
+import * as ProblemHelper from "components/problems/problem-helper";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
   const user = req.session.get("user");
@@ -24,7 +27,7 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
         permanent: false,
       },
     };
-  } else if (user.username === `${process.env.NEXT_PUBLIC_TL_AES}`) {
+  } else if (ProblemHelper.checkTLAES(user)) {
     return {
       redirect: {
         destination: "/problem/list",
@@ -32,33 +35,87 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
       },
     };
   }
-  const getTask = await fetch(`${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/task`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      userSession: user.id,
-    }),
+  const getTask = await fetch(
+    `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/task/get?userSession=${user.id}`,
+    {
+      headers: { Authorization: `Bearer ${user.accessToken}` },
+    }
+  ).then(() => {
+    console.log(getTask)
   });
-  const taskData = await getTask.json();
+  // const taskData = await getTask.json();
 
-  if (taskData.status === 200) {
-    return {
-      props: {
-        user: user,
-        task: taskData.data.filter((task) => task.idStatus !== 4),
-        done: taskData.data.filter((task) => task.idStatus === 4),
-      },
-    };
-  } else {
-    return {
-      props: {
-        user: user,
-        task: null,
-      },
-    };
-  }
+  // axios
+  //   .get(
+  //     `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/task/get?userSession=${user.id}`,
+  //     {
+  //       headers: { Authorization: `Bearer ${user.accessToken}` },
+  //     }
+  //   )
+  //   .then(function (response) {
+  //     if (response.status === 200) {
+  //       return {
+  //         props: {
+  //           user: user,
+  //           task: response.data.filter((task) => task.idStatus !== 4),
+  //           done: response.data.filter((done) => done.idStatus === 4),
+  //         },
+  //       };
+  //     } else if (response.status === 204) {
+  //       return {
+  //         props: {
+  //           user: user,
+  //           task: null,
+  //           done: null,
+  //         },
+  //       };
+  //     } else {
+  //       return {
+  //         props: {
+  //           user: user,
+  //           task: null,
+  //           done: null,
+  //         },
+  //       };
+  //     }
+  //   })
+  //   .catch((error) => {
+  //     if (error.response) {
+  //       toast.error(
+  //         `${error.response.data.message} (Code: ${error.response.status})`
+  //       );
+  //     } else if (error.request) {
+  //       toast.error(`Request: ${error.request}`);
+  //     } else {
+  //       toast.error(`Message: ${error.message}`);
+  //     }
+  //   });
+
+  // if (taskData.status === 200) {
+  //   return {
+  //     props: {
+  //       user: user,
+  //       task: taskData.data.filter((task) => task.idStatus !== 4),
+  //       done: taskData.data.filter((done) => done.idStatus === 4),
+  //     },
+  //   };
+  // } else if (taskData.status === 204) {
+  //   return {
+  //     props: {
+  //       user: user,
+  //       task: null,
+  //       done: null,
+  //     },
+  //   };
+  // } else {
+  //   return {
+  //     props: {
+  //       user: user,
+  //       task: null,
+  //       done: null,
+  //     },
+  //   };
+  // }
 });
 
 export default function TaskList({ user, task, done }) {
