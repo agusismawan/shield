@@ -15,8 +15,6 @@ import { PlusSmIcon, BanIcon, EyeIcon } from "@heroicons/react/outline";
 import { PrimaryAnchorButton } from "components/ui/button/primary-anchor-button";
 import { SecondaryAnchorButton } from "components/ui/button";
 import * as ProblemHelper from "components/problems/problem-helper";
-import axios from "axios";
-import { toast } from "react-toastify";
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
   const user = req.session.get("user");
@@ -40,82 +38,35 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
     {
       headers: { Authorization: `Bearer ${user.accessToken}` },
     }
-  ).then(() => {
-    console.log(getTask)
-  });
-  // const taskData = await getTask.json();
+  );
 
-  // axios
-  //   .get(
-  //     `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/task/get?userSession=${user.id}`,
-  //     {
-  //       headers: { Authorization: `Bearer ${user.accessToken}` },
-  //     }
-  //   )
-  //   .then(function (response) {
-  //     if (response.status === 200) {
-  //       return {
-  //         props: {
-  //           user: user,
-  //           task: response.data.filter((task) => task.idStatus !== 4),
-  //           done: response.data.filter((done) => done.idStatus === 4),
-  //         },
-  //       };
-  //     } else if (response.status === 204) {
-  //       return {
-  //         props: {
-  //           user: user,
-  //           task: null,
-  //           done: null,
-  //         },
-  //       };
-  //     } else {
-  //       return {
-  //         props: {
-  //           user: user,
-  //           task: null,
-  //           done: null,
-  //         },
-  //       };
-  //     }
-  //   })
-  //   .catch((error) => {
-  //     if (error.response) {
-  //       toast.error(
-  //         `${error.response.data.message} (Code: ${error.response.status})`
-  //       );
-  //     } else if (error.request) {
-  //       toast.error(`Request: ${error.request}`);
-  //     } else {
-  //       toast.error(`Message: ${error.message}`);
-  //     }
-  //   });
+  const taskData = await getTask.json();
 
-  // if (taskData.status === 200) {
-  //   return {
-  //     props: {
-  //       user: user,
-  //       task: taskData.data.filter((task) => task.idStatus !== 4),
-  //       done: taskData.data.filter((done) => done.idStatus === 4),
-  //     },
-  //   };
-  // } else if (taskData.status === 204) {
-  //   return {
-  //     props: {
-  //       user: user,
-  //       task: null,
-  //       done: null,
-  //     },
-  //   };
-  // } else {
-  //   return {
-  //     props: {
-  //       user: user,
-  //       task: null,
-  //       done: null,
-  //     },
-  //   };
-  // }
+  if (taskData.status === 200) {
+    return {
+      props: {
+        user: user,
+        task: taskData.data.filter((task) => task.idStatus !== 4),
+        done: taskData.data.filter((done) => done.idStatus === 4),
+      },
+    };
+  } else if (taskData.status === 202) {
+    return {
+      props: {
+        user: user,
+        task: null,
+        done: null,
+      },
+    };
+  } else {
+    return {
+      props: {
+        user: user,
+        task: false,
+        done: false,
+      },
+    };
+  }
 });
 
 export default function TaskList({ user, task, done }) {
@@ -292,7 +243,24 @@ export default function TaskList({ user, task, done }) {
               <text className="text-2xl font-medium text-gray-900">
                 Ongoing
               </text>
-              <ProblemTables columns={columns} data={task} />
+              {task !== null ? (
+                <ProblemTables columns={columns} data={task} />
+              ) : (
+                <>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      height: "25vh",
+                    }}
+                  >
+                    <text className="text-4xl font-medium text-gray-500">
+                      No Data
+                    </text>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
@@ -300,7 +268,24 @@ export default function TaskList({ user, task, done }) {
           <div className="hidden sm:block mt-3">
             <div className="align-middle px-4 pb-4 sm:px-6 lg:px-8 border-b border-gray-200">
               <text className="text-2xl font-medium text-gray-900">Done</text>
-              <ProblemTables columns={columns} data={done} />
+              {done !== null ? (
+                <ProblemTables columns={columns} data={done} />
+              ) : (
+                <>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      height: "25vh",
+                    }}
+                  >
+                    <text className="text-4xl font-medium text-gray-500">
+                      No Data
+                    </text>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </section>
