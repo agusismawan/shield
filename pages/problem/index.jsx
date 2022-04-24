@@ -46,30 +46,27 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
     return {
       props: {
         user: user,
-        task: taskData.data.filter((task) => task.idStatus !== 4),
-        done: taskData.data.filter((done) => done.idStatus === 4),
+        data: taskData.data,
       },
     };
   } else if (taskData.status === 202) {
     return {
       props: {
         user: user,
-        task: null,
-        done: null,
+        data: taskData.data
       },
     };
   } else {
     return {
       props: {
         user: user,
-        task: false,
-        done: false,
+        data: null
       },
     };
   }
 });
 
-export default function TaskList({ user, task, done }) {
+export default function TaskList({ user, data }) {
   // begin of define column
   const columns = useMemo(
     () => [
@@ -243,24 +240,7 @@ export default function TaskList({ user, task, done }) {
               <text className="text-2xl font-medium text-gray-900">
                 Ongoing
               </text>
-              {task !== null ? (
-                <ProblemTables columns={columns} data={task} />
-              ) : (
-                <>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "25vh",
-                    }}
-                  >
-                    <text className="text-4xl font-medium text-gray-500">
-                      No Data
-                    </text>
-                  </div>
-                </>
-              )}
+              <ProblemTables columns={columns} data={data.filter((task) => task.idStatus !== 4)} />
             </div>
           </div>
 
@@ -268,24 +248,7 @@ export default function TaskList({ user, task, done }) {
           <div className="hidden sm:block mt-3">
             <div className="align-middle px-4 pb-4 sm:px-6 lg:px-8 border-b border-gray-200">
               <text className="text-2xl font-medium text-gray-900">Done</text>
-              {done !== null ? (
-                <ProblemTables columns={columns} data={done} />
-              ) : (
-                <>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "25vh",
-                    }}
-                  >
-                    <text className="text-4xl font-medium text-gray-500">
-                      No Data
-                    </text>
-                  </div>
-                </>
-              )}
+              <ProblemTables columns={columns} data={data.filter((done) => done.idStatus === 4)} />
             </div>
           </div>
         </section>

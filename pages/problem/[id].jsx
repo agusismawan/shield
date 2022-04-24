@@ -182,26 +182,30 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
     if (data.jiraProblem === "") {
       toast.error(`Failed to update: Link JIRA harus diisi`);
     } else {
-      setSpinner(true);
-      axios
-        .put(
-          `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/${problem.id}`,
-          data,
-          {
-            headers: { Authorization: `Bearer ${user.accessToken}` },
-          }
-        )
-        .then(function (response) {
-          if (response) {
-            toast.success("Problem Successfully Updated");
-            setTimeout(() => router.reload(), 1000);
-          } else {
-            toast.error(`Failed to update: ${response.data.message}`);
-          }
-        })
-        .catch(function (error) {
-          toast.error(`Failed to update: ${error.response.data.message}`);
-        });
+      if (data.jiraProblem.includes("jira.bri.co.id")) {
+        setSpinner(true);
+        axios
+          .put(
+            `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/${problem.id}`,
+            data,
+            {
+              headers: { Authorization: `Bearer ${user.accessToken}` },
+            }
+          )
+          .then(function (response) {
+            if (response) {
+              toast.success("Problem Successfully Updated");
+              setTimeout(() => router.reload(), 1000);
+            } else {
+              toast.error(`Failed to update: ${response.data.message}`);
+            }
+          })
+          .catch(function (error) {
+            toast.error(`Failed to update: ${error.response.data.message}`);
+          });
+      } else {
+        toast.error(`Failed to update: Must attach JIRA BRI`);
+      }
     }
   };
 
@@ -319,7 +323,7 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
       .catch((err) => toast.error(`Type ${err}`));
   }, []);
 
-  console.log(ProblemHelper.checkTLAES(user))
+  // console.log(ProblemHelper.checkTLAES(user))
 
   return (
     <>
@@ -1037,6 +1041,9 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                       "Not Yet Assigned"
                     )}
 
+
+
+                      {/* harus di benerin */}
                     <div className="flex items-center space-x-2">
                       <span className="text-gray-600 text-sm">
                         Last updated on{" "}
@@ -1055,7 +1062,7 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                         by{" "}
                         {problem.updated_by
                           ? problem.updated_by.fullName
-                          : problem.updated_by.fullName}
+                          : "belom di updte"}
                       </span>
                     </div>
                   </div>

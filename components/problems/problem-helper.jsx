@@ -1,5 +1,6 @@
 function checkTLAES(user) {
-  if (user.username === "denisukma") {
+  var getFullname = user.fullname.toLowerCase();
+  if (getFullname.startsWith("deni sukma")) {
     return true;
   } else {
     return false;
