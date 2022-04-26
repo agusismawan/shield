@@ -25,7 +25,8 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
         permanent: false,
       },
     };
-  } else if (ProblemHelper.checkTLAES(user)) {
+    // ini nanti di cocokin sama DB
+  } else if (!ProblemHelper.checkMemberAES(user)) {
     return {
       redirect: {
         destination: "/problem/list",
@@ -53,14 +54,14 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
     return {
       props: {
         user: user,
-        data: taskData.data
+        data: taskData.data,
       },
     };
   } else {
     return {
       props: {
         user: user,
-        data: null
+        data: null,
       },
     };
   }
@@ -240,7 +241,10 @@ export default function TaskList({ user, data }) {
               <text className="text-2xl font-medium text-gray-900">
                 Ongoing
               </text>
-              <ProblemTables columns={columns} data={data.filter((task) => task.idStatus !== 4)} />
+              <ProblemTables
+                columns={columns}
+                data={data.filter((task) => task.idStatus !== 4)}
+              />
             </div>
           </div>
 
@@ -248,7 +252,10 @@ export default function TaskList({ user, data }) {
           <div className="hidden sm:block mt-3">
             <div className="align-middle px-4 pb-4 sm:px-6 lg:px-8 border-b border-gray-200">
               <text className="text-2xl font-medium text-gray-900">Done</text>
-              <ProblemTables columns={columns} data={data.filter((done) => done.idStatus === 4)} />
+              <ProblemTables
+                columns={columns}
+                data={data.filter((done) => done.idStatus === 4)}
+              />
             </div>
           </div>
         </section>

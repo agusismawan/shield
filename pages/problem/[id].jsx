@@ -133,11 +133,11 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
   const [assignOptions, setAssignOptions] = useState([]);
   useEffect(() => {
     axios
-      .get(`${process.env.NEXT_PUBLIC_API_PROBMAN}/user/all`)
+      .get(`${process.env.NEXT_PUBLIC_API_PROBMAN}/user/assigned/aes`)
       .then((response) => {
-        const data = response.data.data.map((d) => ({
-          value: d.id,
-          label: d.fullName,
+        const data = response.data.data.map((user) => ({
+          value: user.id,
+          label: user.fullName,
         }));
         setAssignOptions(data);
       })
@@ -214,7 +214,7 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
     let dataAssign = {};
     Object.assign(dataAssign, {
       idStatus: 2,
-      updatedBy: user.id,
+      // updatedBy: user.id,
       assignedTo: parseInt(event.target.assignedTo.value),
     });
     setSpinner(true);
