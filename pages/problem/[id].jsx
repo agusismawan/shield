@@ -990,7 +990,7 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                     <h2 className="text-sm font-medium text-gray-900">
                       Assigned To
                     </h2>
-                    
+
                     {problem.assigned_to ? (
                       <div className="flex items-center space-x-2">
                         <UserCircleIcon
@@ -1041,28 +1041,19 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                       "Not Yet Assigned"
                     )}
 
-
-
-                      {/* harus di benerin */}
                     <div className="flex items-center space-x-2">
                       <span className="text-gray-600 text-sm">
-                        Last updated on{" "}
                         {problem.updatedAt
-                          ? format(
+                          ? `Last updated on ${format(
                               new Date(problem.updatedAt),
                               "d LLLL yyyy HH:mm",
                               "id-ID"
-                            )
-                          : format(
-                              new Date(problem.createdAt),
-                              "d LLLL yyyy HH:mm",
-                              "id-ID"
-                            )}{" "}
+                            )}`
+                          : null}
                         <br />
-                        by{" "}
                         {problem.updated_by
-                          ? problem.updated_by.fullName
-                          : "belom di updte"}
+                          ? `by ${problem.updated_by.fullName}`
+                          : null}
                       </span>
                     </div>
                   </div>
