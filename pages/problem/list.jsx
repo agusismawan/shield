@@ -59,7 +59,7 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
       props: {
         user: user,
         problems: problems.data,
-        countAssign: getAssign.data.length
+        countAssign: getAssign.data.length,
       },
     };
   }
@@ -69,8 +69,12 @@ export default function ProblemList({ user, problems, countAssign }) {
   const [tableData, setTableData] = useState([]);
   const [idApps, setIdApps] = useState("");
   const [problemName] = useState("");
+
   const [sourceProblem, setSourceProblem] = useState("");
-  const [statusproblem, setStatusProblem] = useState("");
+  const [sourceProblemOptions, setSourceProblemOptions] = useState([]);
+
+  const [statusProblem, setStatusProblem] = useState("");
+  const [statusProblemOptions, setStatusProblemOptions] = useState([]);
 
   const tableInstance = useRef(null);
   const [value, setValue] = useState(""); // tableInstance.current.state.globalFilter
@@ -112,7 +116,7 @@ export default function ProblemList({ user, problems, countAssign }) {
           value: d.id,
           label: d.label,
         }));
-        setSourceProblem(data);
+        setSourceProblemOptions(data);
       })
       .catch((err) => toast.error(`Source ${err}`));
   }, []);
@@ -126,16 +130,16 @@ export default function ProblemList({ user, problems, countAssign }) {
           value: d.id,
           label: d.label,
         }));
-        setStatusProblem(data);
+        setStatusProblemOptions(data);
       })
-      .catch((err) => toast.error(`Source ${err}`));
+      .catch((err) => toast.error(`Status ${err}`));
   }, []);
 
   // Hit to Filter Problem
   useEffect(() => {
     const fetchData = async () => {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/filtersapujagat/all?idApps=${idApps}`,
+        `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/filtersapujagat/all?idApps=${idApps}&idSource=${sourceProblem}&idStatus=${statusProblem}`,
         {
           headers: { Authorization: `Bearer ${user.accessToken}` },
         }
@@ -148,7 +152,7 @@ export default function ProblemList({ user, problems, countAssign }) {
         setTableData(result);
       }
     };
-    if (idApps) {
+    if (idApps || sourceProblem || statusProblem) {
       fetchData();
     } else {
       setTableData(problems);
@@ -157,7 +161,7 @@ export default function ProblemList({ user, problems, countAssign }) {
     idApps,
     problemName,
     sourceProblem,
-    statusproblem,
+    statusProblem,
     problems,
     user.accessToken,
   ]);
@@ -433,7 +437,11 @@ export default function ProblemList({ user, problems, countAssign }) {
                     }}
                     placeholder={
                       tableData
-                        ? `${tableData.filter((data) => data.problemStatus.id !== 1).length} records...`
+                        ? `${
+                            tableData.filter(
+                              (data) => data.problemStatus.id !== 1
+                            ).length
+                          } records...`
                         : `0 records...`
                     }
                     prefix={
@@ -477,8 +485,8 @@ export default function ProblemList({ user, problems, countAssign }) {
                     Source Problem
                   </label>
                   <ReactSelect
-                    isDisabled={true}
-                    options={sourceProblem}
+                    isDisabled={false}
+                    options={sourceProblemOptions}
                     isClearable
                     className="block w-60"
                     onChange={handleSourceProblemChange}
@@ -494,8 +502,8 @@ export default function ProblemList({ user, problems, countAssign }) {
                     Status Problem
                   </label>
                   <ReactSelect
-                    isDisabled={true}
-                    options={statusproblem}
+                    isDisabled={false}
+                    options={statusProblemOptions}
                     isClearable
                     className="block w-60"
                     onChange={handleStatusProblemChange}
