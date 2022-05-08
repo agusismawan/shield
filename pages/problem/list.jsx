@@ -126,7 +126,7 @@ export default function ProblemList({ user, problems, countAssign }) {
     axios
       .get(`${process.env.NEXT_PUBLIC_API_PROBMAN}/status/all`)
       .then((response) => {
-        const data = response.data.data.map((d) => ({
+        const data = response.data.data.filter((data) => data.id !== 1).map((d) => ({
           value: d.id,
           label: d.label,
         }));
