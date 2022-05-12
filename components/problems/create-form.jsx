@@ -445,6 +445,9 @@ const CreateForm = ({ user }) => {
                     <Controller
                       name="idFollowup"
                       control={control}
+                      {...register("idFollowup", {
+                        required: "This is required!",
+                      })}
                       render={({ field }) => (
                         <Select
                           {...field}

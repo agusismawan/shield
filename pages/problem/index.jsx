@@ -14,6 +14,7 @@ import withSession from "../../lib/session";
 import { PlusSmIcon, BanIcon, EyeIcon } from "@heroicons/react/outline";
 import { PrimaryAnchorButton } from "components/ui/button/primary-anchor-button";
 import { SecondaryAnchorButton } from "components/ui/button";
+import * as ProblemHelper from "components/problems/problem-helper";
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
   const user = req.session.get("user");
@@ -24,7 +25,8 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
         permanent: false,
       },
     };
-  } else if (user.username === `${process.env.NEXT_PUBLIC_TL_AES}`) {
+    // ini nanti di cocokin sama DB
+  } else if (!ProblemHelper.checkMemberAES(user)) {
     return {
       redirect: {
         destination: "/problem/list",
@@ -32,36 +34,40 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
       },
     };
   }
-  const getTask = await fetch(`${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/task`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      userSession: user.id,
-    }),
-  });
+  const getTask = await fetch(
+    `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/task/get?userSession=${user.id}`,
+    {
+      headers: { Authorization: `Bearer ${user.accessToken}` },
+    }
+  );
+
   const taskData = await getTask.json();
 
   if (taskData.status === 200) {
     return {
       props: {
         user: user,
-        task: taskData.data.filter((task) => task.idStatus !== 4),
-        done: taskData.data.filter((task) => task.idStatus === 4),
+        data: taskData.data,
+      },
+    };
+  } else if (taskData.status === 202) {
+    return {
+      props: {
+        user: user,
+        data: taskData.data,
       },
     };
   } else {
     return {
       props: {
         user: user,
-        task: null,
+        data: null,
       },
     };
   }
 });
 
-export default function TaskList({ user, task, done }) {
+export default function TaskList({ user, data }) {
   // begin of define column
   const columns = useMemo(
     () => [
@@ -235,7 +241,10 @@ export default function TaskList({ user, task, done }) {
               <text className="text-2xl font-medium text-gray-900">
                 Ongoing
               </text>
-              <ProblemTables columns={columns} data={task} />
+              <ProblemTables
+                columns={columns}
+                data={data.filter((task) => task.idStatus !== 4)}
+              />
             </div>
           </div>
 
@@ -243,7 +252,10 @@ export default function TaskList({ user, task, done }) {
           <div className="hidden sm:block mt-3">
             <div className="align-middle px-4 pb-4 sm:px-6 lg:px-8 border-b border-gray-200">
               <text className="text-2xl font-medium text-gray-900">Done</text>
-              <ProblemTables columns={columns} data={done} />
+              <ProblemTables
+                columns={columns}
+                data={data.filter((done) => done.idStatus === 4)}
+              />
             </div>
           </div>
         </section>

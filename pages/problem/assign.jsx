@@ -11,7 +11,7 @@ import {
   PriorityArrow,
   SourcePill,
 } from "../../components/problems/status-badge";
-import { StatusIncident } from "components/problems/status-badge";
+import { StatusPill } from "components/problems/status-badge";
 import withSession from "../../lib/session";
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
@@ -26,7 +26,7 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
   }
 
   const assignProblem = await fetch(
-    `${process.env.NEXT_PUBLIC_API_PROBMAN}/incident/filter`
+    `${process.env.NEXT_PUBLIC_API_PROBMAN}/incident/needAssign`
   );
   const getAssign = await assignProblem.json();
 
@@ -74,7 +74,7 @@ export default function AssignList({ user, assign }) {
                   value={props.row.original.priorityMatrix.mapping}
                 />
                 <SourcePill
-                  value={props.row.original.problem.problemSource.label}
+                  value={props.row.original.problemSource.label}
                 />
               </div>
             </>
@@ -89,13 +89,20 @@ export default function AssignList({ user, assign }) {
           return (
             <>
               <div className="text-sm text-gray-500">
-                <text className="text-indigo-600 hover:text-indigo-900">
-                  {props.row.original.incidentNumber}
+                {props.row.original.incidents.length == 0
+                  ? "Problem Non Incident"
+                  : props.row.original.multipleIncident == "N"
+                  ? props.row.original.incidents.map((incident) => {
+                      return incident.incidentNumber;
+                    })
+                  : "Multiple Incident"}{" "}
+                |
+                <text className="text-gray-600 hover:text-gray-900">
+                  {` ${props.row.original.problemNumber}`}
                 </text>
-                {` | ${props.row.original.problem.problemNumber}`}
               </div>
               <div className="text-base text-gray-900">
-                {props.row.original.incidentName}
+                {props.row.original.problemName}
               </div>
               <div className="text-xs text-gray-500">
                 {format(
@@ -112,8 +119,8 @@ export default function AssignList({ user, assign }) {
         Cell: (props) => {
           return (
             <div>
-              {props.row.original.incidentStatus ? (
-                <StatusIncident value={props.row.original.incidentStatus} />
+              {props.row.original.problemStatus.label ? (
+                <StatusPill value={props.row.original.problemStatus.label} />
               ) : (
                 "-"
               )}
