@@ -323,6 +323,21 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
       .catch((err) => toast.error(`Type ${err}`));
   }, []);
 
+  // Get data Follow Up Problem
+  const [followupOptions, setFollowupOptions] = useState([]);
+  useEffect(() => {
+    axios
+      .get(`${process.env.NEXT_PUBLIC_API_PROBMAN}/followup/all`)
+      .then((response) => {
+        const data = response.data.data.map((d) => ({
+          value: d.id,
+          label: d.label,
+        }));
+        setFollowupOptions(data);
+      })
+      .catch((err) => toast.error(`Follow Up ${err}`));
+  }, []);
+
   // console.log(ProblemHelper.checkTLAES(user))
 
   return (
@@ -655,6 +670,34 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                                     )}
                                   </div>
                                 </div>
+
+                                <div className="sm:col-span-1">
+                                  <label className="block text-sm font-medium text-gray-700">
+                                    Follow Up Plan
+                                  </label>
+                                  <div className="pt-1">
+                                    <Controller
+                                      name="idFollowup"
+                                      control={control}
+                                      rules={{ required: "This is required" }}
+                                      render={({ field }) => (
+                                        <Select
+                                          {...field}
+                                          isClearable
+                                          options={followupOptions}
+                                          styles={styledReactSelect}
+                                          className="text-sm focus:ring-blue-500 focus:border-blue-500"
+                                        />
+                                      )}
+                                    />
+                                    {errors.idFollowup && (
+                                      <p className="pt-2 text-sm text-red-600">
+                                        {errors.idFollowup.message}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+
                               </div>
                             </div>
                           </section>
@@ -948,6 +991,20 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                           </div>
                           <div className="ml-3.5 text-sm font-medium text-gray-900">
                             Type : {problem.paramType.type}
+                          </div>
+                        </div>{" "}
+                      </li>
+                      <li className="inline">
+                        <div className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5">
+                          <div className="absolute flex-shrink-0 flex items-center justify-center">
+                            <span
+                              className="h-1.5 w-1.5 rounded-full bg-gray-500"
+                              aria-hidden="true"
+                            />
+                          </div>
+                          <div className="ml-3.5 text-sm font-medium text-gray-900">
+                            Follow Up :{" "}
+                            {problem.followUp ? problem.followUp.label : null}
                           </div>
                         </div>{" "}
                       </li>
