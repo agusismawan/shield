@@ -4,6 +4,10 @@
   "description": "Incident still open"
   },
   {
+  "status": "Investigate",
+  "description": "Incident resolved but still investigate"
+  },
+  {
   "status": "Resolved",
   "description": "Incident has been resolved"
   }

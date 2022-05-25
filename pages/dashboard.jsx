@@ -8,6 +8,7 @@ import {
   FireIcon,
   ChatAlt2Icon,
 } from "@heroicons/react/outline";
+import { toast } from "react-toastify";
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
   const user = req.session.get("user");
@@ -20,7 +21,7 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
     };
   }
 
-  res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/incidents`, {
+  res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/dashboards/1/report`, {
     headers: { Authorization: `Bearer ${user.accessToken}` },
   });
   const getProblems = await fetch(
@@ -64,8 +65,7 @@ function Home({ user, incidents, problems }) {
       name: "Incidents Open",
       href: "/incidents",
       icon: DocumentSearchIcon,
-      total: incidents.data.filter((status) => status.incidentStatus === "Open")
-        .length,
+      total: incidents.data.jumlah,
     },
     {
       name: "Problem Management",

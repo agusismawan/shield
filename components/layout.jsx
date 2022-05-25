@@ -17,8 +17,8 @@ import {
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
   { name: "Incidents", href: "/incidents", icon: DocumentSearchIcon },
-  { name: "Problem", href: "/problem", icon: FireIcon },
-  { name: "Tickets", href: "/ticket", icon: ChatAlt2Icon },
+  { name: "Problem Management", href: "#", icon: FireIcon },
+  { name: "Tickets", href: "/tickets", icon: ChatAlt2Icon },
 ];
 
 async function logout() {
