@@ -36,7 +36,10 @@ export default function ModalRootCause({ user, problem }) {
 
     if (problem.jiraProblem == null || problem.jiraProblem == "") {
       toast.error("Message: Harus Menyertakan Link JIRA BRI");
-    } else if (!event.changeManagement.includes("confluence.bri.co.id")) {
+    } else if (
+      event.changeManagement &&
+      !event.changeManagement.includes("confluence.bri.co.id")
+    ) {
       toast.error("Message: Harus Menyertakan Link CM BRI");
     } else {
       axios
