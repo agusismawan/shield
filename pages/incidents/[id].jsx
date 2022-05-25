@@ -702,7 +702,6 @@ function IncidentDetail({ user, incident }) {
                               render={({ field }) => (
                                 <DatePicker
                                   allowClear
-                                  disabled={disabledEndTime}
                                   placeholder="Thank God the incident is over"
                                   showTime={{ format: "HH:mm" }}
                                   format="d MMMM yyyy HH:mm"
@@ -731,37 +730,7 @@ function IncidentDetail({ user, incident }) {
                               </p>
                             )}
                           </div>
-                          <div className="sm:col-span-1">
-                            <div className="mt-7">
-                              <div className="relative flex items-start">
-                                <div className="flex items-center h-5">
-                                  <input
-                                    id="candidates"
-                                    aria-describedby="candidates-description"
-                                    name="candidates"
-                                    type="checkbox"
-                                    className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
-                                    defaultChecked={defaultChecked}
-                                    onChange={handleEndTimeCheckbox}
-                                  />
-                                </div>
-                                <div className="ml-3 text-sm">
-                                  <label
-                                    htmlFor="candidates"
-                                    className="font-medium text-gray-700"
-                                  >
-                                    Incident still ongoing
-                                  </label>
-                                  <p
-                                    id="candidates-description"
-                                    className="text-gray-500"
-                                  >
-                                    Tick if the incident is still ongoing.
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+
                           <div className="sm:col-span-2">
                             <label
                               htmlFor="urgency"
