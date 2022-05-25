@@ -515,16 +515,16 @@ function Home({ user, incidents, problems, dashboardIncident }) {
 										Total Incident
 									</th>
 									<th scope="col" className="relative px-6 py-3">
-										Average Detection Duration
+										Average Detection Duration (minutes)
 									</th>
 									<th scope="col" className="relative px-6 py-3">
-										Average Solved Duration
+										Average Solved Duration (minutes)
 									</th>
 									<th scope="col" className="relative px-6 py-3">
-										Total Detection Duration
+										Total Detection Duration (minutes)
 									</th>
 									<th scope="col" className="relative px-6 py-3">
-										Total Solved Duration
+										Total Solved Duration (minutes)
 									</th>
 								</tr>
 								</thead>
