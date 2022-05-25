@@ -684,7 +684,7 @@ function IncidentDetail({ user, incident }) {
                               name="endTime"
                               control={control}
                               rules={{
-                                required: "This is required",
+                                required: "This is required!",
                                 validate: handleDatetime,
                               }}
                               render={({ field }) => (
