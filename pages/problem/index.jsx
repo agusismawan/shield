@@ -138,7 +138,7 @@ export default function TaskList({ user, data }) {
         Cell: (props) => {
           return (
             <div>
-              {props.row.original.jiraProblem !== "" ? (
+              {props.row.original.jiraProblem !== "" || props.row.original.jiraProblem !== null ? (
                 <a
                   href={props.row.original.jiraProblem}
                   target="_blank"
