@@ -24,7 +24,6 @@ export default function ModalRootCause({ user, problem }) {
   } = useForm();
 
   const makeRootCause = async (event) => {
-    setSpinner(true);
     Object.assign(event, {
       idProblem: problem.id,
       idApps: problem.app.id,
@@ -34,40 +33,53 @@ export default function ModalRootCause({ user, problem }) {
       updatedBy: user.id,
       incidents: problem.incidents,
     });
-    axios
-      .post(`${process.env.NEXT_PUBLIC_API_PROBMAN}/rootcause/insert`, event, {
-        headers: { Authorization: `Bearer ${user.accessToken}` },
-      })
-      .then(function (response) {
-        if (response.status === 201) {
-          toast.success("Problem Sucessfully Done and KEDB Created");
-          setTimeout(() => router.reload(), 1000);
-        }
-      })
-      .catch((error) => {
-        if (error.response) {
-          toast.error(
-            `${error.response.data.message} (Code: ${error.response.status})`
-          );
-        } else if (error.request) {
-          setSpinner(false);
-          toast.error(`Request: ${error.request}`);
-        } else {
-          setSpinner(false);
-          toast.error(`Message: ${error.message}`);
-        }
-      });
+
+    if (problem.jiraProblem == null || problem.jiraProblem == "") {
+      toast.error("Message: Harus Menyertakan Link JIRA BRI");
+    } else if (!event.changeManagement.includes("confluence.bri.co.id")) {
+      toast.error("Message: Harus Menyertakan Link CM BRI");
+    } else {
+      axios
+        .post(
+          `${process.env.NEXT_PUBLIC_API_PROBMAN}/rootcause/insert`,
+          event,
+          {
+            headers: { Authorization: `Bearer ${user.accessToken}` },
+          }
+        )
+        .then(function (response) {
+          if (response.status === 201) {
+            toast.success("Problem Sucessfully Done and KEDB Created");
+            setTimeout(() => router.reload(), 1000);
+          }
+        })
+        .catch((error) => {
+          if (error.response) {
+            toast.error(
+              `${error.response.data.message} (Code: ${error.response.status})`
+            );
+          } else if (error.request) {
+            setSpinner(false);
+            toast.error(`Request: ${error.request}`);
+          } else {
+            setSpinner(false);
+            toast.error(`Message: ${error.message}`);
+          }
+        });
+    }
   };
 
   return (
     <>
-      <button
-        type="button"
-        className="w-100 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-500 hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-        onClick={() => setOpen(true)}
-      >
-        Update to Done
-      </button>
+      {problem.jiraProblem == "" || problem.jiraProblem == null ? null : (
+        <button
+          type="button"
+          className="w-100 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-500 hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          onClick={() => setOpen(true)}
+        >
+          Update to Done
+        </button>
+      )}
       <Transition.Root show={open} as={Fragment}>
         <Dialog
           as="div"
@@ -124,7 +136,7 @@ export default function ModalRootCause({ user, problem }) {
                           as="h3"
                           className="text-lg leading-6 font-medium text-gray-900"
                         >
-                          Insert a Root Cause for Problem
+                          Insert Known Error Record
                         </Dialog.Title>
 
                         <div className="grid grid-cols-1 sm:grid-cols-1">
@@ -150,11 +162,39 @@ export default function ModalRootCause({ user, problem }) {
                             </dd>
                           </div>
 
+                          {problem.followUp.label.includes("CM") ? (
+                            <div className="sm:col-span-1 py-2">
+                              <dt className="text-sm font-medium text-gray-500">
+                                CM Was Wes Wos Fa Fi Fu
+                              </dt>
+                              <textarea
+                                required
+                                id="changeManagement"
+                                name="changeManagement"
+                                {...register("changeManagement", {
+                                  required: "This is required!",
+                                })}
+                                rows={1}
+                                style={{
+                                  resize: "none",
+                                }}
+                                className={classNames(
+                                  errors.changeManagament
+                                    ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
+                                    : "focus:ring-blue-500 focus:border-blue-500",
+                                  "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                                )}
+                                placeholder="Link Referer to CM"
+                              />
+                            </div>
+                          ) : null}
+
                           <div className="sm:col-span-1 py-2">
                             <dt className="text-sm font-medium text-gray-500">
                               Description
                             </dt>
                             <textarea
+                              required
                               id="description"
                               name="description"
                               {...register("description", {
@@ -170,7 +210,7 @@ export default function ModalRootCause({ user, problem }) {
                                 resize: "none",
                               }}
                               className={classNames(
-                                errors.desc
+                                errors.description
                                   ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
                                   : "focus:ring-blue-500 focus:border-blue-500",
                                 "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
@@ -184,6 +224,7 @@ export default function ModalRootCause({ user, problem }) {
                               Impacted System
                             </dt>
                             <textarea
+                              required
                               id="impactSystem"
                               name="impactSystem"
                               {...register("impactSystem", {
@@ -213,6 +254,7 @@ export default function ModalRootCause({ user, problem }) {
                               Root Cause
                             </dt>
                             <textarea
+                              required
                               id="rootCause"
                               name="rootCause"
                               {...register("rootCause", {
@@ -242,6 +284,7 @@ export default function ModalRootCause({ user, problem }) {
                               Resolution
                             </dt>
                             <textarea
+                              required
                               id="resolution"
                               name="resolution"
                               {...register("resolution", {
@@ -271,9 +314,12 @@ export default function ModalRootCause({ user, problem }) {
                               Lesson Learned
                             </dt>
                             <textarea
+                              required
                               id="lessonLearned"
                               name="lessonLearned"
-                              {...register("lessonLearned")}
+                              {...register("lessonLearned", {
+                                required: "This is required!",
+                              })}
                               rows={3}
                               style={{
                                 resize: "none",
@@ -296,7 +342,7 @@ export default function ModalRootCause({ user, problem }) {
                               </b>
                               <br />
                               Otherwise, the Project will be your personal
-                              milestones. ngomong apasih njir.
+                              milestones.
                             </i>
                           </div>
                         </div>

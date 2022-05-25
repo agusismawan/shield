@@ -190,18 +190,13 @@ export default function TaskList({ user, data }) {
         Cell: (props) => {
           return (
             <>
-              <div style={{ textAlign: "-webkit-center" }}>
-                <a
-                  href={`/problem/${props.row.original.id}`}
-                  className="bg-gray-100 text-gray-900"
-                  target="_blank"
-                  rel="noreferrer"
-                >
+              <div style={{ textAlign: "-webkit-center", cursor: "pointer" }}>
+                <Link href={`/problem/${props.row.original.id}`} passHref>
                   <EyeIcon
                     className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"
                     aria-hidden="true"
                   />
-                </a>
+                </Link>
               </div>
             </>
           );
