@@ -24,6 +24,8 @@ import {
   ExclamationCircleIcon,
   RefreshIcon,
   UserCircleIcon,
+  LockOpenIcon,
+  ClockIcon,
 } from "@heroicons/react/solid";
 
 export const getServerSideProps = withSession(async function ({ req, params }) {
@@ -271,6 +273,21 @@ function IncidentDetail({ user, incident }) {
     }
   };
 
+  const [defaultChecked, setDefaultChecked] = useState(false);
+  const [disabledEndTime, setDisabledEndTime] = useState(false);
+
+  const handleEndTimeCheckbox = () => {
+    if (defaultChecked) {
+      console.log("unchecked");
+      setDefaultChecked(false);
+      setDisabledEndTime(false);
+    } else {
+      console.log("checked");
+      setDefaultChecked(true);
+      setDisabledEndTime(true);
+    }
+  };
+
   // handle form submit
   const onSubmit = async (data) => {
     data = Object.assign(data, {
@@ -363,15 +380,32 @@ function IncidentDetail({ user, incident }) {
                               className={classNames(
                                 selectedStatus == "Open"
                                   ? "bg-red-500"
+                                  : selectedStatus == "Investigate"
+                                  ? "bg-blue-500"
                                   : "bg-green-500",
                                 "relative inline-flex items-center py-2 pl-3 pr-4 border border-transparent rounded-l-md shadow-sm text-white"
                               )}
                             >
-                              {spinner && <Spinner />}
-                              <CheckIcon
-                                className="h-5 w-5"
-                                aria-hidden="true"
-                              />
+                              {spinner ? (
+                                <Spinner />
+                              ) : selectedStatus == "Open" ? (
+                                <LockOpenIcon
+                                  className="h-5 w-5"
+                                  aria-hidden="true"
+                                />
+                              ) : selectedStatus == "Investigate" ? (
+                                <ClockIcon
+                                  className="h-5 w-5"
+                                  aria-hidden="true"
+                                />
+                              ) : selectedStatus == "Resolved" ? (
+                                <CheckIcon
+                                  className="h-5 w-5"
+                                  aria-hidden="true"
+                                />
+                              ) : (
+                                ""
+                              )}
                               <p className="ml-2.5 text-sm font-medium">
                                 {selectedStatus}
                               </p>
@@ -380,6 +414,8 @@ function IncidentDetail({ user, incident }) {
                               className={classNames(
                                 selectedStatus == "Open"
                                   ? "bg-red-500 hover:bg-red-600"
+                                  : selectedStatus == "Investigate"
+                                  ? "bg-blue-500 hover:bg-blue-600"
                                   : "bg-green-500 hover:bg-green-600",
                                 "relative inline-flex items-center p-2 rounded-l-none rounded-r-md text-sm font-medium text-white focus:outline-none focus:z-10 focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-blue-500"
                               )}
@@ -637,7 +673,7 @@ function IncidentDetail({ user, incident }) {
                               </p>
                             )}
                           </div>
-                          <div className="sm:col-span-2">
+                          <div className="sm:col-span-1">
                             <label
                               htmlFor="end-time"
                               className="mb-1 block text-sm font-medium text-gray-900"
@@ -654,6 +690,7 @@ function IncidentDetail({ user, incident }) {
                               render={({ field }) => (
                                 <DatePicker
                                   allowClear
+                                  disabled={disabledEndTime}
                                   placeholder="Thank God the incident is over"
                                   showTime={{ format: "HH:mm" }}
                                   format="d MMMM yyyy HH:mm"
@@ -681,6 +718,37 @@ function IncidentDetail({ user, incident }) {
                                 {errors.endTime.message}
                               </p>
                             )}
+                          </div>
+                          <div className="sm:col-span-1">
+                            <div className="mt-7">
+                              <div className="relative flex items-start">
+                                <div className="flex items-center h-5">
+                                  <input
+                                    id="candidates"
+                                    aria-describedby="candidates-description"
+                                    name="candidates"
+                                    type="checkbox"
+                                    className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                                    defaultChecked={defaultChecked}
+                                    onChange={handleEndTimeCheckbox}
+                                  />
+                                </div>
+                                <div className="ml-3 text-sm">
+                                  <label
+                                    htmlFor="candidates"
+                                    className="font-medium text-gray-700"
+                                  >
+                                    Incident still ongoing
+                                  </label>
+                                  <p
+                                    id="candidates-description"
+                                    className="text-gray-500"
+                                  >
+                                    Tick if the incident is still ongoing.
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
                           </div>
                           <div className="sm:col-span-2">
                             <label
