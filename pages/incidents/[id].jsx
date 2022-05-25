@@ -24,6 +24,8 @@ import {
   ExclamationCircleIcon,
   RefreshIcon,
   UserCircleIcon,
+  LockOpenIcon,
+  ClockIcon,
 } from "@heroicons/react/solid";
 import { message } from "antd";
 
@@ -148,9 +150,12 @@ function IncidentDetail({ user, incident }) {
   const [enhanceOptions, setEnhanceOptions] = useState([]);
   useEffect(() => {
     axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}/parameters/problemtype?isActive=Y`, {
-        headers: { Authorization: `Bearer ${user.accessToken}` },
-      })
+      .get(
+        `${process.env.NEXT_PUBLIC_API_URL}/parameters/problemtype?isActive=Y`,
+        {
+          headers: { Authorization: `Bearer ${user.accessToken}` },
+        }
+      )
       .then((response) => {
         const data = response.data.data.map((item) => ({
           value: item.id,
@@ -178,21 +183,21 @@ function IncidentDetail({ user, incident }) {
     defaultValues: {
       idIncidentType: incident.data.paramIncidentType
         ? {
-          label: incident.data.paramIncidentType.incidentType,
-          value: incident.data.paramIncidentType.id,
-        }
+            label: incident.data.paramIncidentType.incidentType,
+            value: incident.data.paramIncidentType.id,
+          }
         : false,
       idUrgency: incident.data.paramUrgency
         ? {
-          label: incident.data.paramUrgency.urgency,
-          value: incident.data.paramUrgency.id,
-        }
+            label: incident.data.paramUrgency.urgency,
+            value: incident.data.paramUrgency.id,
+          }
         : false,
       idImpact: incident.data.paramImpact
         ? {
-          label: incident.data.paramImpact.impact,
-          value: incident.data.paramImpact.id,
-        }
+            label: incident.data.paramImpact.impact,
+            value: incident.data.paramImpact.id,
+          }
         : false,
       logStartTime: incident.data.logStartTime
         ? parseISO(incident.data.logStartTime, new Date())
@@ -203,10 +208,12 @@ function IncidentDetail({ user, incident }) {
       endTime: incident.data.endTime
         ? parseISO(incident.data.endTime, new Date())
         : false,
-      idProblemType: incident.data.idProblemType ? {
-        label: incident.data.paramProblemType.problemType,
-        value: incident.data.paramProblemType.id,
-      } : false,
+      idProblemType: incident.data.idProblemType
+        ? {
+            label: incident.data.paramProblemType.problemType,
+            value: incident.data.paramProblemType.id,
+          }
+        : false,
     },
   });
 
@@ -257,17 +264,16 @@ function IncidentDetail({ user, incident }) {
 
   // Handle switch button for permanent fix option
   const [enhancement, setEnhancement] = useState(
-    incident.data.isProblem !== 'N' ? true : false
-
+    incident.data.isProblem !== "N" ? true : false
   );
 
   const handleSwitch = () => {
-    if (incident.data.isProblem !== 'N') {
+    if (incident.data.isProblem !== "N") {
       setEnhancement(true);
       message.warning({
-        content: 'There is already a improvement or permanent fix',
+        content: "There is already a improvement or permanent fix",
         style: {
-          borderRadius: "0.500rem"
+          borderRadius: "0.500rem",
         },
       });
     } else {
@@ -294,8 +300,13 @@ function IncidentDetail({ user, incident }) {
       endTime: format(new Date(data.endTime), "yyyy-MM-dd HH:mm"),
       idUrgency: data.idUrgency.value,
       idImpact: data.idImpact.value,
-      isProblem: enhancement === true ? 'W' : 'N',
-      idProblemType: enhancement === true ? (data.idProblemType ? data.idProblemType.value : null) : null,
+      isProblem: enhancement === true ? "W" : "N",
+      idProblemType:
+        enhancement === true
+          ? data.idProblemType
+            ? data.idProblemType.value
+            : null
+          : null,
     });
 
     await axios
@@ -381,15 +392,32 @@ function IncidentDetail({ user, incident }) {
                               className={classNames(
                                 selectedStatus == "Open"
                                   ? "bg-red-500"
+                                  : selectedStatus == "Investigate"
+                                  ? "bg-blue-500"
                                   : "bg-green-500",
                                 "relative inline-flex items-center py-2 pl-3 pr-4 border border-transparent rounded-l-md shadow-sm text-white"
                               )}
                             >
-                              {spinner && <Spinner />}
-                              <CheckIcon
-                                className="w-5 h-5"
-                                aria-hidden="true"
-                              />
+                              {spinner ? (
+                                <Spinner />
+                              ) : selectedStatus == "Open" ? (
+                                <LockOpenIcon
+                                  className="h-5 w-5"
+                                  aria-hidden="true"
+                                />
+                              ) : selectedStatus == "Investigate" ? (
+                                <ClockIcon
+                                  className="h-5 w-5"
+                                  aria-hidden="true"
+                                />
+                              ) : selectedStatus == "Resolved" ? (
+                                <CheckIcon
+                                  className="h-5 w-5"
+                                  aria-hidden="true"
+                                />
+                              ) : (
+                                ""
+                              )}
                               <p className="ml-2.5 text-sm font-medium">
                                 {selectedStatus}
                               </p>
@@ -398,6 +426,8 @@ function IncidentDetail({ user, incident }) {
                               className={classNames(
                                 selectedStatus == "Open"
                                   ? "bg-red-500 hover:bg-red-600"
+                                  : selectedStatus == "Investigate"
+                                  ? "bg-blue-500 hover:bg-blue-600"
                                   : "bg-green-500 hover:bg-green-600",
                                 "relative inline-flex items-center p-2 rounded-l-none rounded-r-md text-sm font-medium text-white focus:outline-none focus:z-10 focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-blue-500"
                               )}
@@ -496,17 +526,19 @@ function IncidentDetail({ user, incident }) {
                       <div className="bg-white shadow sm:rounded-lg">
                         <CardTitle
                           title={`Incident Report ${incident.data.incidentNumber}`}
-                          subtitle={`Priority ${incident.data.paramPriorityMatrix
-                            ? incident.data.paramPriorityMatrix.mapping
-                            : "not defined yet"
-                            }, ${incident.data.resolvedIntervals
+                          subtitle={`Priority ${
+                            incident.data.paramPriorityMatrix
+                              ? incident.data.paramPriorityMatrix.mapping
+                              : "not defined yet"
+                          }, ${
+                            incident.data.resolvedIntervals
                               ? `duration ${incident.data.resolvedIntervals} minutes`
                               : `started ${format(
-                                new Date(incident.data.startTime),
-                                "dd MMMM yyyy HH:mm",
-                                "id-ID"
-                              )}`
-                            }`}
+                                  new Date(incident.data.startTime),
+                                  "dd MMMM yyyy HH:mm",
+                                  "id-ID"
+                                )}`
+                          }`}
                         >
                           <div className="flex px-4">
                             <ButtonCircle
@@ -653,7 +685,7 @@ function IncidentDetail({ user, incident }) {
                               </p>
                             )}
                           </div>
-                          <div className="sm:col-span-2">
+                          <div className="sm:col-span-1">
                             <label
                               htmlFor="end-time"
                               className="block mb-1 text-sm font-medium text-gray-900"
@@ -664,7 +696,7 @@ function IncidentDetail({ user, incident }) {
                               name="endTime"
                               control={control}
                               rules={{
-                                required: "This is required",
+                                required: "This is required!",
                                 validate: handleDatetime,
                               }}
                               render={({ field }) => (
@@ -698,6 +730,7 @@ function IncidentDetail({ user, incident }) {
                               </p>
                             )}
                           </div>
+
                           <div className="sm:col-span-2">
                             <label
                               htmlFor="urgency"
@@ -1035,10 +1068,10 @@ function IncidentDetail({ user, incident }) {
                           incident.data.resolvedIntervals
                             ? `Duration ${incident.data.resolvedIntervals} minutes`
                             : `Started ${format(
-                              new Date(incident.data.startTime),
-                              "dd MMMM yyyy HH:mm",
-                              "id-ID"
-                            )}`
+                                new Date(incident.data.startTime),
+                                "dd MMMM yyyy HH:mm",
+                                "id-ID"
+                              )}`
                         }
                       >
                         <div className="flex px-4">
@@ -1128,7 +1161,7 @@ function IncidentDetail({ user, incident }) {
                               : "Not defined yet"}
                           </dd>
                         </div>
-                        {incident.data.isProblem !== 'N' && (
+                        {incident.data.isProblem !== "N" && (
                           <>
                             <div className="sm:col-span-2">
                               <dt className="text-sm font-medium text-gray-900">
@@ -1246,10 +1279,10 @@ function IncidentDetail({ user, incident }) {
                         From{" "}
                         {incident.data.logStartTime
                           ? format(
-                            new Date(incident.data.logStartTime),
-                            "dd MMMM yyyy HH:mm",
-                            "id-ID"
-                          )
+                              new Date(incident.data.logStartTime),
+                              "dd MMMM yyyy HH:mm",
+                              "id-ID"
+                            )
                           : "-"}{" "}
                       </span>
                     </div>
@@ -1258,56 +1291,56 @@ function IncidentDetail({ user, incident }) {
                         Until{" "}
                         {incident.data.endTime
                           ? format(
-                            new Date(incident.data.endTime),
-                            "dd MMMM yyyy HH:mm",
-                            "id-ID"
-                          )
+                              new Date(incident.data.endTime),
+                              "dd MMMM yyyy HH:mm",
+                              "id-ID"
+                            )
                           : "(not recovered yet)"}{" "}
                       </span>
                     </div>
-                    <hr/>
+                    <hr />
                     {/* Reporter */}
                     <div className="px-4 py-2 space-y-4 sm:px-2">
-                    <h2 className="text-sm font-medium text-gray-900">
-                      Reporter
-                    </h2>
-                    <div className="flex items-center space-x-2">
-                      <UserCircleIcon
-                        className="w-6 h-6 text-gray-500"
-                        aria-hidden="true"
-                      />
-                      <span className="text-sm text-gray-600">
-                        {incident.data.paramCreatedBy
-                          ? incident.data.paramCreatedBy.fullname
-                          : "undefined"}
-                      </span>
+                      <h2 className="text-sm font-medium text-gray-900">
+                        Reporter
+                      </h2>
+                      <div className="flex items-center space-x-2">
+                        <UserCircleIcon
+                          className="w-6 h-6 text-gray-500"
+                          aria-hidden="true"
+                        />
+                        <span className="text-sm text-gray-600">
+                          {incident.data.paramCreatedBy
+                            ? incident.data.paramCreatedBy.fullname
+                            : "undefined"}
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm text-gray-600">
+                          Last updated on{" "}
+                          {incident.data.updatedAt
+                            ? format(
+                                new Date(incident.data.updatedAt),
+                                "dd MMM yyyy HH:mm",
+                                "id-ID"
+                              )
+                            : format(
+                                new Date(incident.data.createdAt),
+                                "dd MMM yyyy HH:mm",
+                                "id-ID"
+                              )}{" "}
+                          <br />
+                          by{" "}
+                          {incident.data.paramUpdatedBy
+                            ? incident.data.paramUpdatedBy.fullname
+                            : incident.data.paramCreatedBy.fullname}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm text-gray-600">
-                        Last updated on{" "}
-                        {incident.data.updatedAt
-                          ? format(
-                            new Date(incident.data.updatedAt),
-                            "dd MMM yyyy HH:mm",
-                            "id-ID"
-                          )
-                          : format(
-                            new Date(incident.data.createdAt),
-                            "dd MMM yyyy HH:mm",
-                            "id-ID"
-                          )}{" "}
-                        <br />
-                        by{" "}
-                        {incident.data.paramUpdatedBy
-                          ? incident.data.paramUpdatedBy.fullname
-                          : incident.data.paramCreatedBy.fullname}
-                      </span>
-                    </div>
-                  </div>
                   </div>
                 </div>
                 {/* Problem Info Management*/}
-                {incident.data.isProblem !== 'N' && (
+                {incident.data.isProblem !== "N" && (
                   <div className="mt-3 bg-white shadow sm:rounded-lg">
                     <div className="px-4 py-5 space-y-4 sm:px-6">
                       <div>
@@ -1318,14 +1351,15 @@ function IncidentDetail({ user, incident }) {
                         <div className="ml-3.5 mt-3 text-sm font-medium text-gray-600">
                           ID Problem : {""}
                           {incident.data.problemDetail.problemNumber === null
-                            ? '-'
+                            ? "-"
                             : incident.data.problemDetail.problemNumber}
                         </div>
                         <div className="ml-3.5 mt-3 text-sm font-medium text-gray-600">
                           Assigned AES : {""}
                           {incident.data.problemDetail.paramAssignedTo === null
-                            ? '-'
-                            : incident.data.problemDetail.paramAssignedTo.fullname}
+                            ? "-"
+                            : incident.data.problemDetail.paramAssignedTo
+                                .fullname}
                         </div>
 
                         {/* Detail Type dan Status */}
@@ -1335,9 +1369,9 @@ function IncidentDetail({ user, incident }) {
                             aria-hidden="true"
                           />
                           <div className="ml-3.5 text-sm font-medium text-gray-600">
-                                {incident.data.paramProblemType
-                                  ? `Type : ${incident.data.paramProblemType.problemType}`
-                                  : "Problem Type Not yet"}
+                            {incident.data.paramProblemType
+                              ? `Type : ${incident.data.paramProblemType.problemType}`
+                              : "Problem Type Not yet"}
                           </div>
                         </div>
                         <div className="inline-flex ml-3.5 mt-3 text-sm font-medium relative text-gray-600  px-3 py-0.5 items-center ">
@@ -1346,12 +1380,12 @@ function IncidentDetail({ user, incident }) {
                             aria-hidden="true"
                           />
                           <div className="ml-3.5 text-sm font-medium text-gray-600">
-                                {incident.data.problemDetail
-                                  ? `Status : ${incident.data.problemDetail.problemStatus}`
-                                  : "Problem Status Not yet"}
+                            {incident.data.problemDetail
+                              ? `Status : ${incident.data.problemDetail.problemStatus}`
+                              : "Problem Status Not yet"}
                           </div>
                         </div>
-                        {/* Akhir Detail Type dan Status */}                   
+                        {/* Akhir Detail Type dan Status */}
                       </div>
                       <div>
                         {/* Improvement */}
@@ -1383,39 +1417,59 @@ function IncidentDetail({ user, incident }) {
                           Link
                         </h2>
                         <ul className="mt-2 leading-8">
-                          
                           <li className="inline">
-                            <a 
-                            href="#"
-                            className="relative inline-flex items-center rounded-full border border-gray-600 bg-gray-900 px-3 py-0.5 ml-2">
+                            <a
+                              href="#"
+                              className="relative inline-flex items-center rounded-full border border-gray-600 bg-gray-900 px-3 py-0.5 ml-2"
+                            >
                               <div className="absolute flex items-center justify-center flex-shrink-0">
                                 <span
-                                className="h-1.5 w-1.5 rounded-full bg-gray-500"
-                                aria-hidden="true"
+                                  className="h-1.5 w-1.5 rounded-full bg-gray-500"
+                                  aria-hidden="true"
                                 />
                               </div>
                               <div className="ml-3.5 text-sm font-medium">
-                                
-                                {incident.data.problemDetail.jiraProblem === null
-                                  ? <span className="text-white">None</span>
-                                  : <a className = "text-white hover:text-blue-800 hover:transition hover:duration-300" href={incident.data.problemDetail.jiraProblem}>Jira</a>}
+                                {incident.data.problemDetail.jiraProblem ===
+                                null ? (
+                                  <span className="text-white">None</span>
+                                ) : (
+                                  <a
+                                    className="text-white hover:text-blue-800 hover:transition hover:duration-300"
+                                    href={
+                                      incident.data.problemDetail.jiraProblem
+                                    }
+                                  >
+                                    Jira
+                                  </a>
+                                )}
                               </div>
                             </a>{" "}
                           </li>
                           <li className="inline">
-                            <a 
-                            href="#"
-                            className="relative inline-flex items-center rounded-full border border-gray-600 bg-cyan-700 overflow-hidden px-3 py-0.5 ml-2">
+                            <a
+                              href="#"
+                              className="relative inline-flex items-center rounded-full border border-gray-600 bg-cyan-700 overflow-hidden px-3 py-0.5 ml-2"
+                            >
                               <div className="absolute flex items-center justify-center flex-shrink-0">
                                 <span
-                                className="h-1.5 w-1.5 rounded-full bg-gray-400"
-                                aria-hidden="true"
+                                  className="h-1.5 w-1.5 rounded-full bg-gray-400"
+                                  aria-hidden="true"
                                 />
                               </div>
                               <div className="ml-3.5 text-sm font-medium">
-                                {incident.data.problemDetail.followUpCM === null
-                                  ? <span className="text-white">None</span>
-                                  : <a className= "text-white hover:text-black hover:transition hover:duration-300" href={incident.data.problemDetail.followUpCM}>Change Management</a>}
+                                {incident.data.problemDetail.followUpCM ===
+                                null ? (
+                                  <span className="text-white">None</span>
+                                ) : (
+                                  <a
+                                    className="text-white hover:text-black hover:transition hover:duration-300"
+                                    href={
+                                      incident.data.problemDetail.followUpCM
+                                    }
+                                  >
+                                    Change Management
+                                  </a>
+                                )}
                               </div>
                             </a>{" "}
                           </li>
@@ -1426,9 +1480,9 @@ function IncidentDetail({ user, incident }) {
                 )}
               </section>
             </div>
-          </div >
-        </section >
-      </Layout >
+          </div>
+        </section>
+      </Layout>
     </>
   );
 }

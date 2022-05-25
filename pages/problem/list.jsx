@@ -44,35 +44,39 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
     };
   }
 
-  const resAllJoin = await fetch(
+  const allJoin = await fetch(
     `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/alljoin`
   );
-  const resCount = await fetch(
-    `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/count`
-  );
-  const problems = await resAllJoin.json();
-  const counts = await resCount.json();
+  const problems = await allJoin.json();
 
-  if (resAllJoin.status === 200) {
+  const assignProblem = await fetch(
+    `${process.env.NEXT_PUBLIC_API_PROBMAN}/incident/needAssign`
+  );
+  const getAssign = await assignProblem.json();
+
+  if (allJoin.status === 200) {
     return {
       props: {
         user: user,
         problems: problems.data,
-        counts: counts.data,
+        countAssign: getAssign.data.length,
       },
     };
   }
 });
 
-export default function ProblemList({ user, problems, counts }) {
+export default function ProblemList({ user, problems, countAssign }) {
   const [tableData, setTableData] = useState([]);
   const [idApps, setIdApps] = useState("");
   const [problemName] = useState("");
+
   const [sourceProblem, setSourceProblem] = useState("");
-  const [statusproblem, setStatusProblem] = useState("");
+  const [sourceProblemOptions, setSourceProblemOptions] = useState([]);
+
+  const [statusProblem, setStatusProblem] = useState("");
+  const [statusProblemOptions, setStatusProblemOptions] = useState([]);
 
   const tableInstance = useRef(null);
-  // const count = tableData.length;
   const [value, setValue] = useState(""); // tableInstance.current.state.globalFilter
   const handleGlobalChange = useAsyncDebounce((value) => {
     tableInstance.current.setGlobalFilter(value || undefined);
@@ -112,7 +116,7 @@ export default function ProblemList({ user, problems, counts }) {
           value: d.id,
           label: d.label,
         }));
-        setSourceProblem(data);
+        setSourceProblemOptions(data);
       })
       .catch((err) => toast.error(`Source ${err}`));
   }, []);
@@ -122,20 +126,20 @@ export default function ProblemList({ user, problems, counts }) {
     axios
       .get(`${process.env.NEXT_PUBLIC_API_PROBMAN}/status/all`)
       .then((response) => {
-        const data = response.data.data.map((d) => ({
+        const data = response.data.data.filter((data) => data.id !== 1).map((d) => ({
           value: d.id,
           label: d.label,
         }));
-        setStatusProblem(data);
+        setStatusProblemOptions(data);
       })
-      .catch((err) => toast.error(`Source ${err}`));
+      .catch((err) => toast.error(`Status ${err}`));
   }, []);
 
   // Hit to Filter Problem
   useEffect(() => {
     const fetchData = async () => {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/filtersapujagat/all?idApps=${idApps}`,
+        `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/filtersapujagat/all?idApps=${idApps}&idSource=${sourceProblem}&idStatus=${statusProblem}`,
         {
           headers: { Authorization: `Bearer ${user.accessToken}` },
         }
@@ -148,7 +152,7 @@ export default function ProblemList({ user, problems, counts }) {
         setTableData(result);
       }
     };
-    if (idApps) {
+    if (idApps || sourceProblem || statusProblem) {
       fetchData();
     } else {
       setTableData(problems);
@@ -157,7 +161,7 @@ export default function ProblemList({ user, problems, counts }) {
     idApps,
     problemName,
     sourceProblem,
-    statusproblem,
+    statusProblem,
     problems,
     user.accessToken,
   ]);
@@ -348,11 +352,7 @@ export default function ProblemList({ user, problems, counts }) {
             <span className="relative inline-flex">
               <Link href="/problem/assign" passHref>
                 <SecondaryAnchorButton>
-                  {/* <AtSymbolIcon
-                    className="-ml-1 mr-2 h-5 w-5"
-                    aria-hidden="true"
-                  /> */}
-                  [{counts.count - problems.length}] Need Assign
+                  {countAssign} :: Need Assign
                   <span className="flex absolute h-3 w-3 top-0 right-0 -mt-1 -mr-1">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-3 w-3 bg-yellow-500"></span>
@@ -374,7 +374,7 @@ export default function ProblemList({ user, problems, counts }) {
                   problems.filter(
                     (data) => data.problemStatus.label === "Draft"
                   ).length
-                } Draft | ${counts.count - problems.length} Unassigned`}
+                } Draft | ${countAssign} Unassigned`}
               />
               <CardHeader
                 id="2"
@@ -437,7 +437,11 @@ export default function ProblemList({ user, problems, counts }) {
                     }}
                     placeholder={
                       tableData
-                        ? `${tableData.length} records...`
+                        ? `${
+                            tableData.filter(
+                              (data) => data.problemStatus.id !== 1
+                            ).length
+                          } records...`
                         : `0 records...`
                     }
                     prefix={
@@ -481,8 +485,8 @@ export default function ProblemList({ user, problems, counts }) {
                     Source Problem
                   </label>
                   <ReactSelect
-                    isDisabled={true}
-                    options={sourceProblem}
+                    isDisabled={false}
+                    options={sourceProblemOptions}
                     isClearable
                     className="block w-60"
                     onChange={handleSourceProblemChange}
@@ -498,8 +502,8 @@ export default function ProblemList({ user, problems, counts }) {
                     Status Problem
                   </label>
                   <ReactSelect
-                    isDisabled={true}
-                    options={statusproblem}
+                    isDisabled={false}
+                    options={statusProblemOptions}
                     isClearable
                     className="block w-60"
                     onChange={handleStatusProblemChange}
@@ -508,7 +512,7 @@ export default function ProblemList({ user, problems, counts }) {
               </div>
               <ProblemTables
                 columns={columns}
-                data={tableData}
+                data={tableData.filter((data) => data.idStatus !== 1)}
                 ref={tableInstance}
               />
             </div>

@@ -3,8 +3,9 @@ import Layout from "../../components/layout";
 import PageHeader from "../../components/problems/page-header";
 import CreateForm from "../../components/problems/create-form";
 import withSession from "../../lib/session";
+import * as ProblemHelper from "../../components/problems/problem-helper";
 
-function CreateNew({ user, incidents }) {
+function CreateNew({user}) {
   return (
     <>
       <Layout key="LayoutCreateNew" session={user}>
@@ -36,11 +37,17 @@ export const getServerSideProps = withSession(async function ({ req }) {
         permanent: false,
       },
     };
+  } else if (!ProblemHelper.checkMemberAES(user)) {
+    return {
+      redirect: {
+        destination: "/problem/list",
+        permanent: false,
+      },
+    };
   }
   return {
     props: {
       user: user,
-      datas: null,
     },
   };
 });

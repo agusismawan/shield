@@ -28,6 +28,8 @@ import {
   UserCircleIcon,
 } from "@heroicons/react/solid";
 
+import * as ProblemHelper from "components/problems/problem-helper";
+
 export const getServerSideProps = withSession(async function ({ req, params }) {
   const user = req.session.get("user");
   if (!user) {
@@ -131,11 +133,11 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
   const [assignOptions, setAssignOptions] = useState([]);
   useEffect(() => {
     axios
-      .get(`${process.env.NEXT_PUBLIC_API_PROBMAN}/user/all`)
+      .get(`${process.env.NEXT_PUBLIC_API_PROBMAN}/user/assigned/aes`)
       .then((response) => {
-        const data = response.data.data.map((d) => ({
-          value: d.id,
-          label: d.fullName,
+        const data = response.data.data.map((user) => ({
+          value: user.id,
+          label: user.fullName,
         }));
         setAssignOptions(data);
       })
@@ -180,26 +182,30 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
     if (data.jiraProblem === "") {
       toast.error(`Failed to update: Link JIRA harus diisi`);
     } else {
-      setSpinner(true);
-      axios
-        .put(
-          `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/${problem.id}`,
-          data,
-          {
-            headers: { Authorization: `Bearer ${user.accessToken}` },
-          }
-        )
-        .then(function (response) {
-          if (response) {
-            toast.success("Problem Successfully Updated");
-            setTimeout(() => router.reload(), 1000);
-          } else {
-            toast.error(`Failed to update: ${response.data.message}`);
-          }
-        })
-        .catch(function (error) {
-          toast.error(`Failed to update: ${error.response.data.message}`);
-        });
+      if (data.jiraProblem.includes("jira.bri.co.id")) {
+        setSpinner(true);
+        axios
+          .put(
+            `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/${problem.id}`,
+            data,
+            {
+              headers: { Authorization: `Bearer ${user.accessToken}` },
+            }
+          )
+          .then(function (response) {
+            if (response) {
+              toast.success("Problem Successfully Updated");
+              setTimeout(() => router.reload(), 1000);
+            } else {
+              toast.error(`Failed to update: ${response.data.message}`);
+            }
+          })
+          .catch(function (error) {
+            toast.error(`Failed to update: ${error.response.data.message}`);
+          });
+      } else {
+        toast.error(`Failed to update: Must attach JIRA BRI`);
+      }
     }
   };
 
@@ -208,7 +214,7 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
     let dataAssign = {};
     Object.assign(dataAssign, {
       idStatus: 2,
-      updatedBy: user.id,
+      // updatedBy: user.id,
       assignedTo: parseInt(event.target.assignedTo.value),
     });
     setSpinner(true);
@@ -316,6 +322,8 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
       })
       .catch((err) => toast.error(`Type ${err}`));
   }, []);
+
+  // console.log(ProblemHelper.checkTLAES(user))
 
   return (
     <>
@@ -982,7 +990,7 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                     <h2 className="text-sm font-medium text-gray-900">
                       Assigned To
                     </h2>
-                    
+
                     {problem.assigned_to ? (
                       <div className="flex items-center space-x-2">
                         <UserCircleIcon
@@ -993,7 +1001,7 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                           {problem.assigned_to.fullName}
                         </span>
                       </div>
-                    ) : user.username === `${process.env.NEXT_PUBLIC_TL_AES}` ? (
+                    ) : ProblemHelper.checkTLAES(user) ? (
                       <>
                         <form onSubmit={handleSubmit(makeAssign)}>
                           <Controller
@@ -1035,23 +1043,17 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
 
                     <div className="flex items-center space-x-2">
                       <span className="text-gray-600 text-sm">
-                        Last updated on{" "}
                         {problem.updatedAt
-                          ? format(
+                          ? `Last updated on ${format(
                               new Date(problem.updatedAt),
                               "d LLLL yyyy HH:mm",
                               "id-ID"
-                            )
-                          : format(
-                              new Date(problem.createdAt),
-                              "d LLLL yyyy HH:mm",
-                              "id-ID"
-                            )}{" "}
+                            )}`
+                          : null}
                         <br />
-                        by{" "}
                         {problem.updated_by
-                          ? problem.updated_by.fullName
-                          : problem.updated_by.fullName}
+                          ? `by ${problem.updated_by.fullName}`
+                          : null}
                       </span>
                     </div>
                   </div>

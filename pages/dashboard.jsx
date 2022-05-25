@@ -17,6 +17,7 @@ import { styledReactSelectAdd } from "components/utils";
 import DateRangeFilter from "components/incidents/daterange-filter";
 import { ShowChart } from "../components/chart";
 import palette from "google-palette";
+import { toast } from "react-toastify";
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
 	const user = req.session.get("user");
@@ -238,7 +239,7 @@ function Home({ user, incidents, problems, dashboardIncident }) {
 		sethandlerGroupByOptions(event.value);
 		sethandlerSelectedGroupBy(event.label);
     }
-
+  
 	const handleAppChange = (event) => {
 		if (event == null) {
 			sethandlerApplicationName("");
