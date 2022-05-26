@@ -24,7 +24,7 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
     headers: { Authorization: `Bearer ${user.accessToken}` },
   });
   const data = await res.json();
-
+  
   if (res.status === 200) {
     // Pass data to the page via props
     return {
