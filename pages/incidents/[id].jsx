@@ -1347,7 +1347,7 @@ function IncidentDetail({ user, incident }) {
                           />
                           <div className="ml-3.5 text-sm font-medium text-gray-600">
                                 {incident.data.problemDetail
-                                  ? `Status : ${incident.data.problemDetail.problemStatus}`
+                                  ? `Status : ${incident.data.problemDetail.paramProblemStatus.problemStatus}`
                                   : "Problem Status Not yet"}
                           </div>
                         </div>
@@ -1358,7 +1358,7 @@ function IncidentDetail({ user, incident }) {
                         <h2 className="text-sm font-medium text-gray-900">
                           Improvement
                         </h2>
-                        <ul className="mt-2 leading-8 px-3">
+                        <ul className="px-3 mt-2 leading-8">
                           <li className="inline">
                             <a
                               href="#"
@@ -1371,9 +1371,11 @@ function IncidentDetail({ user, incident }) {
                                 />
                               </div>
                               <div className="ml-3.5 text-sm font-medium text-gray-600">
-                                {incident.data.paramFollowUpPlan
-                                  ? incident.data.paramFollowUpPlan.followUpPlan
-                                  : "None"}
+                                {incident.data.problemDetail.paramFollowUpPlan.followUpPlan === "Not yet" 
+                                  ? "None"
+                                  : incident.data.problemDetail.paramFollowUpPlan.followUpPlan}
+                                  {/* ? incident.data.problemDetail.paramFollowUpPlan.followUpPlan
+                                  : "None"} */}
                               </div>
                             </a>{" "}
                           </li>
