@@ -126,10 +126,12 @@ export default function ProblemList({ user, problems, countAssign }) {
     axios
       .get(`${process.env.NEXT_PUBLIC_API_PROBMAN}/status/all`)
       .then((response) => {
-        const data = response.data.data.filter((data) => data.id !== 1).map((d) => ({
-          value: d.id,
-          label: d.label,
-        }));
+        const data = response.data.data
+          .filter((data) => data.id !== 1)
+          .map((d) => ({
+            value: d.id,
+            label: d.label,
+          }));
         setStatusProblemOptions(data);
       })
       .catch((err) => toast.error(`Status ${err}`));
@@ -137,6 +139,7 @@ export default function ProblemList({ user, problems, countAssign }) {
 
   // Hit to Filter Problem
   useEffect(() => {
+    let emptyColumns;
     const fetchData = async () => {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/filtersapujagat/all?idApps=${idApps}&idSource=${sourceProblem}&idStatus=${statusProblem}`,
@@ -147,7 +150,7 @@ export default function ProblemList({ user, problems, countAssign }) {
 
       const result = await response.data.data;
       if (!result) {
-        toast.info(`Problem Not Found`);
+        setHiddenColumns(emptyColumns);
       } else {
         setTableData(result);
       }

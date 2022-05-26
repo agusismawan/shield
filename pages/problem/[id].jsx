@@ -46,13 +46,13 @@ export const getServerSideProps = withSession(async function ({ req, params }) {
   );
   const data = await res.json();
   let step = [];
-  if (data.data.idStatus) {
+  if (data.data.problemStatus.id) {
     for (let loop = 1; loop <= 4; loop++) {
-      if (loop < data.data.idStatus) {
+      if (loop < data.data.problemStatus.id) {
         step.push({ name: `Step ${loop}`, status: "complete" });
-      } else if (loop == data.data.idStatus) {
+      } else if (loop == data.data.problemStatus.id) {
         step.push({ name: `Step ${loop}`, status: "current" });
-      } else if (loop > data.data.idStatus) {
+      } else if (loop > data.data.problemStatus.id) {
         step.push({ name: `Step ${loop}`, status: "upcoming" });
       } else {
       }
@@ -100,6 +100,7 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
           }
         : false,
       jiraProblem: problem.jiraProblem,
+      changeManagement: problem.followupCM,
       idUrgency: problem.urgency
         ? {
             label: problem.urgency.urgency,
@@ -122,6 +123,12 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
         ? {
             label: problem.problemStatus.label,
             value: problem.problemStatus.id,
+          }
+        : false,
+      idFollowup: problem.followUp
+        ? {
+            label: problem.followUp.label,
+            value: problem.followUp.id,
           }
         : false,
     },
@@ -147,6 +154,7 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
   const onUpdateStatus = async (data) => {
     Object.assign(data, {
       idStatus: { value: data.idStatus.value + 1 },
+      updatedBy: user.id,
     });
     if (data.jiraProblem === "" || problem.jiraProblem == null) {
       toast.error(`Failed to update: Link JIRA harus diisi`);
@@ -178,11 +186,14 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
   const onSubmit = async (data) => {
     Object.assign(data, {
       id: problem.id,
+      idStatus: { value: data.idStatus.value },
+      updatedBy: user.id,
     });
     if (data.jiraProblem === "") {
       toast.error(`Failed to update: Link JIRA harus diisi`);
     } else {
       if (data.jiraProblem.includes("jira.bri.co.id")) {
+        console.log(`Ini Isi Data : ${data}`);
         setSpinner(true);
         axios
           .put(
@@ -214,35 +225,39 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
     let dataAssign = {};
     Object.assign(dataAssign, {
       idStatus: 2,
-      // updatedBy: user.id,
+      updatedBy: user.id,
       assignedTo: parseInt(event.target.assignedTo.value),
     });
-    setSpinner(true);
-    axios
-      .put(
-        `${process.env.NEXT_PUBLIC_API_PROBMAN}/incident/recprob/${idProblem}`,
-        dataAssign,
-        {
-          headers: { Authorization: `Bearer ${user.accessToken}` },
-        }
-      )
-      .then(function (response) {
-        if (response) {
-          toast.success("Problem Sucessfully Assigned");
-          setTimeout(() => router.reload(), 1000);
-        }
-      })
-      .catch((error) => {
-        if (error.response) {
-          toast.error(
-            `${error.response.data.message} (Code: ${error.response.status})`
-          );
-        } else if (error.request) {
-          toast.error(`Request: ${error.request}`);
-        } else {
-          toast.error(`Message: ${error.message}`);
-        }
-      });
+    if (dataAssign.assignedTo) {
+      setSpinner(true);
+      axios
+        .put(
+          `${process.env.NEXT_PUBLIC_API_PROBMAN}/incident/recprob/${idProblem}`,
+          dataAssign,
+          {
+            headers: { Authorization: `Bearer ${user.accessToken}` },
+          }
+        )
+        .then(function (response) {
+          if (response) {
+            toast.success("Problem Sucessfully Assigned");
+            setTimeout(() => router.reload(), 1000);
+          }
+        })
+        .catch((error) => {
+          if (error.response) {
+            toast.error(
+              `${error.response.data.message} (Code: ${error.response.status})`
+            );
+          } else if (error.request) {
+            toast.error(`Request: ${error.request}`);
+          } else {
+            toast.error(`Message: ${error.message}`);
+          }
+        });
+    } else {
+      toast.error("Berikan Assign Jika Ingin Melakukan Submit");
+    }
   };
 
   // Get Data Aplikasi Async
@@ -323,7 +338,20 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
       .catch((err) => toast.error(`Type ${err}`));
   }, []);
 
-  // console.log(ProblemHelper.checkTLAES(user))
+  // Get data Follow Up Problem
+  const [followupOptions, setFollowupOptions] = useState([]);
+  useEffect(() => {
+    axios
+      .get(`${process.env.NEXT_PUBLIC_API_PROBMAN}/followup/all`)
+      .then((response) => {
+        const data = response.data.data.map((d) => ({
+          value: d.id,
+          label: d.label,
+        }));
+        setFollowupOptions(data);
+      })
+      .catch((err) => toast.error(`Follow Up ${err}`));
+  }, []);
 
   return (
     <>
@@ -655,6 +683,33 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                                     )}
                                   </div>
                                 </div>
+
+                                <div className="sm:col-span-1">
+                                  <label className="block text-sm font-medium text-gray-700">
+                                    Follow Up Plan
+                                  </label>
+                                  <div className="pt-1">
+                                    <Controller
+                                      name="idFollowup"
+                                      control={control}
+                                      rules={{ required: "This is required" }}
+                                      render={({ field }) => (
+                                        <Select
+                                          {...field}
+                                          isClearable
+                                          options={followupOptions}
+                                          styles={styledReactSelect}
+                                          className="text-sm focus:ring-blue-500 focus:border-blue-500"
+                                        />
+                                      )}
+                                    />
+                                    {errors.idFollowup && (
+                                      <p className="pt-2 text-sm text-red-600">
+                                        {errors.idFollowup.message}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           </section>
@@ -733,7 +788,7 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                               {problem.assigned_to ? (
                                 user.username ===
                                 problem.assigned_to.userName ? (
-                                  problem.idStatus !== 4 ? (
+                                  problem.problemStatus.id !== 4 ? (
                                     <ButtonCircle
                                       action={() => {
                                         setEditMode(true);
@@ -824,6 +879,25 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                                 )}
                               </dd>
                             </div>
+                            <div className="sm:col-span-1">
+                              <dt className="text-sm font-medium text-gray-500">
+                                Link Change Management
+                              </dt>
+                              <dd className="mt-1 text-sm text-gray-900">
+                                {problem.followupCM ? (
+                                  <a
+                                    href={problem.followupCM}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    {problem.followupCM}
+                                  </a>
+                                ) : (
+                                  "Not Defined Yet"
+                                )}
+                              </dd>
+                            </div>
+
                             <div className="sm:col-span-1">
                               <dt className="text-sm font-medium text-gray-500">
                                 Status
@@ -951,8 +1025,22 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                           </div>
                         </div>{" "}
                       </li>
+                      <li className="inline">
+                        <div className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5">
+                          <div className="absolute flex-shrink-0 flex items-center justify-center">
+                            <span
+                              className="h-1.5 w-1.5 rounded-full bg-gray-500"
+                              aria-hidden="true"
+                            />
+                          </div>
+                          <div className="ml-3.5 text-sm font-medium text-gray-900">
+                            Follow Up :{" "}
+                            {problem.followUp ? problem.followUp.label : null}
+                          </div>
+                        </div>{" "}
+                      </li>
                     </ul>
-                    {problem.idStatus === 4 ? (
+                    {problem.problemStatus.id === 4 ? (
                       <>
                         <h2 className="text-sm font-medium text-gray-900">
                           Timestamp
@@ -1041,21 +1129,20 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                       "Not Yet Assigned"
                     )}
 
-                    <div className="flex items-center space-x-2">
-                      <span className="text-gray-600 text-sm">
-                        {problem.updatedAt
-                          ? `Last updated on ${format(
-                              new Date(problem.updatedAt),
-                              "d LLLL yyyy HH:mm",
-                              "id-ID"
-                            )}`
-                          : null}
-                        <br />
-                        {problem.updated_by
-                          ? `by ${problem.updated_by.fullName}`
-                          : null}
-                      </span>
-                    </div>
+                    {problem.updated_by !== null ? (
+                      <div className="flex items-center space-x-2">
+                        <span className="text-gray-600 text-sm">
+                          Last updated on{" "}
+                          {format(
+                            new Date(problem.updatedAt),
+                            "d LLLL yyyy HH:mm",
+                            "id-ID"
+                          )}
+                          <br />
+                          by {problem.updated_by.fullName}
+                        </span>
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               </section>

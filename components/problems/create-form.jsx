@@ -174,7 +174,6 @@ const CreateForm = ({ user }) => {
       idFollowup: checkFollowup,
       assignedTo: user.id,
       createdBy: user.id,
-      updatedBy: user.id,
     });
 
     setSpinner(true);
@@ -185,7 +184,7 @@ const CreateForm = ({ user }) => {
       .then(function (response) {
         if (response.status === 201 || postProblem) {
           toast.success("Problem Sucessfully Created");
-          setTimeout(() => router.push("/problem/list"), 1000);
+          setTimeout(() => router.push("/problem"), 1000);
         }
       })
       .catch((error) => {
@@ -278,6 +277,9 @@ const CreateForm = ({ user }) => {
                       type="text"
                     />
                   </div>
+                  <p className="pt-2 text-sm text-gray-500">
+                    Optional, please fill in after Problem Number is generated.
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-6 gap-6 pt-6 px-6">
