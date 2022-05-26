@@ -35,12 +35,12 @@ export default function ModalRootCause({ user, problem }) {
     });
 
     if (problem.jiraProblem == null || problem.jiraProblem == "") {
-      toast.error("Message: Harus Menyertakan Link JIRA BRI");
+      toast.error("Message: Harus Menyertakan Link JIRA yang Valid");
     } else if (
       event.changeManagement &&
       !event.changeManagement.includes("confluence.bri.co.id")
     ) {
-      toast.error("Message: Harus Menyertakan Link CM BRI");
+      toast.error("Message: Harus Menyertakan Link Confluence yang Valid");
     } else {
       axios
         .post(
@@ -165,10 +165,22 @@ export default function ModalRootCause({ user, problem }) {
                             </dd>
                           </div>
 
+                          <div className="text-sm text-gray-500 py-2">
+                            <i>
+                              <b>
+                                Please input some information below based on the
+                                PAR document that has been approved.
+                              </b>
+                              <br />
+                              If there is some image/chart/table, please
+                              summarize it.
+                            </i>
+                          </div>
+
                           {problem.followUp.label.includes("CM") ? (
                             <div className="sm:col-span-1 py-2">
                               <dt className="text-sm font-medium text-gray-500">
-                                CM Was Wes Wos Fa Fi Fu
+                                Change Management Document
                               </dt>
                               <textarea
                                 required
@@ -187,7 +199,7 @@ export default function ModalRootCause({ user, problem }) {
                                     : "focus:ring-blue-500 focus:border-blue-500",
                                   "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
                                 )}
-                                placeholder="Link Referer to CM"
+                                placeholder="Confluence Link"
                               />
                             </div>
                           ) : null}
@@ -220,6 +232,11 @@ export default function ModalRootCause({ user, problem }) {
                               )}
                               placeholder="Description"
                             />
+                            {errors.description && (
+                              <p className="mt-1 text-sm text-red-600">
+                                {errors.description.message}
+                              </p>
+                            )}
                           </div>
 
                           <div className="sm:col-span-1 py-2">
@@ -250,6 +267,11 @@ export default function ModalRootCause({ user, problem }) {
                               )}
                               placeholder="Impacted System"
                             />
+                            {errors.impactSystem && (
+                              <p className="mt-1 text-sm text-red-600">
+                                {errors.impactSystem.message}
+                              </p>
+                            )}
                           </div>
 
                           <div className="sm:col-span-1 py-2">
@@ -280,6 +302,11 @@ export default function ModalRootCause({ user, problem }) {
                               )}
                               placeholder="Root Cause"
                             />
+                            {errors.rootCause && (
+                              <p className="mt-1 text-sm text-red-600">
+                                {errors.rootCause.message}
+                              </p>
+                            )}
                           </div>
 
                           <div className="sm:col-span-1 py-2">
@@ -310,6 +337,11 @@ export default function ModalRootCause({ user, problem }) {
                               )}
                               placeholder="Resolution"
                             />
+                            {errors.resolution && (
+                              <p className="mt-1 text-sm text-red-600">
+                                {errors.resolution.message}
+                              </p>
+                            )}
                           </div>
 
                           <div className="sm:col-span-1 py-2">
@@ -322,6 +354,11 @@ export default function ModalRootCause({ user, problem }) {
                               name="lessonLearned"
                               {...register("lessonLearned", {
                                 required: "This is required!",
+                                minLength: {
+                                  value: 10,
+                                  message:
+                                    "Please lengthen this text to 10 characters or more.",
+                                },
                               })}
                               rows={3}
                               style={{
@@ -335,18 +372,11 @@ export default function ModalRootCause({ user, problem }) {
                               )}
                               placeholder="Lesson Learned"
                             />
-                          </div>
-
-                          <div className="text-sm text-gray-500 py-2">
-                            <i>
-                              <b>
-                                If all data are prepared, you can Complete the
-                                Project after data submission.
-                              </b>
-                              <br />
-                              Otherwise, the Project will be your personal
-                              milestones.
-                            </i>
+                            {errors.lessonLearned && (
+                              <p className="mt-1 text-sm text-red-600">
+                                {errors.lessonLearned.message}
+                              </p>
+                            )}
                           </div>
                         </div>
                       </div>
