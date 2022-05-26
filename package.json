@@ -3,7 +3,7 @@
   "version": "0.1.4-alpha",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3030",
     "build": "next build",
     "start": "next start"
   },
@@ -14,18 +14,21 @@
     "@tailwindcss/typography": "0.4.1",
     "antd": "4.16.13",
     "axios": "0.23.0",
+    "chart.js": "3.7.1",
     "date-fns": "2.25.0",
+    "google-palette": "1.1.0",
     "next": "latest",
     "next-iron-session": "4.1.7",
     "nprogress": "0.2.0",
     "react": "17.0.2",
+    "react-chartjs-2": "4.1.0",
     "react-dom": "17.0.2",
     "react-hook-form": "7.18.0",
+    "react-paginate": "8.1.2",
     "react-select": "5.1.0",
     "react-table": "7.7.0",
     "react-toastify": "8.0.3",
-    "regenerator-runtime": "0.13.9",
-    "sharp": "^0.29.3"
+    "regenerator-runtime": "0.13.9"
   },
   "devDependencies": {
     "@babel/core": "7.16.0",

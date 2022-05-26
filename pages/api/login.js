@@ -19,6 +19,10 @@ export default withSession(async (req, res) => {
       fullname: response.data.fullname,
       email: response.data.email,
       grant: response.data.paramUserMatrix.grant,
+      userMatrix: {
+        id: response.data.paramUserMatrix.id,
+        desc: response.data.paramUserMatrix.desc,
+      },
       accessToken: response.access_token,
     };
     req.session.set("user", user);

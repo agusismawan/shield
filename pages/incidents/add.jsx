@@ -561,7 +561,9 @@ function addIncident({ user }) {
                             <Controller
                               name="idImpact"
                               control={control}
-                              rules={{ required: "This is required" }}
+                              rules={{
+                                required: "This is required",
+                              }}
                               render={({ field }) => (
                                 <Select
                                   {...field}
@@ -585,6 +587,11 @@ function addIncident({ user }) {
                             <textarea
                               {...register("impactedSystem", {
                                 required: "This is required",
+                                minLength: {
+                                  value: 30,
+                                  message:
+                                    "Please lengthen this text to 30 characters or more.",
+                                },
                               })}
                               id="impactedSystem"
                               name="impactedSystem"
@@ -606,6 +613,11 @@ function addIncident({ user }) {
                             <textarea
                               {...register("rootCause", {
                                 required: "This is required",
+                                minLength: {
+                                  value: 30,
+                                  message:
+                                    "Please lengthen this text to 30 characters or more.",
+                                },
                               })}
                               id="rootCause"
                               name="rootCause"
@@ -626,6 +638,11 @@ function addIncident({ user }) {
                             <textarea
                               {...register("actionItem", {
                                 required: "This is required",
+                                minLength: {
+                                  value: 30,
+                                  message:
+                                    "Please lengthen this text to 30 characters or more.",
+                                },
                               })}
                               id="actionItem"
                               name="actionItem"
@@ -729,6 +746,11 @@ function addIncident({ user }) {
                                 <textarea
                                   {...register("proposedEnhancement", {
                                     required: "This is required",
+                                    minLength: {
+                                      value: 30,
+                                      message:
+                                        "Please lengthen this text to 30 characters or more.",
+                                    },
                                   })}
                                   id="proposedEnhancement"
                                   name="proposedEnhancement"

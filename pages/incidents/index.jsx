@@ -92,6 +92,7 @@ function IncidentList({ user, data }) {
   const incidentStatusOptions = [
     { value: "Open", label: "Open" },
     { value: "Resolved", label: "Resolved" },
+    { value: "Investigate", label: "Investigate" },
   ];
 
   // Get data aplikai async
@@ -388,7 +389,7 @@ function IncidentList({ user, data }) {
                     isClearable
                     loadOptions={loadApplications}
                     styles={styledReactSelectAdd}
-                    className="text-sm focus:ring-blue-300 focus:border-blue-300 w-60"
+                    className="text-sm focus:ring-blue-300 focus:border-blue-300 w-60 md:w-40 lg:w-40"
                     placeholder="Search App"
                     onChange={handleAppChange}
                   />
@@ -403,7 +404,7 @@ function IncidentList({ user, data }) {
                   <ReactSelect
                     options={IncidentTypeOptions}
                     isClearable
-                    className="block w-auto"
+                    className="block w-auto lg:w-40"
                     onChange={handleIncidentTypeChange}
                   />
                 </div>
@@ -417,7 +418,7 @@ function IncidentList({ user, data }) {
                   <ReactSelect
                     options={incidentStatusOptions}
                     isClearable
-                    className="block w-auto"
+                    className="block w-auto lg:w-32"
                     onChange={handleIncidentStatusChange}
                   />
                 </div>
