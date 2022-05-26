@@ -40,28 +40,28 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
   const data = await res.json();
   // const problems = await getProblems.json();
 
-  // const groupBy = "Periodic";
-  // const today = new Date();
-  // const tahun = today.getFullYear().toString();
-  // var bulan = today.getMonth().toString();
-  // if (bulan.length < 2) {
-  //   bulan = "0" + today.getMonth().toString();
-  // }
-  // var tanggal = today.getDate().toString();
-  // if (today.getDate().toString().length < 2) {
-  //   tanggal = "0" + today.getDate().toString();
-  // }
+  const groupBy = "Periodic";
+  const today = new Date();
+  const tahun = today.getFullYear().toString();
+  var bulan = today.getMonth().toString();
+  if (bulan.length < 2) {
+    bulan = "0" + today.getMonth().toString();
+  }
+  var tanggal = today.getDate().toString();
+  if (today.getDate().toString().length < 2) {
+    tanggal = "0" + today.getDate().toString();
+  }
 
-  // const periodeAwal = today.getFullYear().toString() + "-01-01";
-  // const periodeAkhir = tahun + "-" + bulan + "-" + tanggal;
+  const periodeAwal = today.getFullYear().toString() + "-01-01";
+  const periodeAkhir = tahun + "-" + bulan + "-" + tanggal;
 
-  // const dashboardIncident = await fetch(
-  //   `${process.env.NEXT_PUBLIC_API_URL}/dashboards/5/report?groupBy=${groupBy}&periodeAwal=${periodeAwal}&periodeAkhir=${periodeAkhir}&PIC=&CriticalApp=&AppName=`,
-  //   {
-  //     headers: { Authorization: `Bearer ${user.accessToken}` },
-  //   }
-  // );
-  // const dataDashboardIncident = await dashboardIncident.json();
+  const dashboardIncident = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/dashboards/5/report?groupBy=${groupBy}&periodeAwal=${periodeAwal}&periodeAkhir=${periodeAkhir}&PIC=&CriticalApp=&AppName=`,
+    {
+      headers: { Authorization: `Bearer ${user.accessToken}` },
+    }
+  );
+  const dataDashboardIncident = await dashboardIncident.json();
 
   if (res.status === 200) {
     // Pass data to the page via props
@@ -70,7 +70,7 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
         user: req.session.get("user"),
         incidents: data,
         problems: 0,
-        // dashboardIncident: dataDashboardIncident,
+        dashboardIncident: dataDashboardIncident,
       },
     };
   } else if (res.status === 401) {
@@ -91,7 +91,7 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
   }
 });
 
-function Home({ user, incidents, problems }) {
+function Home({ user, incidents, problems, dashboardIncident }) {
   const cards = [
     {
       name: "Incidents Open",
@@ -174,258 +174,258 @@ function Home({ user, incidents, problems }) {
   };
 
   // Set Group by
-  // const listGroupBy = [
-  //   { value: "Periodic", label: "Periode" },
-  //   { value: "CritApps", label: "Criticality" },
-  //   { value: "RootCause", label: "RootCause" },
-  //   { value: "PIC", label: "PIC" },
-  //   { value: "Application", label: "Application" },
-  // ];
+  const listGroupBy = [
+    { value: "Periodic", label: "Periode" },
+    { value: "CritApps", label: "Criticality" },
+    { value: "RootCause", label: "RootCause" },
+    { value: "PIC", label: "PIC" },
+    { value: "Application", label: "Application" },
+  ];
 
-  // const ColumnGroupBy = {
-  //   Periode: "Periode",
-  //   Criticality: "Criticality",
-  //   RootCause: "RootCause",
-  //   PIC: "PIC",
-  //   Application: "Application",
-  // };
+  const ColumnGroupBy = {
+    Periode: "Periode",
+    Criticality: "Criticality",
+    RootCause: "RootCause",
+    PIC: "PIC",
+    Application: "Application",
+  };
 
-  // const listChartType = [
-  //   { value: "Bar", label: "Bar" },
-  //   { value: "Line", label: "Line" },
-  //   { value: "Pie", label: "Pie" },
-  // ];
+  const listChartType = [
+    { value: "Bar", label: "Bar" },
+    { value: "Line", label: "Line" },
+    { value: "Pie", label: "Pie" },
+  ];
 
-  // // const [handlerPeriode, sethandlerPeriode] = useState([]);
-  // const [handlerPeriode1Options, sethandlerPeriode1Options] = useState([]);
-  // const [handlerPeriode2Options, sethandlerPeriode2Options] = useState([]);
-  // const [handlerGroupByOptions, sethandlerGroupByOptions] = useState([]);
-  // const [handlerCriticalityOption, sethandlerCriticalityOption] = useState([]);
-  // const [handlerPICOption, sethandlerPICOption] = useState([]);
-  // const [handlerSelectedGroupBy, sethandlerSelectedGroupBy] = useState("");
-  // const [handlerApplicationName, sethandlerApplicationName] = useState("");
-  // const [handlerChartType1, sethandlerChartType1] = useState("bar");
-  // const [handlerChartType2, sethandlerChartType2] = useState("bar");
-  // const [handlerChartType3, sethandlerChartType3] = useState("line");
-  // const [handlerChartType4, sethandlerChartType4] = useState("line");
+  // const [handlerPeriode, sethandlerPeriode] = useState([]);
+  const [handlerPeriode1Options, sethandlerPeriode1Options] = useState([]);
+  const [handlerPeriode2Options, sethandlerPeriode2Options] = useState([]);
+  const [handlerGroupByOptions, sethandlerGroupByOptions] = useState([]);
+  const [handlerCriticalityOption, sethandlerCriticalityOption] = useState([]);
+  const [handlerPICOption, sethandlerPICOption] = useState([]);
+  const [handlerSelectedGroupBy, sethandlerSelectedGroupBy] = useState("");
+  const [handlerApplicationName, sethandlerApplicationName] = useState("");
+  const [handlerChartType1, sethandlerChartType1] = useState("bar");
+  const [handlerChartType2, sethandlerChartType2] = useState("bar");
+  const [handlerChartType3, sethandlerChartType3] = useState("line");
+  const [handlerChartType4, sethandlerChartType4] = useState("line");
 
-  // const onChangeHandlerPeriode = (value, dateString) => {
-  //   if (value == null) {
-  //     sethandlerPeriode1Options("");
-  //     sethandlerPeriode2Options("");
-  //   } else {
-  //     sethandlerPeriode1Options(dateString[0]);
-  //     sethandlerPeriode2Options(dateString[1]);
-  //   }
-  // };
-  // const onChangeHandlerPICOption = (event) => {
-  //   if (event == null) {
-  //     sethandlerPICOption("");
-  //   } else {
-  //     sethandlerPICOption(implodeSelect(event));
-  //   }
-  // };
-  // const onChangeHandlerCriticalityOption = (event) => {
-  //   if (event == null) {
-  //     sethandlerCriticalityOption("");
-  //   } else {
-  //     sethandlerCriticalityOption(implodeSelect(event));
-  //   }
-  // };
-  // const onChangeHandlerGroupByOptions = (event) => {
-  //   sethandlerGroupByOptions(event.value);
-  //   sethandlerSelectedGroupBy(event.label);
-  // };
+  const onChangeHandlerPeriode = (value, dateString) => {
+    if (value == null) {
+      sethandlerPeriode1Options("");
+      sethandlerPeriode2Options("");
+    } else {
+      sethandlerPeriode1Options(dateString[0]);
+      sethandlerPeriode2Options(dateString[1]);
+    }
+  };
+  const onChangeHandlerPICOption = (event) => {
+    if (event == null) {
+      sethandlerPICOption("");
+    } else {
+      sethandlerPICOption(implodeSelect(event));
+    }
+  };
+  const onChangeHandlerCriticalityOption = (event) => {
+    if (event == null) {
+      sethandlerCriticalityOption("");
+    } else {
+      sethandlerCriticalityOption(implodeSelect(event));
+    }
+  };
+  const onChangeHandlerGroupByOptions = (event) => {
+    sethandlerGroupByOptions(event.value);
+    sethandlerSelectedGroupBy(event.label);
+  };
 
-  // const handleAppChange = (event) => {
-  //   if (event == null) {
-  //     sethandlerApplicationName("");
-  //   } else {
-  //     sethandlerApplicationName(event.label);
-  //   }
-  // };
-  // function implodeSelect(arr) {
-  //   var imploded = "";
-  //   arr.forEach((element) => {
-  //     imploded += element.value.replace(/_/g, " ") + "|";
-  //   });
-  //   return imploded.substring(0, imploded.length - 1);
-  // }
+  const handleAppChange = (event) => {
+    if (event == null) {
+      sethandlerApplicationName("");
+    } else {
+      sethandlerApplicationName(event.label);
+    }
+  };
+  function implodeSelect(arr) {
+    var imploded = "";
+    arr.forEach((element) => {
+      imploded += element.value.replace(/_/g, " ") + "|";
+    });
+    return imploded.substring(0, imploded.length - 1);
+  }
 
-  // const [tableData, settableData] = useState(dashboardIncident);
+  const [tableData, settableData] = useState(dashboardIncident);
 
-  // const [totalIncident, settotalIncident] = useState([]);
-  // const [totalApplication, settotalApplication] = useState([]);
-  // const [averageDetectionDuration, setaverageDetectionDuration] = useState([]);
-  // const [averageSolvedDuration, setaverageSolvedDuration] = useState([]);
+  const [totalIncident, settotalIncident] = useState([]);
+  const [totalApplication, settotalApplication] = useState([]);
+  const [averageDetectionDuration, setaverageDetectionDuration] = useState([]);
+  const [averageSolvedDuration, setaverageSolvedDuration] = useState([]);
 
-  // const lblChart = [];
-  // dashboardIncident.data.map((getLabel) => {
-  //   if (getLabel.hasOwnProperty("Periode")) {
-  //     lblChart.push(getLabel.Periode);
-  //   } else if (getLabel.hasOwnProperty("Criticality")) {
-  //     lblChart.push(getLabel.Criticality);
-  //   } else if (getLabel.hasOwnProperty("RootCause")) {
-  //     lblChart.push(getLabel.RootCause);
-  //   } else if (getLabel.hasOwnProperty("PIC")) {
-  //     lblChart.push(getLabel.PIC);
-  //   } else if (getLabel.hasOwnProperty("Application")) {
-  //     lblChart.push(getLabel.Application);
-  //   }
-  // });
+  const lblChart = [];
+  dashboardIncident.data.map((getLabel) => {
+    if (getLabel.hasOwnProperty("Periode")) {
+      lblChart.push(getLabel.Periode);
+    } else if (getLabel.hasOwnProperty("Criticality")) {
+      lblChart.push(getLabel.Criticality);
+    } else if (getLabel.hasOwnProperty("RootCause")) {
+      lblChart.push(getLabel.RootCause);
+    } else if (getLabel.hasOwnProperty("PIC")) {
+      lblChart.push(getLabel.PIC);
+    } else if (getLabel.hasOwnProperty("Application")) {
+      lblChart.push(getLabel.Application);
+    }
+  });
 
-  // const initialChartData1 = {
-  //   labels: lblChart,
-  //   datasets: [
-  //     {
-  //       label: "Total Incident",
-  //       data: dashboardIncident.data.map((d) => d.TotalIncident),
-  //       backgroundColor: palette("tol-rainbow", lblChart.length).map(function (
-  //         hex
-  //       ) {
-  //         return "#" + hex;
-  //       }),
-  //     },
-  //   ],
-  // };
-  // const initialChartData2 = {
-  //   labels: lblChart,
-  //   datasets: [
-  //     {
-  //       label: "Total Application",
-  //       data: dashboardIncident.data.map((d) => d.TotalApps),
-  //       backgroundColor: palette("tol-rainbow", lblChart.length).map(function (
-  //         hex
-  //       ) {
-  //         return "#" + hex;
-  //       }),
-  //     },
-  //   ],
-  // };
-  // const initialChartData3 = {
-  //   labels: lblChart,
-  //   datasets: [
-  //     {
-  //       label: "Average Detection Duration",
-  //       data: dashboardIncident.data.map((d) => d.AverageDetectionDuration),
-  //       backgroundColor: palette("tol-rainbow", lblChart.length).map(function (
-  //         hex
-  //       ) {
-  //         return "#" + hex;
-  //       }),
-  //     },
-  //   ],
-  // };
-  // const initialChartData4 = {
-  //   labels: lblChart,
-  //   datasets: [
-  //     {
-  //       label: "Average Solved Duration",
-  //       data: dashboardIncident.data.map((d) => d.AverageSolvedDuration),
-  //       backgroundColor: palette("tol-rainbow", lblChart.length).map(function (
-  //         hex
-  //       ) {
-  //         return "#" + hex;
-  //       }),
-  //     },
-  //   ],
-  // };
+  const initialChartData1 = {
+    labels: lblChart,
+    datasets: [
+      {
+        label: "Total Incident",
+        data: dashboardIncident.data.map((d) => d.TotalIncident),
+        backgroundColor: palette("tol-rainbow", lblChart.length).map(function (
+          hex
+        ) {
+          return "#" + hex;
+        }),
+      },
+    ],
+  };
+  const initialChartData2 = {
+    labels: lblChart,
+    datasets: [
+      {
+        label: "Total Application",
+        data: dashboardIncident.data.map((d) => d.TotalApps),
+        backgroundColor: palette("tol-rainbow", lblChart.length).map(function (
+          hex
+        ) {
+          return "#" + hex;
+        }),
+      },
+    ],
+  };
+  const initialChartData3 = {
+    labels: lblChart,
+    datasets: [
+      {
+        label: "Average Detection Duration",
+        data: dashboardIncident.data.map((d) => d.AverageDetectionDuration),
+        backgroundColor: palette("tol-rainbow", lblChart.length).map(function (
+          hex
+        ) {
+          return "#" + hex;
+        }),
+      },
+    ],
+  };
+  const initialChartData4 = {
+    labels: lblChart,
+    datasets: [
+      {
+        label: "Average Solved Duration",
+        data: dashboardIncident.data.map((d) => d.AverageSolvedDuration),
+        backgroundColor: palette("tol-rainbow", lblChart.length).map(function (
+          hex
+        ) {
+          return "#" + hex;
+        }),
+      },
+    ],
+  };
 
-  // const [chartData1, setChartData1] = useState(initialChartData1);
-  // const [chartData2, setChartData2] = useState(initialChartData2);
-  // const [chartData3, setChartData3] = useState(initialChartData3);
-  // // const [chartData4, setChartData4] = useState(initialChartData4);
+  const [chartData1, setChartData1] = useState(initialChartData1);
+  const [chartData2, setChartData2] = useState(initialChartData2);
+  const [chartData3, setChartData3] = useState(initialChartData3);
+  const [chartData4, setChartData4] = useState(initialChartData4);
 
-  // useEffect(() => {
-  //   if (Filter == 1) {
-  //     const response = axios
-  //       .get(
-  //         `${process.env.NEXT_PUBLIC_API_URL}/dashboards/5/report?groupBy=${handlerGroupByOptions}&periodeAwal=${handlerPeriode1Options}&periodeAkhir=${handlerPeriode2Options}&PIC=${handlerPICOption}&CriticalApp=${handlerCriticalityOption}&AppName=${handlerApplicationName}`
-  //       )
-  //       .then((res) => {
-  //         if (res.status === 200) {
-  //           // set data Table
-  //           settableData(res.data);
-  //           // set chart label periode
-  //           const lblChart = [];
-  //           res.data.data.map((getLabel) => {
-  //             if (getLabel.hasOwnProperty("Periode")) {
-  //               lblChart.push(getLabel.Periode);
-  //             } else if (getLabel.hasOwnProperty("Criticality")) {
-  //               lblChart.push(getLabel.Criticality);
-  //             } else if (getLabel.hasOwnProperty("RootCause")) {
-  //               lblChart.push(getLabel.RootCause);
-  //             } else if (getLabel.hasOwnProperty("PIC")) {
-  //               lblChart.push(getLabel.PIC);
-  //             } else if (getLabel.hasOwnProperty("Application")) {
-  //               lblChart.push(getLabel.Application);
-  //             }
-  //           });
+  useEffect(() => {
+    if (Filter == 1) {
+      const response = axios
+        .get(
+          `${process.env.NEXT_PUBLIC_API_URL}/dashboards/5/report?groupBy=${handlerGroupByOptions}&periodeAwal=${handlerPeriode1Options}&periodeAkhir=${handlerPeriode2Options}&PIC=${handlerPICOption}&CriticalApp=${handlerCriticalityOption}&AppName=${handlerApplicationName}`
+        )
+        .then((res) => {
+          if (res.status === 200) {
+            // set data Table
+            settableData(res.data);
+            // set chart label periode
+            const lblChart = [];
+            res.data.data.map((getLabel) => {
+              if (getLabel.hasOwnProperty("Periode")) {
+                lblChart.push(getLabel.Periode);
+              } else if (getLabel.hasOwnProperty("Criticality")) {
+                lblChart.push(getLabel.Criticality);
+              } else if (getLabel.hasOwnProperty("RootCause")) {
+                lblChart.push(getLabel.RootCause);
+              } else if (getLabel.hasOwnProperty("PIC")) {
+                lblChart.push(getLabel.PIC);
+              } else if (getLabel.hasOwnProperty("Application")) {
+                lblChart.push(getLabel.Application);
+              }
+            });
 
-  //           setChartData1({
-  //             labels: lblChart,
-  //             datasets: [
-  //               {
-  //                 label: "Total Incident",
-  //                 data: res.data.data.map((d) => d.TotalIncident),
-  //                 backgroundColor: palette("tol-rainbow", lblChart.length).map(
-  //                   function (hex) {
-  //                     return "#" + hex;
-  //                   }
-  //                 ),
-  //               },
-  //             ],
-  //           });
-  //           setChartData2({
-  //             labels: lblChart,
-  //             datasets: [
-  //               {
-  //                 label: "Total Application",
-  //                 data: res.data.data.map((d) => d.TotalApps),
-  //                 backgroundColor: palette("tol-rainbow", lblChart.length).map(
-  //                   function (hex) {
-  //                     return "#" + hex;
-  //                   }
-  //                 ),
-  //               },
-  //             ],
-  //           });
-  //           setChartData3({
-  //             labels: lblChart,
-  //             datasets: [
-  //               {
-  //                 label: "Average Detection Duration",
-  //                 data: res.data.data.map((d) => d.AverageDetectionDuration),
-  //                 backgroundColor: palette("tol-rainbow", lblChart.length).map(
-  //                   function (hex) {
-  //                     return "#" + hex;
-  //                   }
-  //                 ),
-  //               },
-  //             ],
-  //           });
-  //           setChartData4({
-  //             labels: lblChart,
-  //             datasets: [
-  //               {
-  //                 label: "Average Solved Duration",
-  //                 data: res.data.data.map((d) => d.AverageSolvedDuration),
-  //                 backgroundColor: palette("tol-rainbow", lblChart.length).map(
-  //                   function (hex) {
-  //                     return "#" + hex;
-  //                   }
-  //                 ),
-  //               },
-  //             ],
-  //           });
-  //         } else {
-  //           alert(res.statusText);
-  //         }
-  //       });
-  //     setSelectedGroupBy(handlerSelectedGroupBy);
-  //     setFilter(0);
-  //   }
-  // });
+            setChartData1({
+              labels: lblChart,
+              datasets: [
+                {
+                  label: "Total Incident",
+                  data: res.data.data.map((d) => d.TotalIncident),
+                  backgroundColor: palette("tol-rainbow", lblChart.length).map(
+                    function (hex) {
+                      return "#" + hex;
+                    }
+                  ),
+                },
+              ],
+            });
+            setChartData2({
+              labels: lblChart,
+              datasets: [
+                {
+                  label: "Total Application",
+                  data: res.data.data.map((d) => d.TotalApps),
+                  backgroundColor: palette("tol-rainbow", lblChart.length).map(
+                    function (hex) {
+                      return "#" + hex;
+                    }
+                  ),
+                },
+              ],
+            });
+            setChartData3({
+              labels: lblChart,
+              datasets: [
+                {
+                  label: "Average Detection Duration",
+                  data: res.data.data.map((d) => d.AverageDetectionDuration),
+                  backgroundColor: palette("tol-rainbow", lblChart.length).map(
+                    function (hex) {
+                      return "#" + hex;
+                    }
+                  ),
+                },
+              ],
+            });
+            setChartData4({
+              labels: lblChart,
+              datasets: [
+                {
+                  label: "Average Solved Duration",
+                  data: res.data.data.map((d) => d.AverageSolvedDuration),
+                  backgroundColor: palette("tol-rainbow", lblChart.length).map(
+                    function (hex) {
+                      return "#" + hex;
+                    }
+                  ),
+                },
+              ],
+            });
+          } else {
+            alert(res.statusText);
+          }
+        });
+      setSelectedGroupBy(handlerSelectedGroupBy);
+      setFilter(0);
+    }
+  });
 
   return (
     <>
@@ -514,7 +514,7 @@ function Home({ user, incidents, problems }) {
                 ))}
               </div>
             </div>
-            {/* <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-1">
+            <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-1">
               <h2 className="text-lg leading-6 font-medium text-gray-900">
                 Summary Dashboard
               </h2>
@@ -691,7 +691,7 @@ function Home({ user, incidents, problems }) {
                   </tbody>
                 </table>
               </div>
-            </div> */}
+            </div>
           </div>
         </section>
       </Layout>

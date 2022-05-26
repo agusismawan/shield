@@ -9,7 +9,7 @@ import {
   Tooltip,
   Legend,
   ArcElement,
-} from 'chart.js';
+} from "chart.js";
 
 import { Chart } from "react-chartjs-2";
 
@@ -26,14 +26,18 @@ ChartJS.register(
 );
 
 export const ShowChart = ({ chartData, title, chartType }) => {
-	return (
-		<div>
-			<Chart data={chartData} options={{
-				plugins: {
-					title: { display: true, text: `${title}` },
-					legend: { display: true, position: "bottom" }
-				}
-			}} type={chartType} />
-		</div>
-	);
+  return (
+    <div>
+      <Chart
+        data={chartData}
+        options={{
+          plugins: {
+            title: { display: true, text: `${title}` },
+            legend: { display: true, position: "bottom" },
+          },
+        }}
+        type={chartType}
+      />
+    </div>
+  );
 };
