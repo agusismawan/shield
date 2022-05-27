@@ -54,7 +54,7 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
   );
   const getAssign = await assignProblem.json();
 
-  if (allJoin.status === 200) {
+  if (allJoin.status >= 200) {
     return {
       props: {
         user: user,

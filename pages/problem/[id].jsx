@@ -115,7 +115,7 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
         : false,
       idSource: problem.problemSource
         ? {
-            label: problem.problemSource.labelFilterSource,
+            label: problem.problemSource.label,
             value: problem.problemSource.id,
           }
         : false,
@@ -184,16 +184,24 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
   };
 
   const onSubmit = async (data) => {
+    let matrixChanged = "N";
+    if (
+      problem.impact.id !== data.idImpact.value ||
+      problem.urgency.id !== data.idUrgency.value
+    ) {
+      matrixChanged = "Y";
+    }
+
     Object.assign(data, {
       id: problem.id,
       idStatus: { value: data.idStatus.value },
       updatedBy: user.id,
+      matrixChanged: matrixChanged,
     });
     if (data.jiraProblem === "") {
       toast.error(`Failed to update: Link JIRA harus diisi`);
     } else {
       if (data.jiraProblem.includes("jira.bri.co.id")) {
-        console.log(`Ini Isi Data : ${data}`);
         setSpinner(true);
         axios
           .put(
@@ -907,11 +915,9 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                                 Source
                               </dt>
                               <dd className="mt-1 text-sm text-gray-900">
-                                {problem.problemSource.labelFilterSource ? (
+                                {problem.problemSource.label ? (
                                   <SourcePill
-                                    value={
-                                      problem.problemSource.labelFilterSource
-                                    }
+                                    value={problem.problemSource.label}
                                   />
                                 ) : (
                                   "Not defined yet"
