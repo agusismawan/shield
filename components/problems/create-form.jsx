@@ -324,7 +324,8 @@ const CreateForm = ({ user }) => {
                       />
                     </div>
                     <p className="pt-2 text-sm text-gray-500">
-                      Generate a number for problem definied.
+                      Number will generated automatically after the problem
+                      submitted.
                     </p>
                   </div>
                 </div>
@@ -510,35 +511,28 @@ const CreateForm = ({ user }) => {
               </div>
               <div className="pt-3 text-center sm:pt-0 sm:pl-4 sm:text-left">
                 <h3 className="text-lg leading-6 font-medium text-gray-900">
-                  Create New Problem
+                  Create New Problem Ticket
                 </h3>
                 <div className="pt-2">
                   <p className="text-sm text-gray-500">
                     <b>
-                      Are all of Problem&#39;s requirements already prepared?
+                      Before you created the new problem ticket, make sure it
+                      can be categorized as followup from one of the activity
+                      below :
                     </b>
                     <ul className="pl-5 list-disc">
-                      <li>Have or haven&#39;t Incident</li>
-                      <li>Category</li>
-                      <li>Related Groups</li>
-                      <li>Known Error / Root Cause</li>
-                      <li>Project Goals (Tujuan Perbaikan)</li>
-                      <li>Impacted Application / System / Features</li>
-                      <li>
-                        Proposed Improvement / Enhancement (Usulan Perbaikan)
-                      </li>
+                      <li>Application HealthCheck</li>
+                      <li>Database Healthcheck</li>
+                      <li>Bug Fixing from Bug Finding</li>
+                      <li>Application Quality Improvement</li>
+                      <li>Applicaton System Update/Upgrade</li>
                     </ul>
-                  </p>
-                  <br />
-                  <p className="text-sm text-gray-500">
+                    <br />
                     <i>
                       <b>
-                        If all data are prepared, you can get IPR&#39;s number
-                        after data submission.
+                        If you are not sure about that, please consult it with
+                        another Team Member or with Team Leader.
                       </b>
-                      <br />
-                      Otherwise, the IPR&#39;s number will be generated after
-                      the problem has been analyzed.
                     </i>
                   </p>
                 </div>

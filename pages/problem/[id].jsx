@@ -256,7 +256,7 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
           }
         });
     } else {
-      toast.error("Berikan Assign Jika Ingin Melakukan Submit");
+      toast.error("Team Member sebagai Investigator belum dipilih");
     }
   };
 
@@ -724,19 +724,58 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                               : `Problem Number -`
                           }
                           subtitle={
-                            <li className="inline">
-                              <div className="relative inline-flex items-center">
-                                <div className="absolute flex-shrink-0 flex items-center justify-center">
+                            <>
+                              <li className="inline">
+                                <div className="relative inline-flex items-center">
+                                  <div className="absolute flex-shrink-0 flex items-center justify-center">
+                                    <span
+                                      className="h-1.5 w-1.5 rounded-full bg-gray-500"
+                                      aria-hidden="true"
+                                    />
+                                  </div>
+                                  <div className="ml-3.5 text-sm font-medium text-gray-900">
+                                    Criticality : {problem.app.criticalityApp}
+                                  </div>
+                                </div>
+                                <div className="sm:col-span-1">
                                   <span
                                     className="h-1.5 w-1.5 rounded-full bg-gray-500"
                                     aria-hidden="true"
                                   />
+                                  <dt className="text-sm font-medium text-gray-500">
+                                    Status :{" "}
+                                    {problem.problemStatus.label ? (
+                                      <StatusPill
+                                        value={problem.problemStatus.label}
+                                      />
+                                    ) : (
+                                      "Not defined yet"
+                                    )}
+                                  </dt>
                                 </div>
-                                <div className="ml-3.5 text-sm font-medium text-gray-900">
-                                  Criticality : {problem.app.criticalityApp}
-                                </div>
-                              </div>{" "}
-                            </li>
+                              </li>
+
+                              {/* <li className="inline">
+                                <div className="relative inline-flex items-center">
+                                  <div className="absolute flex-shrink-0 flex items-center justify-center">
+                                    <span
+                                      className="h-1.5 w-1.5 rounded-full bg-gray-500"
+                                      aria-hidden="true"
+                                    />
+                                  </div>
+                                  <div className="ml-3.5 text-sm font-medium text-gray-900">
+                                    Status
+                                    {problem.problemStatus.label ? (
+                                      <StatusPill
+                                        value={problem.problemStatus.label}
+                                      />
+                                    ) : (
+                                      "Not defined yet"
+                                    )}
+                                  </div>
+                                </div>{" "}
+                              </li> */}
+                            </>
                           }
                         >
                           <nav
@@ -879,39 +918,28 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                                 )}
                               </dd>
                             </div>
-                            <div className="sm:col-span-1">
-                              <dt className="text-sm font-medium text-gray-500">
-                                Link Change Management
-                              </dt>
-                              <dd className="mt-1 text-sm text-gray-900">
-                                {problem.followupCM ? (
-                                  <a
-                                    href={problem.followupCM}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                  >
-                                    {problem.followupCM}
-                                  </a>
-                                ) : (
-                                  "Not Defined Yet"
-                                )}
-                              </dd>
-                            </div>
 
-                            <div className="sm:col-span-1">
-                              <dt className="text-sm font-medium text-gray-500">
-                                Status
-                              </dt>
-                              <dd>
-                                {problem.problemStatus.label ? (
-                                  <StatusPill
-                                    value={problem.problemStatus.label}
-                                  />
-                                ) : (
-                                  "Not defined yet"
-                                )}
-                              </dd>
-                            </div>
+                            {problem.problemStatus.id === 4 &&
+                            problem.followUp.label.includes("CM") ? (
+                              <div className="sm:col-span-1">
+                                <dt className="text-sm font-medium text-gray-500">
+                                  Link Change Management
+                                </dt>
+                                <dd className="mt-1 text-sm text-gray-900">
+                                  {problem.followupCM ? (
+                                    <a
+                                      href={problem.followupCM}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      {problem.followupCM}
+                                    </a>
+                                  ) : (
+                                    "Not Defined Yet"
+                                  )}
+                                </dd>
+                              </div>
+                            ) : null}
                           </dl>
                         </div>
                       </>
@@ -996,7 +1024,7 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                   {/* Problem Info */}
                   <div className="space-y-4">
                     <h2 className="text-sm font-medium text-gray-900">
-                      Problem Type
+                      Problem Detail
                     </h2>
                     <ul className="mt-2 leading-8">
                       <li className="inline">
