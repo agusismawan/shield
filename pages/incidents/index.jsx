@@ -33,7 +33,8 @@ import { toast } from "react-toastify";
 import { useAsyncDebounce } from "react-table";
 import "regenerator-runtime";
 import DateRangeFilter from "components/incidents/daterange-filter";
-import { Input, Tooltip } from "antd";
+// import { Input, Tooltip } from "antd";
+import { Input } from "antd";
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
   const user = req.session.get("user");
@@ -229,7 +230,7 @@ function IncidentList({ user, data }) {
                   {props.value}
                 </a>
               </Link>
-              <p className="mt-1 flex items-center text-xs text-gray-500">
+              <p className="flex items-center mt-1 text-xs text-gray-500">
                 {props.row.original.incidentNumber
                   ? `${props.row.original.incidentNumber}`
                   : ""}
@@ -307,7 +308,7 @@ function IncidentList({ user, data }) {
             <Link href="/incidents/search" passHref>
               <SecondaryAnchorButton>
                 <DocumentSearchIcon
-                  className="-ml-1 mr-2 h-5 w-5"
+                  className="w-5 h-5 mr-2 -ml-1"
                   aria-hidden="true"
                 />
                 Search Incident
@@ -315,18 +316,18 @@ function IncidentList({ user, data }) {
             </Link>
             <Link href="/incidents/add" passHref>
               <PrimaryAnchorButton>
-                <PlusSmIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+                <PlusSmIcon className="w-5 h-5 mr-2 -ml-1" aria-hidden="true" />
                 New Incident
               </PrimaryAnchorButton>
             </Link>
           </PageHeader>
-          <div className="hidden sm:block mt-3">
-            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-12">
+          <div className="hidden mt-3 sm:block">
+            <div className="max-w-full px-4 mx-auto sm:px-6 lg:px-12">
               <div className="flex gap-x-2">
                 <div>
                   <label
                     htmlFor="search"
-                    className="mb-1 block text-sm font-medium text-gray-700"
+                    className="block mb-1 text-sm font-medium text-gray-700"
                   >
                     Search
                   </label>
@@ -340,7 +341,7 @@ function IncidentList({ user, data }) {
                     placeholder={`${count} records...`}
                     prefix={
                       <SearchIcon
-                        className="h-5 w-5 text-gray-400"
+                        className="w-5 h-5 text-gray-400"
                         aria-hidden="true"
                       />
                     }
@@ -354,7 +355,7 @@ function IncidentList({ user, data }) {
                 <div>
                   <label
                     htmlFor="incidentNumber"
-                    className="mb-1 block text-sm font-medium text-gray-700"
+                    className="block mb-1 text-sm font-medium text-gray-700"
                   >
                     IR Number
                   </label>
@@ -363,14 +364,14 @@ function IncidentList({ user, data }) {
                     onPressEnter={(e) => handleIRNumEnter(e.target.value)}
                     onChange={(e) => handleIRNumChange(e.target.value)}
                     placeholder="IR-____-______"
-                    suffix={
-                      <Tooltip title="Press Enter to Search">
-                        <InformationCircleIcon
-                          className="h-5 w-5 text-gray-400"
-                          aria-hidden="true"
-                        />
-                      </Tooltip>
-                    }
+                    // suffix={
+                    //   <Tooltip title="Press Enter to Search">
+                    //     <InformationCircleIcon
+                    //       className="w-5 h-5 text-gray-400"
+                    //       aria-hidden="true"
+                    //     />
+                    //   </Tooltip>
+                    // }
                     style={{
                       borderRadius: "0.375rem",
                       width: "11rem",
@@ -381,7 +382,7 @@ function IncidentList({ user, data }) {
                 <div>
                   <label
                     htmlFor="application"
-                    className="mb-1 block text-sm font-medium text-gray-700"
+                    className="block mb-1 text-sm font-medium text-gray-700"
                   >
                     Application
                   </label>
@@ -397,7 +398,7 @@ function IncidentList({ user, data }) {
                 <div>
                   <label
                     htmlFor="IncidentTypeOptions"
-                    className="mb-1 block text-sm font-medium text-gray-700"
+                    className="block mb-1 text-sm font-medium text-gray-700"
                   >
                     Incident Type
                   </label>
@@ -411,7 +412,7 @@ function IncidentList({ user, data }) {
                 <div>
                   <label
                     htmlFor="IncidentStatus"
-                    className="mb-1 block text-sm font-medium text-gray-700"
+                    className="block mb-1 text-sm font-medium text-gray-700"
                   >
                     Status
                   </label>
@@ -425,7 +426,7 @@ function IncidentList({ user, data }) {
                 <div>
                   <label
                     htmlFor="date-filter"
-                    className="mb-1 block text-sm font-medium text-gray-700"
+                    className="block mb-1 text-sm font-medium text-gray-700"
                   >
                     Date
                   </label>
