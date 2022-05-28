@@ -533,9 +533,9 @@ function Home({ user, incidents, problems, dashboardIncident }) {
                   >
                     Periode
                   </label>
-                  <DateRangeFilter onChange={onChangeHandlerPeriode} />
+                  <DateRangeFilter onChange={onChangeHandlerPeriode} className="block w-auto" />
                 </div>
-                <div>
+                <div className="lg:ml-14">
                   <label
                     htmlFor="GroupByOptions"
                     className="block mb-1 text-sm font-medium text-gray-700"
@@ -543,6 +543,8 @@ function Home({ user, incidents, problems, dashboardIncident }) {
                     Group By
                   </label>
                   <ReactSelect
+                    id="GroupByOptions"
+                    instanceId="GroupByOptions"
                     options={listGroupBy}
                     isClearable
                     className="block w-auto"
@@ -557,6 +559,8 @@ function Home({ user, incidents, problems, dashboardIncident }) {
                     Criticality
                   </label>
                   <ReactSelect
+                    id="CriticalityOption"
+                    instanceId="CriticalityOption"
                     options={CriticalityOption}
                     isClearable
                     isMulti
@@ -572,6 +576,8 @@ function Home({ user, incidents, problems, dashboardIncident }) {
                     PIC
                   </label>
                   <ReactSelect
+                    id="PICOption"
+                    instanceId="PICOption"
                     options={PICOption}
                     isClearable
                     isMulti
@@ -587,6 +593,8 @@ function Home({ user, incidents, problems, dashboardIncident }) {
                     Application
                   </label>
                   <AsyncSelect
+                    id="ApplicationOption"
+                    instanceId={"ApplicationOption"}
                     isClearable
                     loadOptions={loadApplications}
                     styles={styledReactSelectAdd}
