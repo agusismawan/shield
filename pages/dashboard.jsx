@@ -40,27 +40,26 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
   const data = await res.json();
   // const problems = await getProblems.json();
 
-  const groupBy = "Periodic";
+
+  const groupBy = "Periodic"
   const today = new Date();
   const tahun = today.getFullYear().toString();
-  let bulan = today.getMonth().toString();
+  var bulan = today.getMonth().toString();
   if (bulan.length < 2) {
-    bulan = "0" + today.getMonth().toString();
+    bulan = '0' + today.getMonth().toString();
   }
-  let tanggal = today.getDate().toString();
+  var tanggal = today.getDate().toString();
   if (today.getDate().toString().length < 2) {
-    tanggal = "0" + today.getDate().toString();
+    tanggal = '0' + today.getDate().toString()
   }
 
-  const periodeAwal = today.getFullYear().toString() + "-01-01";
-  const periodeAkhir = tahun + "-" + bulan + "-" + tanggal;
+  const periodeAwal = today.getFullYear().toString() + '-01-01';
+  const periodeAkhir = tahun + '-' + bulan + '-' + tanggal
 
   const dashboardIncident = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/dashboards/5/report?groupBy=${groupBy}&periodeAwal=${periodeAwal}&periodeAkhir=${periodeAkhir}&PIC=&CriticalApp=&AppName=`,
-    {
-      headers: { Authorization: `Bearer ${user.accessToken}` },
-    }
-  );
+    `${process.env.NEXT_PUBLIC_API_URL}/dashboards/5/report?groupBy=${groupBy}&periodeAwal=${periodeAwal}&periodeAkhir=${periodeAkhir}&PIC=&CriticalApp=&AppName=`, {
+    headers: { Authorization: `Bearer ${user.accessToken}` },
+  });
   const dataDashboardIncident = await dashboardIncident.json();
 
   if (res.status === 200) {
@@ -70,10 +69,11 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
         user: req.session.get("user"),
         incidents: data,
         problems: 0,
-        dashboardIncident: dataDashboardIncident,
+        dashboardIncident: dataDashboardIncident
       },
     };
-  } else if (res.status === 401) {
+  }
+  else if (res.status === 401) {
     if (data.code === 999) {
       return {
         redirect: {
@@ -81,13 +81,14 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
           permanent: false,
         },
       };
-    } else if (data.code === 401) {
-      return { notFound: true };
+    }
+    else if (data.code === 401) {
+      return { notFound: true, };
     }
   } else if (res.status === 404) {
-    return { notFound: true };
+    return { notFound: true, };
   } else {
-    return { notFound: true };
+    return { notFound: true, };
   }
 });
 
@@ -112,13 +113,13 @@ function Home({ user, incidents, problems, dashboardIncident }) {
       total: 0,
     },
   ];
-  // const [Periode1Options, setPeriode1Options] = useState([]);
-  // const [Periode2Options, setPeriode2Options] = useState([]);
-  // const [GroupByOptions, setGroupByOptions] = useState([]);
+  const [Periode1Options, setPeriode1Options] = useState([]);
+  const [Periode2Options, setPeriode2Options] = useState([]);
+  const [GroupByOptions, setGroupByOptions] = useState([]);
   const [CriticalityOption, setCriticalityOption] = useState([]);
   const [PICOption, setPICOption] = useState([]);
   const [Filter, setFilter] = useState(0);
-  const [SelectedGroupBy, setSelectedGroupBy] = useState("Periode");
+  const [SelectedGroupBy, setSelectedGroupBy] = useState('Periode');
 
   // Get List PIC
   useEffect(() => {
@@ -148,7 +149,6 @@ function Home({ user, incidents, problems, dashboardIncident }) {
       .catch((err) => toast.error(`Fu Plan ${err}`));
   }, []);
 
-  // Get Application
   const loadApplications = (value, callback) => {
     clearTimeout(timeoutId);
 
@@ -187,14 +187,15 @@ function Home({ user, incidents, problems, dashboardIncident }) {
     Criticality: "Criticality",
     RootCause: "RootCause",
     PIC: "PIC",
-    Application: "Application",
+    Application: "Application"
   };
 
-  // const listChartType = [
-  //   { value: "Bar", label: "Bar" },
-  //   { value: "Line", label: "Line" },
-  //   { value: "Pie", label: "Pie" },
-  // ];
+  const listChartType = [
+    { value: "Bar", label: "Bar" },
+    { value: "Line", label: "Line" },
+    { value: "Pie", label: "Pie" },
+  ];
+
 
   // const [handlerPeriode, sethandlerPeriode] = useState([]);
   const [handlerPeriode1Options, sethandlerPeriode1Options] = useState([]);
@@ -202,12 +203,12 @@ function Home({ user, incidents, problems, dashboardIncident }) {
   const [handlerGroupByOptions, sethandlerGroupByOptions] = useState([]);
   const [handlerCriticalityOption, sethandlerCriticalityOption] = useState([]);
   const [handlerPICOption, sethandlerPICOption] = useState([]);
-  const [handlerSelectedGroupBy, sethandlerSelectedGroupBy] = useState("");
-  const [handlerApplicationName, sethandlerApplicationName] = useState("");
-  const [handlerChartType1, sethandlerChartType1] = useState("bar");
-  const [handlerChartType2, sethandlerChartType2] = useState("bar");
-  const [handlerChartType3, sethandlerChartType3] = useState("line");
-  const [handlerChartType4, sethandlerChartType4] = useState("line");
+  const [handlerSelectedGroupBy, sethandlerSelectedGroupBy] = useState('');
+  const [handlerApplicationName, sethandlerApplicationName] = useState('');
+  const [handlerChartType1, sethandlerChartType1] = useState('bar');
+  const [handlerChartType2, sethandlerChartType2] = useState('bar');
+  const [handlerChartType3, sethandlerChartType3] = useState('line');
+  const [handlerChartType4, sethandlerChartType4] = useState('line');
 
   const onChangeHandlerPeriode = (value, dateString) => {
     if (value == null) {
@@ -217,28 +218,26 @@ function Home({ user, incidents, problems, dashboardIncident }) {
       sethandlerPeriode1Options(dateString[0]);
       sethandlerPeriode2Options(dateString[1]);
     }
-  };
-
+  }
   const onChangeHandlerPICOption = (event) => {
     if (event == null) {
       sethandlerPICOption("");
     } else {
       sethandlerPICOption(implodeSelect(event));
     }
-  };
 
+  }
   const onChangeHandlerCriticalityOption = (event) => {
     if (event == null) {
       sethandlerCriticalityOption("");
     } else {
       sethandlerCriticalityOption(implodeSelect(event));
     }
-  };
-
+  }
   const onChangeHandlerGroupByOptions = (event) => {
     sethandlerGroupByOptions(event.value);
     sethandlerSelectedGroupBy(event.label);
-  };
+  }
 
   const handleAppChange = (event) => {
     if (event == null) {
@@ -247,95 +246,68 @@ function Home({ user, incidents, problems, dashboardIncident }) {
       sethandlerApplicationName(event.label);
     }
   };
-
   function implodeSelect(arr) {
-    let imploded = "";
-    arr.forEach((element) => {
+    var imploded = "";
+    arr.forEach(element => {
       imploded += element.value.replace(/_/g, " ") + "|";
     });
     return imploded.substring(0, imploded.length - 1);
-  }
+  };
+
 
   const [tableData, settableData] = useState(dashboardIncident);
 
-  // const [totalIncident, settotalIncident] = useState([]);
-  // const [totalApplication, settotalApplication] = useState([]);
-  // const [averageDetectionDuration, setaverageDetectionDuration] = useState([]);
-  // const [averageSolvedDuration, setaverageSolvedDuration] = useState([]);
+  const [totalIncident, settotalIncident] = useState([]);
+  const [totalApplication, settotalApplication] = useState([]);
+  const [averageDetectionDuration, setaverageDetectionDuration] = useState([]);
+  const [averageSolvedDuration, setaverageSolvedDuration] = useState([]);
 
-  const lblChart = [];
+  const lblChart = []
   dashboardIncident.data.map((getLabel) => {
-    if (getLabel.hasOwnProperty("Periode")) {
-      lblChart.push(getLabel.Periode);
-    } else if (getLabel.hasOwnProperty("Criticality")) {
-      lblChart.push(getLabel.Criticality);
-    } else if (getLabel.hasOwnProperty("RootCause")) {
-      lblChart.push(getLabel.RootCause);
-    } else if (getLabel.hasOwnProperty("PIC")) {
-      lblChart.push(getLabel.PIC);
-    } else if (getLabel.hasOwnProperty("Application")) {
-      lblChart.push(getLabel.Application);
+    if (getLabel.hasOwnProperty('Periode')) {
+      lblChart.push(getLabel.Periode)
+    } else if (getLabel.hasOwnProperty('Criticality')) {
+      lblChart.push(getLabel.Criticality)
+    } else if (getLabel.hasOwnProperty('RootCause')) {
+      lblChart.push(getLabel.RootCause)
+    } else if (getLabel.hasOwnProperty('PIC')) {
+      lblChart.push(getLabel.PIC)
+    } else if (getLabel.hasOwnProperty('Application')) {
+      lblChart.push(getLabel.Application)
     }
   });
 
   const initialChartData1 = {
     labels: lblChart,
-    datasets: [
-      {
-        label: "Total Incident",
-        data: dashboardIncident.data.map((d) => d.TotalIncident),
-        backgroundColor: palette("tol-rainbow", lblChart.length).map(function (
-          hex
-        ) {
-          return "#" + hex;
-        }),
-      },
-    ],
+    datasets: [{
+      label: "Total Incident",
+      data: dashboardIncident.data.map((d) => (d.TotalIncident)),
+      backgroundColor: palette('tol-rainbow', lblChart.length).map(function (hex) { return '#' + hex; }),
+    }]
   };
-
   const initialChartData2 = {
     labels: lblChart,
-    datasets: [
-      {
-        label: "Total Application",
-        data: dashboardIncident.data.map((d) => d.TotalApps),
-        backgroundColor: palette("tol-rainbow", lblChart.length).map(function (
-          hex
-        ) {
-          return "#" + hex;
-        }),
-      },
-    ],
+    datasets: [{
+      label: "Total Application",
+      data: dashboardIncident.data.map((d) => (d.TotalApps)),
+      backgroundColor: palette('tol-rainbow', lblChart.length).map(function (hex) { return '#' + hex; }),
+    }]
   };
-
   const initialChartData3 = {
     labels: lblChart,
-    datasets: [
-      {
-        label: "Average Detection Duration",
-        data: dashboardIncident.data.map((d) => d.AverageDetectionDuration),
-        backgroundColor: palette("tol-rainbow", lblChart.length).map(function (
-          hex
-        ) {
-          return "#" + hex;
-        }),
-      },
-    ],
+    datasets: [{
+      label: "Average Detection Duration",
+      data: dashboardIncident.data.map((d) => (d.AverageDetectionDuration)),
+      backgroundColor: palette('tol-rainbow', lblChart.length).map(function (hex) { return '#' + hex; }),
+    }]
   };
-
   const initialChartData4 = {
     labels: lblChart,
-    datasets: [
-      {
-        label: "Average Solved Duration",
-        data: dashboardIncident.data.map((d) => d.AverageSolvedDuration),
-        backgroundColor: palette("tol-rainbow", lblChart.length).map(function (
-          hex
-        ) {
-          return "#" + hex;
-        }),
-      },
-    ],
+    datasets: [{
+      label: "Average Solved Duration",
+      data: dashboardIncident.data.map((d) => (d.AverageSolvedDuration)),
+      backgroundColor: palette('tol-rainbow', lblChart.length).map(function (hex) { return '#' + hex; }),
+    }]
   };
 
   const [chartData1, setChartData1] = useState(initialChartData1);
@@ -345,86 +317,65 @@ function Home({ user, incidents, problems, dashboardIncident }) {
 
   useEffect(() => {
     if (Filter == 1) {
-      const response = axios
-        .get(
-          `${process.env.NEXT_PUBLIC_API_URL}/dashboards/5/report?groupBy=${handlerGroupByOptions}&periodeAwal=${handlerPeriode1Options}&periodeAkhir=${handlerPeriode2Options}&PIC=${handlerPICOption}&CriticalApp=${handlerCriticalityOption}&AppName=${handlerApplicationName}`
-        )
+      const response = axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/dashboards/5/report?groupBy=${handlerGroupByOptions}&periodeAwal=${handlerPeriode1Options}&periodeAkhir=${handlerPeriode2Options}&PIC=${handlerPICOption}&CriticalApp=${handlerCriticalityOption}&AppName=${handlerApplicationName}`
+      )
         .then((res) => {
           if (res.status === 200) {
             // set data Table
             settableData(res.data);
-            // set chart label periode
-            const lblChart = [];
+            // set chart label periode 
+            const lblChart = []
             res.data.data.map((getLabel) => {
-              if (getLabel.hasOwnProperty("Periode")) {
-                lblChart.push(getLabel.Periode);
-              } else if (getLabel.hasOwnProperty("Criticality")) {
-                lblChart.push(getLabel.Criticality);
-              } else if (getLabel.hasOwnProperty("RootCause")) {
-                lblChart.push(getLabel.RootCause);
-              } else if (getLabel.hasOwnProperty("PIC")) {
-                lblChart.push(getLabel.PIC);
-              } else if (getLabel.hasOwnProperty("Application")) {
-                lblChart.push(getLabel.Application);
+              if (getLabel.hasOwnProperty('Periode')) {
+                lblChart.push(getLabel.Periode)
+              } else if (getLabel.hasOwnProperty('Criticality')) {
+                lblChart.push(getLabel.Criticality)
+              } else if (getLabel.hasOwnProperty('RootCause')) {
+                lblChart.push(getLabel.RootCause)
+              } else if (getLabel.hasOwnProperty('PIC')) {
+                lblChart.push(getLabel.PIC)
+              } else if (getLabel.hasOwnProperty('Application')) {
+                lblChart.push(getLabel.Application)
               }
             });
 
             setChartData1({
               labels: lblChart,
-              datasets: [
-                {
-                  label: "Total Incident",
-                  data: res.data.data.map((d) => d.TotalIncident),
-                  backgroundColor: palette("tol-rainbow", lblChart.length).map(
-                    function (hex) {
-                      return "#" + hex;
-                    }
-                  ),
-                },
-              ],
-            });
+              datasets: [{
+                label: "Total Incident",
+                data: res.data.data.map((d) => (d.TotalIncident)),
+                backgroundColor: palette('tol-rainbow', lblChart.length).map(function (hex) { return '#' + hex; }),
+              }]
+            }
+            );
             setChartData2({
               labels: lblChart,
-              datasets: [
-                {
-                  label: "Total Application",
-                  data: res.data.data.map((d) => d.TotalApps),
-                  backgroundColor: palette("tol-rainbow", lblChart.length).map(
-                    function (hex) {
-                      return "#" + hex;
-                    }
-                  ),
-                },
-              ],
-            });
+              datasets: [{
+                label: "Total Application",
+                data: res.data.data.map((d) => (d.TotalApps)),
+                backgroundColor: palette('tol-rainbow', lblChart.length).map(function (hex) { return '#' + hex; }),
+              }]
+            }
+            );
             setChartData3({
               labels: lblChart,
-              datasets: [
-                {
-                  label: "Average Detection Duration",
-                  data: res.data.data.map((d) => d.AverageDetectionDuration),
-                  backgroundColor: palette("tol-rainbow", lblChart.length).map(
-                    function (hex) {
-                      return "#" + hex;
-                    }
-                  ),
-                },
-              ],
-            });
+              datasets: [{
+                label: "Average Detection Duration",
+                data: res.data.data.map((d) => (d.AverageDetectionDuration)),
+                backgroundColor: palette('tol-rainbow', lblChart.length).map(function (hex) { return '#' + hex; }),
+              }]
+            }
+            );
             setChartData4({
               labels: lblChart,
-              datasets: [
-                {
-                  label: "Average Solved Duration",
-                  data: res.data.data.map((d) => d.AverageSolvedDuration),
-                  backgroundColor: palette("tol-rainbow", lblChart.length).map(
-                    function (hex) {
-                      return "#" + hex;
-                    }
-                  ),
-                },
-              ],
-            });
+              datasets: [{
+                label: "Average Solved Duration",
+                data: res.data.data.map((d) => (d.AverageSolvedDuration)),
+                backgroundColor: palette('tol-rainbow', lblChart.length).map(function (hex) { return '#' + hex; }),
+              }]
+            }
+            );
           } else {
             alert(res.statusText);
           }
@@ -432,13 +383,13 @@ function Home({ user, incidents, problems, dashboardIncident }) {
       setSelectedGroupBy(handlerSelectedGroupBy);
       setFilter(0);
     }
-  }, [handlerGroupByOptions, handlerPeriode1Options, handlerPeriode2Options, handlerPICOption, handlerCriticalityOption, handlerApplicationName]);
+  });
 
   return (
     <>
       <Layout session={user}>
         <Head>
-          <title>Shield - Incident &amp; Problem Management</title>
+          <title>Shield - Incident & Problem Management</title>
         </Head>
         <section>
           {/* Page header */}
@@ -457,10 +408,7 @@ function Home({ user, incidents, problems, dashboardIncident }) {
                       <dl className="flex flex-col mt-6 sm:ml-3 sm:mt-1 sm:flex-row sm:flex-wrap">
                         <dt className="sr-only">Company</dt>
                         <dd className="flex items-center text-sm font-medium text-gray-500 capitalize sm:mr-6">
-                          <OfficeBuildingIcon
-                            className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
-                            aria-hidden="true"
-                          />
+                          <OfficeBuildingIcon className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" aria-hidden="true" />
                           Application Management &amp; Operation Division
                         </dd>
                       </dl>
@@ -473,23 +421,15 @@ function Home({ user, incidents, problems, dashboardIncident }) {
 
           <div className="mt-8">
             <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-1">
-              <h2 className="text-lg font-medium leading-6 text-gray-900">
-                Overview
-              </h2>
+              <h2 className="text-lg font-medium leading-6 text-gray-900">Overview</h2>
               <div className="grid grid-cols-1 gap-5 mt-2 sm:grid-cols-2 lg:grid-cols-3">
                 {/* Card */}
                 {cards.map((card) => (
-                  <div
-                    key={card.name}
-                    className="overflow-hidden bg-white rounded-lg shadow"
-                  >
+                  <div key={card.name} className="overflow-hidden bg-white rounded-lg shadow">
                     <div className="p-5">
                       <div className="flex items-center">
                         <div className="flex-shrink-0">
-                          <card.icon
-                            className="w-6 h-6 text-gray-400"
-                            aria-hidden="true"
-                          />
+                          <card.icon className="w-6 h-6 text-gray-400" aria-hidden="true" />
                         </div>
                         <div className="flex-1 w-0 ml-5">
                           <dl>
@@ -508,12 +448,7 @@ function Home({ user, incidents, problems, dashboardIncident }) {
                     <div className="px-5 py-3 bg-gray-50">
                       <div className="text-sm">
                         <Link href={card.href}>
-                          <a className="font-medium text-cyan-700 hover:text-cyan-900">
-                            {" "}
-                            {card.href !== "#"
-                              ? "View All"
-                              : "Coming Soon"}{" "}
-                          </a>
+                          <a className="font-medium text-cyan-700 hover:text-cyan-900"> {card.href !== "#" ? "View All" : "Coming Soon"} </a>
                         </Link>
                       </div>
                     </div>
@@ -522,128 +457,47 @@ function Home({ user, incidents, problems, dashboardIncident }) {
               </div>
             </div>
             <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-1">
-              <h2 className="text-lg font-medium leading-6 text-gray-900">
-                Summary Dashboard
-              </h2>
+              <h2 className="text-lg font-medium leading-6 text-gray-900">Summary Dashboard</h2>
               <div className="inline-grid gap-4 p-2 mt-4 bg-white rounded-lg shadow lg:grid-cols-6">
                 <div>
-                  <label
-                    htmlFor="Periode1Options"
-                    className="block mb-1 text-sm font-medium text-gray-700"
-                  >
-                    Periode
-                  </label>
-                  <DateRangeFilter onChange={onChangeHandlerPeriode} className="block w-auto" />
-                </div>
-                <div className="lg:ml-14">
-                  <label
-                    htmlFor="GroupByOptions"
-                    className="block mb-1 text-sm font-medium text-gray-700"
-                  >
-                    Group By
-                  </label>
-                  <ReactSelect
-                    id="GroupByOptions"
-                    instanceId="GroupByOptions"
-                    options={listGroupBy}
-                    isClearable
-                    className="block w-auto"
-                    onChange={onChangeHandlerGroupByOptions}
-                  />
+                  <label htmlFor="Periode1Options" className="block mb-1 text-sm font-medium text-gray-700">Periode</label>
+                  <DateRangeFilter onChange={onChangeHandlerPeriode} />
                 </div>
                 <div>
-                  <label
-                    htmlFor="CriticalityOption"
-                    className="block mb-1 text-sm font-medium text-gray-700"
-                  >
-                    Criticality
-                  </label>
-                  <ReactSelect
-                    id="CriticalityOption"
-                    instanceId="CriticalityOption"
-                    options={CriticalityOption}
-                    isClearable
-                    isMulti
-                    className="block w-auto"
-                    onChange={onChangeHandlerCriticalityOption}
-                  />
+                  <label htmlFor="GroupByOptions" className="block mb-1 text-sm font-medium text-gray-700">Group By</label>
+                  <ReactSelect options={listGroupBy} isClearable className="block w-auto" onChange={onChangeHandlerGroupByOptions} />
                 </div>
                 <div>
-                  <label
-                    htmlFor="PICOption"
-                    className="block mb-1 text-sm font-medium text-gray-700"
-                  >
-                    PIC
-                  </label>
-                  <ReactSelect
-                    id="PICOption"
-                    instanceId="PICOption"
-                    options={PICOption}
-                    isClearable
-                    isMulti
-                    className="block w-auto"
-                    onChange={onChangeHandlerPICOption}
-                  />
+                  <label htmlFor="CriticalityOption" className="block mb-1 text-sm font-medium text-gray-700">Criticality</label>
+                  <ReactSelect options={CriticalityOption} isClearable isMulti className="block w-auto" onChange={onChangeHandlerCriticalityOption} />
                 </div>
                 <div>
-                  <label
-                    htmlFor="ApplicationOption"
-                    className="block mb-1 text-sm font-medium text-gray-700"
-                  >
-                    Application
-                  </label>
-                  <AsyncSelect
-                    id="ApplicationOption"
-                    instanceId={"ApplicationOption"}
-                    isClearable
-                    loadOptions={loadApplications}
-                    styles={styledReactSelectAdd}
-                    className="text-sm focus:ring-blue-300 focus:border-blue-300"
-                    placeholder="Search App"
-                    onChange={handleAppChange}
-                  />
+                  <label htmlFor="PICOption" className="block mb-1 text-sm font-medium text-gray-700">PIC</label>
+                  <ReactSelect options={PICOption} isClearable isMulti className="block w-auto" onChange={onChangeHandlerPICOption} />
                 </div>
                 <div>
-                  <label
-                    htmlFor="Periode1Options"
-                    className="block mb-1 text-sm font-medium text-gray-700"
-                  >
-                    &nbsp;
-                  </label>
-                  <PrimaryButton onClick={() => setFilter(1)}>
-                    SET
-                  </PrimaryButton>
+                  <label htmlFor="ApplicationOption" className="block mb-1 text-sm font-medium text-gray-700">Application</label>
+                  <AsyncSelect isClearable loadOptions={loadApplications} styles={styledReactSelectAdd} className="text-sm focus:ring-blue-300 focus:border-blue-300" placeholder="Search App" onChange={handleAppChange} />
+
+                </div>
+                <div>
+                  <label htmlFor="Periode1Options" className="block mb-1 text-sm font-medium text-gray-700">&nbsp;</label>
+                  <PrimaryButton onClick={() => setFilter(1)}>SET</PrimaryButton>
                 </div>
               </div>
               <div className="inline-grid mt-4 bg-white rounded-lg shadow">
                 <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2">
                   <li className="col-span-1 bg-white divide-y divide-gray-200 rounded-lg shadow">
-                    <ShowChart
-                      chartData={chartData1}
-                      title={"Total Incident"}
-                      chartType={handlerChartType1}
-                    />
+                    <ShowChart chartData={chartData1} title={'Total Incident'} chartType={handlerChartType1} />
                   </li>
                   <li className="col-span-1 bg-white divide-y divide-gray-200 rounded-lg shadow">
-                    <ShowChart
-                      chartData={chartData2}
-                      title={"Total Application"}
-                      chartType={handlerChartType2}
-                    />
+                    <ShowChart chartData={chartData2} title={'Total Application'} chartType={handlerChartType2} />
                   </li>
                   <li className="col-span-1 bg-white divide-y divide-gray-200 rounded-lg shadow">
-                    <ShowChart
-                      chartData={chartData3}
-                      title={"Average Detection Duration"}
-                      chartType={handlerChartType3}
-                    />
+                    <ShowChart chartData={chartData3} title={'Average Detection Duration'} chartType={handlerChartType3} />
                   </li>
                   <li className="col-span-1 bg-white divide-y divide-gray-200 rounded-lg shadow">
-                    <ShowChart
-                      chartData={chartData4}
-                      title={"Average Solved Duration"}
-                      chartType={handlerChartType4}
-                    />
+                    <ShowChart chartData={chartData4} title={'Average Solved Duration'} chartType={handlerChartType4} />
                   </li>
                 </ul>
               </div>
@@ -675,34 +529,20 @@ function Home({ user, incidents, problems, dashboardIncident }) {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {typeof tableData === "object" &&
-                      Object.keys(tableData).length > 0
-                      ? tableData.data.map((dashboard) => (
-                        <tr key={dashboard.RowID}>
-                          <td className="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">
-                            {dashboard[ColumnGroupBy[SelectedGroupBy]]}
-                          </td>
-                          <td className="px-6 py-4 text-sm font-medium text-center text-gray-900 whitespace-nowrap">
-                            {dashboard.TotalApps}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-center text-gray-500 whitespace-nowrap">
-                            {dashboard.TotalIncident}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-right text-gray-500 whitespace-nowrap">
-                            {dashboard.AverageDetectionDuration}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-right text-gray-500 whitespace-nowrap">
-                            {dashboard.AverageSolvedDuration}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-right text-gray-500 whitespace-nowrap">
-                            {dashboard.TotalDetectionDuration}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-right text-gray-500 whitespace-nowrap">
-                            {dashboard.TotalSolvedDuration}
-                          </td>
-                        </tr>
-                      ))
-                      : ""}
+                    {
+                      typeof tableData === 'object' && Object.keys(tableData).length > 0 ?
+                        tableData.data.map((dashboard) => (
+                          <tr key={dashboard.RowID}>
+                            <td className="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">{dashboard[ColumnGroupBy[SelectedGroupBy]]}</td>
+                            <td className="px-6 py-4 text-sm font-medium text-center text-gray-900 whitespace-nowrap">{dashboard.TotalApps}</td>
+                            <td className="px-6 py-4 text-sm text-center text-gray-500 whitespace-nowrap">{dashboard.TotalIncident}</td>
+                            <td className="px-6 py-4 text-sm text-right text-gray-500 whitespace-nowrap">{dashboard.AverageDetectionDuration}</td>
+                            <td className="px-6 py-4 text-sm text-right text-gray-500 whitespace-nowrap">{dashboard.AverageSolvedDuration}</td>
+                            <td className="px-6 py-4 text-sm text-right text-gray-500 whitespace-nowrap">{dashboard.TotalDetectionDuration}</td>
+                            <td className="px-6 py-4 text-sm text-right text-gray-500 whitespace-nowrap">{dashboard.TotalSolvedDuration}</td>
+                          </tr>
+                        )) : ''
+                    }
                   </tbody>
                 </table>
               </div>

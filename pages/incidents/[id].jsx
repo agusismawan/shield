@@ -183,21 +183,21 @@ function IncidentDetail({ user, incident }) {
     defaultValues: {
       idIncidentType: incident.data.paramIncidentType
         ? {
-            label: incident.data.paramIncidentType.incidentType,
-            value: incident.data.paramIncidentType.id,
-          }
+          label: incident.data.paramIncidentType.incidentType,
+          value: incident.data.paramIncidentType.id,
+        }
         : false,
       idUrgency: incident.data.paramUrgency
         ? {
-            label: incident.data.paramUrgency.urgency,
-            value: incident.data.paramUrgency.id,
-          }
+          label: incident.data.paramUrgency.urgency,
+          value: incident.data.paramUrgency.id,
+        }
         : false,
       idImpact: incident.data.paramImpact
         ? {
-            label: incident.data.paramImpact.impact,
-            value: incident.data.paramImpact.id,
-          }
+          label: incident.data.paramImpact.impact,
+          value: incident.data.paramImpact.id,
+        }
         : false,
       logStartTime: incident.data.logStartTime
         ? parseISO(incident.data.logStartTime, new Date())
@@ -210,9 +210,9 @@ function IncidentDetail({ user, incident }) {
         : false,
       idProblemType: incident.data.idProblemType
         ? {
-            label: incident.data.paramProblemType.problemType,
-            value: incident.data.paramProblemType.id,
-          }
+          label: incident.data.paramProblemType.problemType,
+          value: incident.data.paramProblemType.id,
+        }
         : false,
     },
   });
@@ -393,8 +393,8 @@ function IncidentDetail({ user, incident }) {
                                 selectedStatus == "Open"
                                   ? "bg-red-500"
                                   : selectedStatus == "Investigate"
-                                  ? "bg-blue-500"
-                                  : "bg-green-500",
+                                    ? "bg-blue-500"
+                                    : "bg-green-500",
                                 "relative inline-flex items-center py-2 pl-3 pr-4 border border-transparent rounded-l-md shadow-sm text-white"
                               )}
                             >
@@ -402,17 +402,17 @@ function IncidentDetail({ user, incident }) {
                                 <Spinner />
                               ) : selectedStatus == "Open" ? (
                                 <LockOpenIcon
-                                  className="h-5 w-5"
+                                  className="w-5 h-5"
                                   aria-hidden="true"
                                 />
                               ) : selectedStatus == "Investigate" ? (
                                 <ClockIcon
-                                  className="h-5 w-5"
+                                  className="w-5 h-5"
                                   aria-hidden="true"
                                 />
                               ) : selectedStatus == "Resolved" ? (
                                 <CheckIcon
-                                  className="h-5 w-5"
+                                  className="w-5 h-5"
                                   aria-hidden="true"
                                 />
                               ) : (
@@ -427,8 +427,8 @@ function IncidentDetail({ user, incident }) {
                                 selectedStatus == "Open"
                                   ? "bg-red-500 hover:bg-red-600"
                                   : selectedStatus == "Investigate"
-                                  ? "bg-blue-500 hover:bg-blue-600"
-                                  : "bg-green-500 hover:bg-green-600",
+                                    ? "bg-blue-500 hover:bg-blue-600"
+                                    : "bg-green-500 hover:bg-green-600",
                                 "relative inline-flex items-center p-2 rounded-l-none rounded-r-md text-sm font-medium text-white focus:outline-none focus:z-10 focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-blue-500"
                               )}
                             >
@@ -526,19 +526,17 @@ function IncidentDetail({ user, incident }) {
                       <div className="bg-white shadow sm:rounded-lg">
                         <CardTitle
                           title={`Incident Report ${incident.data.incidentNumber}`}
-                          subtitle={`Priority ${
-                            incident.data.paramPriorityMatrix
+                          subtitle={`Priority ${incident.data.paramPriorityMatrix
                               ? incident.data.paramPriorityMatrix.mapping
                               : "not defined yet"
-                          }, ${
-                            incident.data.resolvedIntervals
+                            }, ${incident.data.resolvedIntervals
                               ? `duration ${incident.data.resolvedIntervals} minutes`
                               : `started ${format(
-                                  new Date(incident.data.startTime),
-                                  "dd MMMM yyyy HH:mm",
-                                  "id-ID"
-                                )}`
-                          }`}
+                                new Date(incident.data.startTime),
+                                "dd MMMM yyyy HH:mm",
+                                "id-ID"
+                              )}`
+                            }`}
                         >
                           <div className="flex px-4">
                             <ButtonCircle
@@ -1068,10 +1066,10 @@ function IncidentDetail({ user, incident }) {
                           incident.data.resolvedIntervals
                             ? `Duration ${incident.data.resolvedIntervals} minutes`
                             : `Started ${format(
-                                new Date(incident.data.startTime),
-                                "dd MMMM yyyy HH:mm",
-                                "id-ID"
-                              )}`
+                              new Date(incident.data.startTime),
+                              "dd MMMM yyyy HH:mm",
+                              "id-ID"
+                            )}`
                         }
                       >
                         <div className="flex px-4">
@@ -1279,10 +1277,10 @@ function IncidentDetail({ user, incident }) {
                         From{" "}
                         {incident.data.logStartTime
                           ? format(
-                              new Date(incident.data.logStartTime),
-                              "dd MMMM yyyy HH:mm",
-                              "id-ID"
-                            )
+                            new Date(incident.data.logStartTime),
+                            "dd MMMM yyyy HH:mm",
+                            "id-ID"
+                          )
                           : "-"}{" "}
                       </span>
                     </div>
@@ -1291,10 +1289,10 @@ function IncidentDetail({ user, incident }) {
                         Until{" "}
                         {incident.data.endTime
                           ? format(
-                              new Date(incident.data.endTime),
-                              "dd MMMM yyyy HH:mm",
-                              "id-ID"
-                            )
+                            new Date(incident.data.endTime),
+                            "dd MMMM yyyy HH:mm",
+                            "id-ID"
+                          )
                           : "(not recovered yet)"}{" "}
                       </span>
                     </div>
@@ -1320,15 +1318,15 @@ function IncidentDetail({ user, incident }) {
                           Last updated on{" "}
                           {incident.data.updatedAt
                             ? format(
-                                new Date(incident.data.updatedAt),
-                                "dd MMM yyyy HH:mm",
-                                "id-ID"
-                              )
+                              new Date(incident.data.updatedAt),
+                              "dd MMM yyyy HH:mm",
+                              "id-ID"
+                            )
                             : format(
-                                new Date(incident.data.createdAt),
-                                "dd MMM yyyy HH:mm",
-                                "id-ID"
-                              )}{" "}
+                              new Date(incident.data.createdAt),
+                              "dd MMM yyyy HH:mm",
+                              "id-ID"
+                            )}{" "}
                           <br />
                           by{" "}
                           {incident.data.paramUpdatedBy
@@ -1359,7 +1357,7 @@ function IncidentDetail({ user, incident }) {
                           {incident.data.problemDetail.paramAssignedTo === null
                             ? "-"
                             : incident.data.problemDetail.paramAssignedTo
-                                .fullname}
+                              .fullname}
                         </div>
 
                         {/* Detail Type dan Status */}
@@ -1380,9 +1378,9 @@ function IncidentDetail({ user, incident }) {
                             aria-hidden="true"
                           />
                           <div className="ml-3.5 text-sm font-medium text-gray-600">
-                                {incident.data.problemDetail
-                                  ? `Status : ${incident.data.problemDetail.paramProblemStatus.problemStatus}`
-                                  : "Problem Status Not yet"}
+                            {incident.data.problemDetail
+                              ? `Status : ${incident.data.problemDetail.paramProblemStatus.problemStatus}`
+                              : "Problem Status Not yet"}
                           </div>
                         </div>
                         {/* Akhir Detail Type dan Status */}
@@ -1405,10 +1403,10 @@ function IncidentDetail({ user, incident }) {
                                 />
                               </div>
                               <div className="ml-3.5 text-sm font-medium text-gray-600">
-                                {incident.data.problemDetail.paramFollowUpPlan.followUpPlan === "Not yet" 
+                                {incident.data.problemDetail.paramFollowUpPlan.followUpPlan === "Not yet"
                                   ? "None"
                                   : incident.data.problemDetail.paramFollowUpPlan.followUpPlan}
-                                  {/* ? incident.data.problemDetail.paramFollowUpPlan.followUpPlan
+                                {/* ? incident.data.problemDetail.paramFollowUpPlan.followUpPlan
                                   : "None"} */}
                               </div>
                             </a>{" "}
@@ -1432,7 +1430,7 @@ function IncidentDetail({ user, incident }) {
                               </div>
                               <div className="ml-3.5 text-sm font-medium">
                                 {incident.data.problemDetail.jiraProblem ===
-                                null ? (
+                                  null ? (
                                   <span className="text-white">None</span>
                                 ) : (
                                   <a
@@ -1450,7 +1448,7 @@ function IncidentDetail({ user, incident }) {
                           <li className="inline">
                             <a
                               href="#"
-                              className="relative inline-flex items-center rounded-full border border-gray-600 bg-cyan-700 overflow-hidden px-3 py-0.5 ml-2"
+                              className="relative inline-flex items-center rounded-full border border-gray-600 bg-cyan-700 px-3 py-0.5 ml-2"
                             >
                               <div className="absolute flex items-center justify-center flex-shrink-0">
                                 <span
@@ -1460,7 +1458,7 @@ function IncidentDetail({ user, incident }) {
                               </div>
                               <div className="ml-3.5 text-sm font-medium">
                                 {incident.data.problemDetail.followUpCM ===
-                                null ? (
+                                  null ? (
                                   <span className="text-white">None</span>
                                 ) : (
                                   <a

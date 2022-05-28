@@ -33,8 +33,7 @@ import { toast } from "react-toastify";
 import { useAsyncDebounce } from "react-table";
 import "regenerator-runtime";
 import DateRangeFilter from "components/incidents/daterange-filter";
-// import { Input, Tooltip } from "antd";
-import { Input } from "antd";
+import { Input, Tooltip } from "antd";
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
   const user = req.session.get("user");
@@ -364,14 +363,14 @@ function IncidentList({ user, data }) {
                     onPressEnter={(e) => handleIRNumEnter(e.target.value)}
                     onChange={(e) => handleIRNumChange(e.target.value)}
                     placeholder="IR-____-______"
-                    // suffix={
-                    //   <Tooltip title="Press Enter to Search">
-                    //     <InformationCircleIcon
-                    //       className="w-5 h-5 text-gray-400"
-                    //       aria-hidden="true"
-                    //     />
-                    //   </Tooltip>
-                    // }
+                    suffix={
+                      <Tooltip title="Press Enter to Search">
+                        <InformationCircleIcon
+                          className="w-5 h-5 text-gray-400"
+                          aria-hidden="true"
+                        />
+                      </Tooltip>
+                    }
                     style={{
                       borderRadius: "0.375rem",
                       width: "11rem",
@@ -430,7 +429,7 @@ function IncidentList({ user, data }) {
                   >
                     Date
                   </label>
-                  {/* <DateRangeFilter onChange={handleDateChange} /> */}
+                  <DateRangeFilter onChange={handleDateChange} />
                 </div>
               </div>
               <Table columns={columns} data={tableData} ref={tableInstance} />
