@@ -9,40 +9,40 @@ export default function Sidebar({ navigation, router, session, action }) {
     <>
       {/* Static sidebar for desktop */}
       <div className="hidden lg:flex lg:flex-shrink-0">
-        <div className="flex flex-col w-64 border-r border-gray-200 pt-5 pb-4 bg-white">
+        <div className="flex flex-col w-64 pt-5 pb-4 bg-white border-r border-gray-200">
           <div className="flex items-center flex-shrink-0 px-6">
-            <img className="h-8 w-auto" src="/shield-logo.png" alt="Shield" />
+            <img className="w-auto h-8" src="/shield-logo.png" alt="Shield" />
           </div>
           {/* Sidebar component, swap this element with another sidebar if you like */}
-          <div className="h-0 flex-1 flex flex-col overflow-y-auto">
+          <div className="flex flex-col flex-1 h-0 overflow-y-auto">
             {/* User account dropdown */}
             <Menu
               as="div"
-              className="px-3 mt-6 relative inline-block text-left"
+              className="relative inline-block px-3 mt-6 text-left"
             >
               {({ open }) => (
                 <>
                   <div>
                     <Menu.Button className="group w-full bg-white rounded-md px-3.5 py-2 text-sm text-left font-medium text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-blue-500">
-                      <span className="flex w-full justify-between items-center">
-                        <span className="flex min-w-0 items-center justify-between space-x-3">
+                      <span className="flex items-center justify-between w-full">
+                        <span className="flex items-center justify-between min-w-0 space-x-3">
                           <UserCircleIcon
-                            className="h-10 w-10 text-gray-500"
+                            className="w-10 h-10 text-gray-500"
                             aria-hidden="true"
                           />
-                          <span className="flex-1 flex flex-col min-w-0">
-                            <span className="text-gray-900 text-sm font-medium truncate">
+                          <span className="flex flex-col flex-1 min-w-0">
+                            <span className="text-sm font-medium text-gray-900 truncate">
                               {session.fullname
                                 ? session.fullname
                                 : session.username}
                             </span>
-                            <span className="text-gray-500 text-sm truncate">
+                            <span className="text-sm text-gray-500 truncate">
                               {`@${session.username}`}
                             </span>
                           </span>
                         </span>
                         <SelectorIcon
-                          className="flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-500"
+                          className="flex-shrink-0 w-5 h-5 text-gray-400 group-hover:text-gray-500"
                           aria-hidden="true"
                         />
                       </span>
@@ -60,7 +60,7 @@ export default function Sidebar({ navigation, router, session, action }) {
                   >
                     <Menu.Items
                       static
-                      className="z-10 mx-3 origin-top absolute right-0 left-0 mt-1 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none"
+                      className="absolute left-0 right-0 z-10 mx-3 mt-1 origin-top bg-white divide-y divide-gray-200 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
                     >
                       <div className="py-1">
                         <Menu.Item>
@@ -106,7 +106,7 @@ export default function Sidebar({ navigation, router, session, action }) {
                               className={classNames(
                                 active
                                   ? "bg-gray-100 text-gray-900"
-                                  : "text-gray-700",
+                                  : "text-g  ray-700",
                                 "block px-4 py-2 text-sm"
                               )}
                             >
@@ -121,12 +121,11 @@ export default function Sidebar({ navigation, router, session, action }) {
               )}
             </Menu>
             {/* Navigation */}
-            <nav className="px-3 mt-6 border-t border-gray-200 p-4">
+            <nav className="p-4 px-3 mt-6 border-t border-gray-200">
               <div className="space-y-1">
                 {navigation.map((item) => (
-                  <Link href={item.href}>
+                  <Link key={item.key} href={item.href}>
                     <a
-                      key={item.name}
                       className={classNames(
                         router.pathname.includes(item.href)
                           ? "bg-gray-100 text-gray-900"

@@ -15,10 +15,10 @@ import {
 } from "@heroicons/react/outline";
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
-  { name: "Incidents", href: "/incidents", icon: DocumentSearchIcon },
-  { name: "Problem Management", href: "#", icon: FireIcon },
-  { name: "Tickets", href: "/tickets", icon: ChatAlt2Icon },
+  { key: 1, name: "Dashboard", href: "/dashboard", icon: HomeIcon },
+  { key: 2, name: "Incidents", href: "/incidents", icon: DocumentSearchIcon },
+  { key: 3, name: "Problem Management", href: "#", icon: FireIcon },
+  { key: 4, name: "Tickets", href: "/tickets", icon: ChatAlt2Icon },
 ];
 
 async function logout() {
@@ -40,7 +40,7 @@ export default function Layout({ children, session }) {
     <>
       <ToastContainer position="bottom-right" autoClose={3000} />
       <Meta />
-      <div className="relative h-screen flex overflow-hidden bg-gray-100">
+      <div className="relative flex h-screen overflow-hidden bg-gray-100">
         {/* Set sidebar overlay when on mobile screen */}
         <SidebarOverlay
           navigation={navigation}
@@ -56,10 +56,10 @@ export default function Layout({ children, session }) {
           action={logout}
         />
         {/* Main column */}
-        <div className="flex flex-col w-0 flex-1 overflow-hidden">
+        <div className="flex flex-col flex-1 w-0 overflow-hidden">
           {/* Mobile header */}
           <MobileHeader setSidebarOpen={setSidebarOpen} action={logout} />
-          <main className="flex-1 relative z-0 overflow-y-auto focus:outline-none">
+          <main className="relative z-0 flex-1 overflow-y-auto focus:outline-none">
             {children}
           </main>
         </div>

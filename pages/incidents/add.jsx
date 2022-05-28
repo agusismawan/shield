@@ -316,14 +316,14 @@ function addIncident({ user }) {
         </Head>
         {/* Page title & actions */}
         <PageHeader title="Create New Incident"></PageHeader>
-        <div className="mt-8 mb-8 max-w-full mx-auto grid grid-cols-1 gap-6 sm:px-6 lg:max-w-full lg:px-12 lg:grid-flow-col-dense lg:grid-cols-3">
+        <div className="grid max-w-full grid-cols-1 gap-6 mx-auto mt-8 mb-8 sm:px-6 lg:max-w-full lg:px-12 lg:grid-flow-col-dense lg:grid-cols-3">
           <div className="space-y-6 lg:col-start-1 lg:col-span-2">
             {/* Section Incident Detail */}
             <section aria-labelledby="create-new-incident">
               <form onSubmit={handleSubmit(onSubmit)}>
                 {/* Card Start */}
-                <div className="bg-white shadow overflow-hidden sm:rounded-lg static">
-                  <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
+                <div className="static overflow-hidden bg-white shadow sm:rounded-lg">
+                  <div className="px-4 py-5 border-t border-gray-200 sm:px-6">
                     <div className="grid grid-cols-6 gap-6">
                       <div className="col-span-6 sm:col-span-6">
                         <Input
@@ -345,7 +345,7 @@ function addIncident({ user }) {
                         )}
                       </div>
                       <div className="col-span-3 sm:col-span-3">
-                        <label className="mb-1 block text-sm font-medium text-gray-700">
+                        <label className="block mb-1 text-sm font-medium text-gray-700">
                           Application
                         </label>
                         <Controller
@@ -372,7 +372,7 @@ function addIncident({ user }) {
                       </div>
                       <div className="col-span-6 sm:col-span-3"></div>
                       <div className="col-span-6 sm:col-span-3">
-                        <label className="mb-1 block text-sm font-medium text-gray-700">
+                        <label className="block mb-1 text-sm font-medium text-gray-700">
                           Start Time
                         </label>
                         <Controller
@@ -401,7 +401,7 @@ function addIncident({ user }) {
                         )}
                       </div>
                       <div className="col-span-6 sm:col-span-3">
-                        <label className="mb-1 block text-sm font-medium text-gray-700">
+                        <label className="block mb-1 text-sm font-medium text-gray-700">
                           Detected Time
                         </label>
                         <Controller
@@ -437,7 +437,7 @@ function addIncident({ user }) {
                           </p>
                         )}
                       </div>
-                      <div className="flex items-center space-x-3 col-span-6 sm:col-span-6">
+                      <div className="flex items-center col-span-6 space-x-3 sm:col-span-6">
                         <Switch.Group as="div" className="flex items-center">
                           <Switch
                             checked={enabled}
@@ -469,7 +469,7 @@ function addIncident({ user }) {
                       {enabled === true && (
                         <>
                           <div className="col-span-6 sm:col-span-3">
-                            <label className="mb-1 block text-sm font-medium text-gray-700">
+                            <label className="block mb-1 text-sm font-medium text-gray-700">
                               End Time
                             </label>
                             <Controller
@@ -506,7 +506,7 @@ function addIncident({ user }) {
                             )}
                           </div>
                           <div className="col-span-3 sm:col-span-3">
-                            <label className="mb-1 block text-sm font-medium text-gray-700">
+                            <label className="block mb-1 text-sm font-medium text-gray-700">
                               Incident Type
                             </label>
                             <Controller
@@ -531,7 +531,7 @@ function addIncident({ user }) {
                             )}
                           </div>
                           <div className="col-span-6 sm:col-span-6">
-                            <label className="mb-1 block text-sm font-medium text-gray-700">
+                            <label className="block mb-1 text-sm font-medium text-gray-700">
                               Urgency
                             </label>
                             <Controller
@@ -555,7 +555,7 @@ function addIncident({ user }) {
                             )}
                           </div>
                           <div className="col-span-6 sm:col-span-6">
-                            <label className="mb-1 block text-sm font-medium text-gray-700">
+                            <label className="block mb-1 text-sm font-medium text-gray-700">
                               Impact
                             </label>
                             <Controller
@@ -581,7 +581,7 @@ function addIncident({ user }) {
                             )}
                           </div>
                           <div className="col-span-6 sm:col-span-6">
-                            <label className="mb-1 block text-sm font-medium text-gray-700">
+                            <label className="block mb-1 text-sm font-medium text-gray-700">
                               Affected System
                             </label>
                             <textarea
@@ -596,7 +596,7 @@ function addIncident({ user }) {
                               id="impactedSystem"
                               name="impactedSystem"
                               rows={3}
-                              className="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                              className="block w-full mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                               placeholder="Describe the systems affected by the incident"
                               defaultValue={""}
                             />
@@ -607,7 +607,7 @@ function addIncident({ user }) {
                             )}
                           </div>
                           <div className="col-span-6 sm:col-span-6">
-                            <label className="mb-1 block text-sm font-medium text-gray-700">
+                            <label className="block mb-1 text-sm font-medium text-gray-700">
                               Root Cause
                             </label>
                             <textarea
@@ -622,7 +622,7 @@ function addIncident({ user }) {
                               id="rootCause"
                               name="rootCause"
                               rows={3}
-                              className="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                              className="block w-full mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                               placeholder="Write a good Root Cause Analysis (RCA)"
                             />
                             {errors.rootCause && (
@@ -632,7 +632,7 @@ function addIncident({ user }) {
                             )}
                           </div>
                           <div className="col-span-6 sm:col-span-6">
-                            <label className="mb-1 block text-sm font-medium text-gray-700">
+                            <label className="block mb-1 text-sm font-medium text-gray-700">
                               Action Items
                             </label>
                             <textarea
@@ -647,7 +647,7 @@ function addIncident({ user }) {
                               id="actionItem"
                               name="actionItem"
                               rows={3}
-                              className="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                              className="block w-full mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                               placeholder="Describe the action"
                             />
                             {errors.actionItem && (
@@ -657,7 +657,7 @@ function addIncident({ user }) {
                             )}
                           </div>
                           <div className="col-span-6 sm:col-span-6">
-                            <label className="mb-1 block text-sm font-medium text-gray-700">
+                            <label className="block mb-1 text-sm font-medium text-gray-700">
                               Responsible Team
                             </label>
                             <textarea
@@ -667,7 +667,7 @@ function addIncident({ user }) {
                               id="responsibleEngineer"
                               name="responsibleEngineer"
                               rows={3}
-                              className="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                              className="block w-full mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                               placeholder="The person(s) who attended the support call and had most context of what happened."
                             />
                             {errors.responsibleEngineer && (
@@ -676,7 +676,7 @@ function addIncident({ user }) {
                               </p>
                             )}
                           </div>
-                          <div className="flex items-center space-x-3 col-span-6 sm:col-span-6">
+                          <div className="flex items-center col-span-6 space-x-3 sm:col-span-6">
                             <Switch.Group
                               as="div"
                               className="flex items-center"
@@ -723,7 +723,7 @@ function addIncident({ user }) {
                                   })}
                                   id="idProblemType"
                                   name="idProblemType"
-                                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md text-gray-700"
+                                  className="block w-full py-2 pl-3 pr-10 mt-1 text-base text-gray-700 border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                   defaultValue={null}
                                 >
                                   <option value="">Select...</option>
@@ -740,7 +740,7 @@ function addIncident({ user }) {
                                 )}
                               </div>
                               <div className="col-span-6 sm:col-span-6">
-                                <label className="mb-1 block text-sm font-medium text-gray-700">
+                                <label className="block mb-1 text-sm font-medium text-gray-700">
                                   Proposed Enhancement
                                 </label>
                                 <textarea
@@ -755,7 +755,7 @@ function addIncident({ user }) {
                                   id="proposedEnhancement"
                                   name="proposedEnhancement"
                                   rows={3}
-                                  className="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                                  className="block w-full mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                   placeholder="What should be done to avoid this in future ? This is mandatory if you choose the permanent fix"
                                 />
                                 {errors.proposedEnhancement && (
@@ -767,9 +767,9 @@ function addIncident({ user }) {
                             </>
                           )}
                           <div className="col-span-6 sm:col-span-6">
-                            <label className="mb-1 block text-sm font-medium text-gray-700">
+                            <label className="block mb-1 text-sm font-medium text-gray-700">
                               Lesson Learned
-                              <span className="text-gray-500 font-normal"></span>
+                              <span className="font-normal text-gray-500"></span>
                             </label>
                             <textarea
                               {...register("lessonLearned", {
@@ -778,7 +778,7 @@ function addIncident({ user }) {
                               id="lessonLearned"
                               name="lessonLearned"
                               rows={3}
-                              className="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                              className="block w-full mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                               placeholder="The lesson that we take from this incident"
                             />
                             {errors.lessonLearned && (
@@ -793,7 +793,7 @@ function addIncident({ user }) {
                   </div>
 
                   {/* Card Footer */}
-                  <div className="px-4 py-3 bg-gray-50 text-right sm:px-6 space-x-2">
+                  <div className="px-4 py-3 space-x-2 text-right bg-gray-50 sm:px-6">
                     <PrimaryButton
                       type="submit"
                       className={
@@ -824,13 +824,13 @@ function addIncident({ user }) {
             aria-labelledby="docs-title"
             className="lg:col-start-3 lg:col-span-1"
           >
-            <div className="bg-white px-4 py-5 shadow sm:rounded-lg sm:px-6">
+            <div className="px-4 py-5 bg-white shadow sm:rounded-lg sm:px-6">
               <h2
                 id="timeline-title"
-                className="text-lg font-medium text-gray-900 inline-flex items-center"
+                className="inline-flex items-center text-lg font-medium text-gray-900"
               >
                 <QuestionMarkCircleIcon
-                  className="-ml-1 mr-2 h-6 w-6 text-blue-500"
+                  className="w-6 h-6 mr-2 -ml-1 text-blue-500"
                   aria-hidden="true"
                 />
                 Docs
@@ -846,11 +846,11 @@ function addIncident({ user }) {
                     {({ open }) => (
                       <>
                         <dt className="text-lg">
-                          <Disclosure.Button className="text-left w-full flex justify-between items-start text-gray-400 text-base">
-                            <span className="font-normal text-base text-gray-900">
+                          <Disclosure.Button className="flex items-start justify-between w-full text-base text-left text-gray-400">
+                            <span className="text-base font-normal text-gray-900">
                               {doc.title}
                             </span>
-                            <span className="ml-6 h-7 flex items-center">
+                            <span className="flex items-center ml-6 h-7">
                               <ChevronDownIcon
                                 className={classNames(
                                   open ? "-rotate-180" : "rotate-0",
@@ -861,11 +861,11 @@ function addIncident({ user }) {
                             </span>
                           </Disclosure.Button>
                         </dt>
-                        <Disclosure.Panel as="dd" className="mt-2 pr-12">
+                        <Disclosure.Panel as="dd" className="pr-12 mt-2">
                           <p className="text-sm font-medium text-gray-900">
                             {doc.bodyHeader}
                           </p>
-                          <ul className="list-disc list-inside text-gray-500 text-sm">
+                          <ul className="text-sm text-gray-500 list-disc list-inside">
                             {doc.bodyContent.map((bc) => (
                               <li key={bc.id}>{bc.text}</li>
                             ))}
