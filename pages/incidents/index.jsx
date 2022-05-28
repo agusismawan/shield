@@ -430,7 +430,7 @@ function IncidentList({ user, data }) {
                   >
                     Date
                   </label>
-                  <DateRangeFilter onChange={handleDateChange} />
+                  {/* <DateRangeFilter onChange={handleDateChange} /> */}
                 </div>
               </div>
               <Table columns={columns} data={tableData} ref={tableInstance} />
