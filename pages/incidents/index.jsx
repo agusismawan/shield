@@ -1,3 +1,5 @@
+import { Input, Tooltip } from "antd";
+import DateRangeFilter from "components/incidents/daterange-filter";
 import Head from "next/head";
 import Link from "next/link";
 import Layout from "../../components/layout";
@@ -32,8 +34,6 @@ import { useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
 import { useAsyncDebounce } from "react-table";
 import "regenerator-runtime";
-import DateRangeFilter from "components/incidents/daterange-filter";
-import { Input, Tooltip } from "antd";
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
   const user = req.session.get("user");
