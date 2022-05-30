@@ -263,17 +263,21 @@ export default function ProblemList({ user, problems, countAssign }) {
         Cell: (props) => {
           return (
             <div>
-              {props.row.original.jiraProblem !== "" ? (
-                <a
-                  href={props.row.original.jiraProblem}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <StatusPill value={props.row.original.problemStatus.label} />
-                </a>
-              ) : (
-                <StatusPill value={props.row.original.problemStatus.label} />
-              )}
+              <StatusPill value={props.row.original.problemStatus.label} />
+              <br />
+              {props.row.original.jiraProblem !== null ? (
+                props.row.original.jiraProblem !== "" ? (
+                  <a
+                    href={props.row.original.jiraProblem}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <span className="px-2 text-xs font-semibold rounded-full bg-blue-500 text-white">
+                      JIRA
+                    </span>
+                  </a>
+                ) : null
+              ) : null}
             </div>
           );
         },
@@ -283,18 +287,28 @@ export default function ProblemList({ user, problems, countAssign }) {
         accessor: "assigned_to.userName",
         Cell: (props) => {
           return (
-            <div className="text-sm text-gray-900">
-              {props.row.original.assigned_to ? (
-                props.row.original.assigned_to.fullName
-              ) : (
-                <>
-                  <div className="inline-flex">
-                    Not Yet Assigned
-                    <BanIcon className="pl-1 h-5 w-5" aria-hidden="true" />
-                  </div>
-                </>
-              )}
-            </div>
+            <>
+              <div className="text-sm">
+                {props.row.original.followUp
+                  ? props.row.original.followUp.label
+                  : "-"}
+              </div>
+              <div>
+                {props.row.original.followupCM !== null ? (
+                  props.row.original.followupCM !== "" ? (
+                    <a
+                      href={props.row.original.followupCM}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <span className="px-2 text-xs font-semibold rounded-full bg-blue-700 text-white">
+                        Confluence
+                      </span>
+                    </a>
+                  ) : null
+                ) : null}
+              </div>
+            </>
           );
         },
       },
