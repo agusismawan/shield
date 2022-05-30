@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import DatePicker from "../../components/ui/datepicker";
 import axios from "axios";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -9,7 +10,6 @@ import { Controller, useForm } from "react-hook-form";
 import Select, { components } from "react-select";
 import AsyncSelect from "react-select/async";
 import format from "date-fns/format";
-import DatePicker from "../../components/ui/datepicker";
 import { toast } from "react-toastify";
 import Layout from "../../components/layout";
 import { Input } from "../../components/ui/forms";
@@ -18,7 +18,6 @@ import {
   styledReactSelect,
   styledReactSelectAdd,
 } from "../../components/utils";
-import { ButtonSmall, ButtonSecondary } from "../../components/ui/button";
 import { PrimaryButton } from "../../components/ui/button/primary-button";
 import { SecondaryButton } from "../../components/ui/button/secondary-button";
 import { Spinner } from "../../components/ui/spinner";
@@ -190,10 +189,6 @@ function addIncident({ user }) {
         shouldDirty: false,
       });
       setValue("idImpact", null, { shouldValidate: false, shouldDirty: false });
-      setValue("impactedSystem", "", {
-        shouldValidate: false,
-        shouldDirty: false,
-      });
       setValue("rootCause", "", { shouldValidate: false, shouldDirty: false });
       setValue("responsibleEngineer", "", {
         shouldValidate: false,
@@ -437,6 +432,32 @@ function addIncident({ user }) {
                           </p>
                         )}
                       </div>
+                      <div className="col-span-6 sm:col-span-6">
+                        <label className="block mb-1 text-sm font-medium text-gray-700">
+                          Affected System
+                        </label>
+                        <textarea
+                          {...register("impactedSystem", {
+                            required: "This is required",
+                            minLength: {
+                              value: 30,
+                              message:
+                                "Please lengthen this text to 30 characters or more.",
+                            },
+                          })}
+                          id="impactedSystem"
+                          name="impactedSystem"
+                          rows={3}
+                          className="block w-full mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                          placeholder="Describe the systems affected by the incident"
+                          defaultValue={""}
+                        />
+                        {errors.impactedSystem && (
+                          <p className="mt-2 text-sm text-red-600">
+                            {errors.impactedSystem.message}
+                          </p>
+                        )}
+                      </div>
                       <div className="flex items-center col-span-6 space-x-3 sm:col-span-6">
                         <Switch.Group as="div" className="flex items-center">
                           <Switch
@@ -582,32 +603,6 @@ function addIncident({ user }) {
                           </div>
                           <div className="col-span-6 sm:col-span-6">
                             <label className="block mb-1 text-sm font-medium text-gray-700">
-                              Affected System
-                            </label>
-                            <textarea
-                              {...register("impactedSystem", {
-                                required: "This is required",
-                                minLength: {
-                                  value: 30,
-                                  message:
-                                    "Please lengthen this text to 30 characters or more.",
-                                },
-                              })}
-                              id="impactedSystem"
-                              name="impactedSystem"
-                              rows={3}
-                              className="block w-full mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                              placeholder="Describe the systems affected by the incident"
-                              defaultValue={""}
-                            />
-                            {errors.impactedSystem && (
-                              <p className="mt-2 text-sm text-red-600">
-                                {errors.impactedSystem.message}
-                              </p>
-                            )}
-                          </div>
-                          <div className="col-span-6 sm:col-span-6">
-                            <label className="block mb-1 text-sm font-medium text-gray-700">
                               Root Cause
                             </label>
                             <textarea
@@ -676,7 +671,7 @@ function addIncident({ user }) {
                               </p>
                             )}
                           </div>
-                          <div className="flex items-center col-span-6 space-x-3 sm:col-span-6">
+                          <div className="flex items-center col-span-6 space-x-3 sm:col-span-3">
                             <Switch.Group
                               as="div"
                               className="flex items-center"
@@ -710,7 +705,7 @@ function addIncident({ user }) {
                           </div>
                           {permanentFixEnabled && (
                             <>
-                              <div className="col-span-3 sm:col-span-3">
+                              <div className="col-span-6 sm:col-span-3">
                                 <label
                                   htmlFor="idProblemType"
                                   className="block text-sm font-medium text-gray-700"
@@ -866,9 +861,10 @@ function addIncident({ user }) {
                             {doc.bodyHeader}
                           </p>
                           <ul className="text-sm text-gray-500 list-disc list-inside">
-                            {doc.bodyContent.map((bc) => (
-                              <li key={bc.id}>{bc.text}</li>
-                            ))}
+                            {doc.bodyContent &&
+                              doc.bodyContent.map((bc) => (
+                                <li key={bc.id}>{bc.text}</li>
+                              ))}
                           </ul>
                         </Disclosure.Panel>
                       </>

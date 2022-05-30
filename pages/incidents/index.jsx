@@ -1,4 +1,4 @@
-import { Input, Tooltip } from "antd";
+import { Input as InputTag, Tooltip as TooltipTag } from "antd";
 import DateRangeFilter from "components/incidents/daterange-filter";
 import Head from "next/head";
 import Link from "next/link";
@@ -330,7 +330,7 @@ function IncidentList({ user, data }) {
                   >
                     Search
                   </label>
-                  <Input
+                  <InputTag
                     allowClear
                     value={value || ""}
                     onChange={(e) => {
@@ -358,18 +358,18 @@ function IncidentList({ user, data }) {
                   >
                     IR Number
                   </label>
-                  <Input
+                  <InputTag
                     allowClear
                     onPressEnter={(e) => handleIRNumEnter(e.target.value)}
                     onChange={(e) => handleIRNumChange(e.target.value)}
                     placeholder="IR-____-______"
                     suffix={
-                      <Tooltip title="Press Enter to Search">
+                      <TooltipTag title="Press Enter to Search">
                         <InformationCircleIcon
                           className="w-5 h-5 text-gray-400"
                           aria-hidden="true"
                         />
-                      </Tooltip>
+                      </TooltipTag>
                     }
                     style={{
                       borderRadius: "0.375rem",
@@ -387,6 +387,9 @@ function IncidentList({ user, data }) {
                   </label>
                   <AsyncSelect
                     isClearable
+                    id="application"
+                    instanceId={"application"}
+                    defaultValue={""}
                     loadOptions={loadApplications}
                     styles={styledReactSelectAdd}
                     className="text-sm focus:ring-blue-300 focus:border-blue-300 w-60 md:w-40 lg:w-40"
@@ -402,6 +405,9 @@ function IncidentList({ user, data }) {
                     Incident Type
                   </label>
                   <ReactSelect
+                    id="IncidentTypeOptions"
+                    instanceId={"IncidentTypeOptions"}
+                    defaultValue={""}
                     options={IncidentTypeOptions}
                     isClearable
                     className="block w-auto lg:w-40"
@@ -416,6 +422,9 @@ function IncidentList({ user, data }) {
                     Status
                   </label>
                   <ReactSelect
+                    id="IncidentStatus"
+                    instanceId={"IncidentStatus"}
+                    defaultValue={""}
                     options={incidentStatusOptions}
                     isClearable
                     className="block w-auto lg:w-32"

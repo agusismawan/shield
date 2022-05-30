@@ -5,11 +5,11 @@
         "bodyHeader": "Declare an incident if:",
         "bodyContent": [
             {
-                "no": 1,
+                "id": 1,
                 "text": "An issue is or may be impacting customers or services."
             },
             {
-                "no": 2,
+                "id": 2,
                 "text": "You don't know if you should call an incident - notify other people and increase severity appropriately."
             }
         ]
