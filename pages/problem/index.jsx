@@ -138,17 +138,21 @@ export default function TaskList({ user, data }) {
         Cell: (props) => {
           return (
             <div>
-              {props.row.original.jiraProblem !== "" || props.row.original.jiraProblem !== null ? (
-                <a
-                  href={props.row.original.jiraProblem}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <StatusPill value={props.row.original.problemStatus.label} />
-                </a>
-              ) : (
-                <StatusPill value={props.row.original.problemStatus.label} />
-              )}
+              <StatusPill value={props.row.original.problemStatus.label} />
+              <br />
+              {props.row.original.jiraProblem !== null ? (
+                props.row.original.jiraProblem !== "" ? (
+                  <a
+                    href={props.row.original.jiraProblem}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <span className="px-2 text-xs font-semibold rounded-full bg-blue-500 text-white">
+                      JIRA
+                    </span>
+                  </a>
+                ) : null
+              ) : null}
             </div>
           );
         },
@@ -177,11 +181,28 @@ export default function TaskList({ user, data }) {
         Header: "Follow Up Plan",
         Cell: (props) => {
           return (
-            <div className="text-sm">
-              {props.row.original.followUp
-                ? props.row.original.followUp.label
-                : "-"}
-            </div>
+            <>
+              <div className="text-sm">
+                {props.row.original.followUp
+                  ? props.row.original.followUp.label
+                  : "-"}
+              </div>
+              <div>
+                {props.row.original.followupCM !== null ? (
+                  props.row.original.followupCM !== "" ? (
+                    <a
+                      href={props.row.original.followupCM}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <span className="px-2 text-xs font-semibold rounded-full bg-blue-700 text-white">
+                        Confluence
+                      </span>
+                    </a>
+                  ) : null
+                ) : null}
+              </div>
+            </>
           );
         },
       },
