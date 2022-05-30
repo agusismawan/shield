@@ -262,6 +262,8 @@ function addIncident({ user }) {
         idApps: data.idApps.value,
         startTime: format(new Date(data.startTime), "yyyy-MM-dd HH:mm"),
         logStartTime: format(new Date(data.logStartTime), "yyyy-MM-dd HH:mm"),
+        idUrgency: data.idUrgency.value,
+        idImpact: data.idImpact.value,
       });
     } else {
       Object.assign(data, {
@@ -269,8 +271,6 @@ function addIncident({ user }) {
         startTime: format(new Date(data.startTime), "yyyy-MM-dd HH:mm"),
         logStartTime: format(new Date(data.logStartTime), "yyyy-MM-dd HH:mm"),
         idIncidentType: data.idIncidentType.value,
-        idUrgency: data.idUrgency.value,
-        idImpact: data.idImpact.value,
         endTime: format(new Date(data.endTime), "yyyy-MM-dd HH:mm"),
         incidentStatus: "Resolved",
         isProblem: isProblem,
@@ -458,6 +458,56 @@ function addIncident({ user }) {
                           </p>
                         )}
                       </div>
+                      <div className="col-span-6 sm:col-span-6">
+                        <label className="block mb-1 text-sm font-medium text-gray-700">
+                          Urgency
+                        </label>
+                        <Controller
+                          name="idUrgency"
+                          control={control}
+                          rules={{ required: "This is required" }}
+                          render={({ field }) => (
+                            <Select
+                              {...field}
+                              isClearable
+                              options={urgencyOptions}
+                              styles={styledReactSelect}
+                              className="text-sm focus:ring-blue-500 focus:border-blue-500"
+                            />
+                          )}
+                        />
+                        {errors.idUrgency && (
+                          <p className="mt-2 text-sm text-red-600">
+                            {errors.idUrgency.message}
+                          </p>
+                        )}
+                      </div>
+                      <div className="col-span-6 sm:col-span-6">
+                        <label className="block mb-1 text-sm font-medium text-gray-700">
+                          Impact
+                        </label>
+                        <Controller
+                          name="idImpact"
+                          control={control}
+                          rules={{
+                            required: "This is required",
+                          }}
+                          render={({ field }) => (
+                            <Select
+                              {...field}
+                              isClearable
+                              options={impactOptions}
+                              styles={styledReactSelect}
+                              className="text-sm focus:ring-blue-500 focus:border-blue-500"
+                            />
+                          )}
+                        />
+                        {errors.idImpact && (
+                          <p className="mt-2 text-sm text-red-600">
+                            {errors.idImpact.message}
+                          </p>
+                        )}
+                      </div>
                       <div className="flex items-center col-span-6 space-x-3 sm:col-span-6">
                         <Switch.Group as="div" className="flex items-center">
                           <Switch
@@ -548,56 +598,6 @@ function addIncident({ user }) {
                             {errors.idIncidentType && (
                               <p className="mt-2 text-sm text-red-600">
                                 {errors.idIncidentType.message}
-                              </p>
-                            )}
-                          </div>
-                          <div className="col-span-6 sm:col-span-6">
-                            <label className="block mb-1 text-sm font-medium text-gray-700">
-                              Urgency
-                            </label>
-                            <Controller
-                              name="idUrgency"
-                              control={control}
-                              rules={{ required: "This is required" }}
-                              render={({ field }) => (
-                                <Select
-                                  {...field}
-                                  isClearable
-                                  options={urgencyOptions}
-                                  styles={styledReactSelect}
-                                  className="text-sm focus:ring-blue-500 focus:border-blue-500"
-                                />
-                              )}
-                            />
-                            {errors.idUrgency && (
-                              <p className="mt-2 text-sm text-red-600">
-                                {errors.idUrgency.message}
-                              </p>
-                            )}
-                          </div>
-                          <div className="col-span-6 sm:col-span-6">
-                            <label className="block mb-1 text-sm font-medium text-gray-700">
-                              Impact
-                            </label>
-                            <Controller
-                              name="idImpact"
-                              control={control}
-                              rules={{
-                                required: "This is required",
-                              }}
-                              render={({ field }) => (
-                                <Select
-                                  {...field}
-                                  isClearable
-                                  options={impactOptions}
-                                  styles={styledReactSelect}
-                                  className="text-sm focus:ring-blue-500 focus:border-blue-500"
-                                />
-                              )}
-                            />
-                            {errors.idImpact && (
-                              <p className="mt-2 text-sm text-red-600">
-                                {errors.idImpact.message}
                               </p>
                             )}
                           </div>
