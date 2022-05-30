@@ -1,6 +1,6 @@
-import { DatePicker } from "antd";
+import { DatePicker as AntDatePicker } from "antd";
 
-const { RangePicker } = DatePicker;
+const { RangePicker } = AntDatePicker;
 
 const DateRangeFilter = ({ ...rest }) => {
   return (
