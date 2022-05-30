@@ -184,11 +184,6 @@ function addIncident({ user }) {
   const handleSwitch = () => {
     if (enabled) {
       setValue("endTime", null, { shouldValidate: false, shouldDirty: false });
-      setValue("idUrgency", null, {
-        shouldValidate: false,
-        shouldDirty: false,
-      });
-      setValue("idImpact", null, { shouldValidate: false, shouldDirty: false });
       setValue("rootCause", "", { shouldValidate: false, shouldDirty: false });
       setValue("responsibleEngineer", "", {
         shouldValidate: false,
