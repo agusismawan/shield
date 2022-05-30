@@ -1062,13 +1062,6 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                         </div>{" "}
                       </li>
                     </ul>
-                    {problem.problemStatus.id === 4 ? (
-                      <>
-                        <h2 className="text-sm font-medium text-gray-900">
-                          Timestamp
-                        </h2>
-                      </>
-                    ) : null}
                   </div>
                 </div>
 
