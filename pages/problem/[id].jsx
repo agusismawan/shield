@@ -115,7 +115,7 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
         : false,
       idSource: problem.problemSource
         ? {
-            label: problem.problemSource.labelFilterSource,
+            label: problem.problemSource.label,
             value: problem.problemSource.id,
           }
         : false,
@@ -184,16 +184,24 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
   };
 
   const onSubmit = async (data) => {
+    let matrixChanged = "N";
+    if (
+      problem.impact.id !== data.idImpact.value ||
+      problem.urgency.id !== data.idUrgency.value
+    ) {
+      matrixChanged = "Y";
+    }
+
     Object.assign(data, {
       id: problem.id,
       idStatus: { value: data.idStatus.value },
       updatedBy: user.id,
+      matrixChanged: matrixChanged,
     });
     if (data.jiraProblem === "") {
       toast.error(`Failed to update: Link JIRA harus diisi`);
     } else {
       if (data.jiraProblem.includes("jira.bri.co.id")) {
-        console.log(`Ini Isi Data : ${data}`);
         setSpinner(true);
         axios
           .put(
@@ -395,7 +403,7 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                 </div>
               </div>
 
-              {/* coba gatau */}
+              {/* Conditional Update Button Status */}
               {problem.assigned_to ? (
                 user.username === problem.assigned_to.userName ? (
                   problem.problemStatus.id === 2 ? (
@@ -437,26 +445,27 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                         <form onSubmit={handleSubmit(onSubmit)}>
                           <section aria-labelledby="edit-problem">
                             <CardTitle
-                              // title={`Problem Number ${problem.problemNumber}`}
                               title={
                                 problem.problemNumber !== null
                                   ? `Problem Number ${problem.problemNumber}`
                                   : `Problem Number -`
                               }
                               subtitle={
-                                <li className="inline">
-                                  <div className="relative inline-flex items-center">
-                                    <div className="absolute flex-shrink-0 flex items-center justify-center">
-                                      <span
-                                        className="h-1.5 w-1.5 rounded-full bg-gray-500"
-                                        aria-hidden="true"
+                                <>
+                                  <dt className="my-1 text-sm font-medium text-gray-500">
+                                    Criticality : {problem.app.criticalityApp}
+                                  </dt>
+                                  <dt className="my-1 text-sm font-medium text-gray-500">
+                                    Status :{" "}
+                                    {problem.problemStatus.label ? (
+                                      <StatusPill
+                                        value={problem.problemStatus.label}
                                       />
-                                    </div>
-                                    <div className="ml-3.5 text-sm font-medium text-gray-900">
-                                      Criticality : {problem.app.criticalityApp}
-                                    </div>
-                                  </div>{" "}
-                                </li>
+                                    ) : (
+                                      "Not defined yet"
+                                    )}
+                                  </dt>
+                                </>
                               }
                             >
                               <div className="px-4 flex">
@@ -725,56 +734,43 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                           }
                           subtitle={
                             <>
-                              <li className="inline">
-                                <div className="relative inline-flex items-center">
-                                  <div className="absolute flex-shrink-0 flex items-center justify-center">
-                                    <span
-                                      className="h-1.5 w-1.5 rounded-full bg-gray-500"
-                                      aria-hidden="true"
-                                    />
-                                  </div>
-                                  <div className="ml-3.5 text-sm font-medium text-gray-900">
-                                    Criticality : {problem.app.criticalityApp}
-                                  </div>
-                                </div>
-                                <div className="sm:col-span-1">
-                                  <span
-                                    className="h-1.5 w-1.5 rounded-full bg-gray-500"
+                              <dt className="my-1 text-sm font-medium text-gray-500">
+                                Criticality : {problem.app.criticalityApp}
+                              </dt>
+                              <dt className="my-1 text-sm font-medium text-gray-500">
+                                Status :{" "}
+                                {problem.problemStatus.label ? (
+                                  <StatusPill
+                                    value={problem.problemStatus.label}
+                                  />
+                                ) : (
+                                  "Not defined yet"
+                                )}
+                              </dt>
+                              {problem.problemStatus.id === 4 ? (
+                                <dt className="my-1 text-sm font-medium text-gray-500 flex items-center space-x-2">
+                                  <CalendarIcon
+                                    className="h-5 w-5 text-emerald-600"
                                     aria-hidden="true"
                                   />
-                                  <dt className="text-sm font-medium text-gray-500">
-                                    Status :{" "}
-                                    {problem.problemStatus.label ? (
-                                      <StatusPill
-                                        value={problem.problemStatus.label}
-                                      />
-                                    ) : (
-                                      "Not defined yet"
-                                    )}
-                                  </dt>
-                                </div>
-                              </li>
-
-                              {/* <li className="inline">
-                                <div className="relative inline-flex items-center">
-                                  <div className="absolute flex-shrink-0 flex items-center justify-center">
-                                    <span
-                                      className="h-1.5 w-1.5 rounded-full bg-gray-500"
-                                      aria-hidden="true"
-                                    />
-                                  </div>
-                                  <div className="ml-3.5 text-sm font-medium text-gray-900">
-                                    Status
-                                    {problem.problemStatus.label ? (
-                                      <StatusPill
-                                        value={problem.problemStatus.label}
-                                      />
-                                    ) : (
-                                      "Not defined yet"
-                                    )}
-                                  </div>
-                                </div>{" "}
-                              </li> */}
+                                  <span>
+                                    Solved on{" "}
+                                    <time
+                                      dateTime={format(
+                                        new Date(problem.updatedAt),
+                                        "d LLLL yyyy HH:mm",
+                                        "id-ID"
+                                      )}
+                                    >
+                                      {` ${format(
+                                        new Date(problem.updatedAt),
+                                        "d LLLL yyyy HH:mm",
+                                        "id-ID"
+                                      )}`}
+                                    </time>
+                                  </span>
+                                </dt>
+                              ) : null}
                             </>
                           }
                         >
@@ -907,11 +903,9 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                                 Source
                               </dt>
                               <dd className="mt-1 text-sm text-gray-900">
-                                {problem.problemSource.labelFilterSource ? (
+                                {problem.problemSource.label ? (
                                   <SourcePill
-                                    value={
-                                      problem.problemSource.labelFilterSource
-                                    }
+                                    value={problem.problemSource.label}
                                   />
                                 ) : (
                                   "Not defined yet"
@@ -1073,28 +1067,6 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                         <h2 className="text-sm font-medium text-gray-900">
                           Timestamp
                         </h2>
-                        <div className="flex items-center space-x-2">
-                          <CalendarIcon
-                            className="h-5 w-5 text-emerald-600"
-                            aria-hidden="true"
-                          />
-                          <span className="text-gray-900 text-sm">
-                            Solved on{" "}
-                            <time
-                              dateTime={format(
-                                new Date(problem.updatedAt),
-                                "d LLLL yyyy HH:mm",
-                                "id-ID"
-                              )}
-                            >
-                              {` ${format(
-                                new Date(problem.updatedAt),
-                                "d LLLL yyyy HH:mm",
-                                "id-ID"
-                              )}`}
-                            </time>
-                          </span>
-                        </div>
                       </>
                     ) : null}
                   </div>
