@@ -1,3 +1,4 @@
+import React from "react";
 import { Tooltip as TooltipTag } from "antd";
 import { Input as InputTag } from "antd";
 import DateRangeFilter from "components/incidents/daterange-filter";
@@ -339,12 +340,6 @@ function IncidentList({ user, data }) {
                       handleGlobalChange(e.target.value);
                     }}
                     placeholder={`${count} records...`}
-                    prefix={
-                      <SearchIcon
-                        className="w-5 h-5 text-gray-400"
-                        aria-hidden="true"
-                      />
-                    }
                     style={{
                       borderRadius: "0.375rem",
                       width: "100%",
