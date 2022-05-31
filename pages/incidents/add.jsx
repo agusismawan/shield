@@ -267,6 +267,8 @@ function addIncident({ user }) {
         logStartTime: format(new Date(data.logStartTime), "yyyy-MM-dd HH:mm"),
         idIncidentType: data.idIncidentType.value,
         endTime: format(new Date(data.endTime), "yyyy-MM-dd HH:mm"),
+        idUrgency: data.idUrgency.value,
+        idImpact: data.idImpact.value,
         incidentStatus: "Resolved",
         isProblem: isProblem,
       });
