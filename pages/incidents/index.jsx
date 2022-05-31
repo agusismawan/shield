@@ -311,7 +311,7 @@ function IncidentList({ user, data }) {
                   className="w-5 h-5 mr-2 -ml-1"
                   aria-hidden="true"
                 />
-                Search Incident
+                Incident Matching
               </SecondaryAnchorButton>
             </Link>
             <Link href="/incidents/add" passHref>
