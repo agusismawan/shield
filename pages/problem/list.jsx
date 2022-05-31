@@ -287,6 +287,25 @@ export default function ProblemList({ user, problems, countAssign }) {
         accessor: "assigned_to.userName",
         Cell: (props) => {
           return (
+            <div className="text-sm text-gray-900">
+              {props.row.original.assigned_to ? (
+                props.row.original.assigned_to.fullName
+              ) : (
+                <>
+                  <div className="inline-flex">
+                    Not Yet Assigned
+                    <BanIcon className="pl-1 h-5 w-5" aria-hidden="true" />
+                  </div>
+                </>
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        Header: "Follow Up Plan",
+        Cell: (props) => {
+          return (
             <>
               <div className="text-sm">
                 {props.row.original.followUp
@@ -309,18 +328,6 @@ export default function ProblemList({ user, problems, countAssign }) {
                 ) : null}
               </div>
             </>
-          );
-        },
-      },
-      {
-        Header: "Follow Up Plan",
-        Cell: (props) => {
-          return (
-            <div className="text-sm">
-              {props.row.original.followUp
-                ? props.row.original.followUp.label
-                : "-"}
-            </div>
           );
         },
       },
