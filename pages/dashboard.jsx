@@ -495,10 +495,10 @@ function Home({ user, incidents, problems, dashboardIncident }) {
 									<ShowChart chartData={chartData2} title={'Total Application'} chartType={handlerChartType2} />
 								</li>
 								<li className="col-span-1 bg-white rounded-lg shadow divide-y divide-gray-200">
-									<ShowChart chartData={chartData3} title={'Average Detection Duration'} chartType={handlerChartType3} />
+									<ShowChart chartData={chartData3} title={'Average Detection Duration (minutes)'} chartType={handlerChartType3} />
 								</li>
 								<li className="col-span-1 bg-white rounded-lg shadow divide-y divide-gray-200">
-									<ShowChart chartData={chartData4} title={'Average Solved Duration'} chartType={handlerChartType4} />
+									<ShowChart chartData={chartData4} title={'Average Solved Duration (minutes)'} chartType={handlerChartType4} />
 								</li>
 							</ul>
 						</div>
@@ -521,12 +521,6 @@ function Home({ user, incidents, problems, dashboardIncident }) {
 									<th scope="col" className="relative px-6 py-3">
 										Average Solved Duration (minutes)
 									</th>
-									<th scope="col" className="relative px-6 py-3">
-										Total Detection Duration (minutes)
-									</th>
-									<th scope="col" className="relative px-6 py-3">
-										Total Solved Duration (minutes)
-									</th>
 								</tr>
 								</thead>
 								<tbody className="bg-white divide-y divide-gray-200">
@@ -539,8 +533,6 @@ function Home({ user, incidents, problems, dashboardIncident }) {
 												<td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">{dashboard.TotalIncident}</td>
 												<td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-500">{dashboard.AverageDetectionDuration}</td>
 												<td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-500">{dashboard.AverageSolvedDuration}</td>
-												<td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-500">{dashboard.TotalDetectionDuration}</td>
-												<td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-500">{dashboard.TotalSolvedDuration}</td>
 											</tr>
 										)) : ''
 								}
