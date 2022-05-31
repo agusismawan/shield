@@ -17,7 +17,7 @@ import {
 const navigation = [
   { key: 1, name: "Dashboard", href: "/dashboard", icon: HomeIcon },
   { key: 2, name: "Incidents", href: "/incidents", icon: DocumentSearchIcon },
-  { key: 3, name: "Problem Management", href: "problem", icon: FireIcon },
+  { key: 3, name: "Problems", href: "/problem", icon: FireIcon },
   { key: 4, name: "Tickets", href: "/tickets", icon: ChatAlt2Icon },
 ];
 
