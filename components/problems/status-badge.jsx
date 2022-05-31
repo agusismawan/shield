@@ -61,7 +61,7 @@ const SourcePill = ({ value }) => {
     </span>
   ) : (
     <span className="px-2 text-xs font-semibold rounded-full bg-black-100 text-gray-800">
-      Others
+      {value}
     </span>
   );
 };
