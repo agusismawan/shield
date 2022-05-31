@@ -611,7 +611,7 @@ function Home({ user, incidents, problems, dashboardIncident }) {
                   <li className="col-span-1 bg-white divide-y divide-gray-200 rounded-lg shadow">
                     <ShowChart
                       chartData={chartData2}
-                      title={"Total Application"}
+                      title={"Total Impacted Application"}
                       chartType={handlerChartType2}
                     />
                   </li>
@@ -639,7 +639,7 @@ function Home({ user, incidents, problems, dashboardIncident }) {
                         {SelectedGroupBy}
                       </th>
                       <th scope="col" className="relative px-6 py-3">
-                        Total Application
+                        Total Impacted Application
                       </th>
                       <th scope="col" className="relative px-6 py-3">
                         Total Incident
