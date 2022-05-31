@@ -611,21 +611,21 @@ function Home({ user, incidents, problems, dashboardIncident }) {
                   <li className="col-span-1 bg-white divide-y divide-gray-200 rounded-lg shadow">
                     <ShowChart
                       chartData={chartData2}
-                      title={"Total Application"}
+                      title={"Total Impacted Application"}
                       chartType={handlerChartType2}
                     />
                   </li>
                   <li className="col-span-1 bg-white divide-y divide-gray-200 rounded-lg shadow">
                     <ShowChart
                       chartData={chartData3}
-                      title={"Average Detection Duration"}
+                      title={"Average Detection Duration (minutes)"}
                       chartType={handlerChartType3}
                     />
                   </li>
                   <li className="col-span-1 bg-white divide-y divide-gray-200 rounded-lg shadow">
                     <ShowChart
                       chartData={chartData4}
-                      title={"Average Solved Duration"}
+                      title={"Average Solved Duration (minutes)"}
                       chartType={handlerChartType4}
                     />
                   </li>
@@ -639,7 +639,7 @@ function Home({ user, incidents, problems, dashboardIncident }) {
                         {SelectedGroupBy}
                       </th>
                       <th scope="col" className="relative px-6 py-3">
-                        Total Application
+                        Total Impacted Application
                       </th>
                       <th scope="col" className="relative px-6 py-3">
                         Total Incident
@@ -649,12 +649,6 @@ function Home({ user, incidents, problems, dashboardIncident }) {
                       </th>
                       <th scope="col" className="relative px-6 py-3">
                         Average Solved Duration (minutes)
-                      </th>
-                      <th scope="col" className="relative px-6 py-3">
-                        Total Detection Duration (minutes)
-                      </th>
-                      <th scope="col" className="relative px-6 py-3">
-                        Total Solved Duration (minutes)
                       </th>
                     </tr>
                   </thead>
@@ -677,12 +671,6 @@ function Home({ user, incidents, problems, dashboardIncident }) {
                             </td>
                             <td className="px-6 py-4 text-sm text-right text-gray-500 whitespace-nowrap">
                               {dashboard.AverageSolvedDuration}
-                            </td>
-                            <td className="px-6 py-4 text-sm text-right text-gray-500 whitespace-nowrap">
-                              {dashboard.TotalDetectionDuration}
-                            </td>
-                            <td className="px-6 py-4 text-sm text-right text-gray-500 whitespace-nowrap">
-                              {dashboard.TotalSolvedDuration}
                             </td>
                           </tr>
                         ))

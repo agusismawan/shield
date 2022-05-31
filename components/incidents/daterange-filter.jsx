@@ -1,6 +1,7 @@
 import { DatePicker } from "antd";
 
-const { RangePicker } = DatePicker;
+// const { RangePicker } = DatePicker;
+const RangePicker = DatePicker.RangePicker;
 
 const DateRangeFilter = ({ ...rest }) => {
   return (

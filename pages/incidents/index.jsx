@@ -1,4 +1,5 @@
-import { Input as InputTag, Tooltip as TooltipTag } from "antd";
+import { Tooltip as TooltipTag } from "antd";
+import { Input as InputTag } from "antd";
 import DateRangeFilter from "components/incidents/daterange-filter";
 import Head from "next/head";
 import Link from "next/link";
@@ -310,7 +311,7 @@ function IncidentList({ user, data }) {
                   className="w-5 h-5 mr-2 -ml-1"
                   aria-hidden="true"
                 />
-                Search Incident
+                Incident Matching
               </SecondaryAnchorButton>
             </Link>
             <Link href="/incidents/add" passHref>
