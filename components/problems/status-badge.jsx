@@ -51,7 +51,7 @@ const SourcePill = ({ value }) => {
     <span className="px-2 text-xs font-semibold rounded-full bg-yellow-100 text-gray-800">
       {value}
     </span>
-  ) : source.startsWith("enhancement") ? (
+  ) : source.startsWith("peningkatan") ? (
     <span className="px-2 text-xs font-semibold rounded-full bg-yellow-100 text-gray-800">
       {value}
     </span>
