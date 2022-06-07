@@ -82,6 +82,7 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
     };
   }
 
+  const [reassignMode, setReassignMode] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [spinner, setSpinner] = useState(false);
   const {
@@ -129,6 +130,12 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
         ? {
             label: problem.followUp.label,
             value: problem.followUp.id,
+          }
+        : false,
+      assignedTo: problem.assigned_to
+        ? {
+            label: problem.assigned_to.fullName,
+            value: problem.assigned_to.id,
           }
         : false,
     },
@@ -237,7 +244,7 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
       assignedTo: parseInt(event.target.assignedTo.value),
     });
     if (dataAssign.assignedTo) {
-      setSpinner(true);
+      // setSpinner(true);
       axios
         .put(
           `${process.env.NEXT_PUBLIC_API_PROBMAN}/incident/recprob/${idProblem}`,
@@ -249,6 +256,45 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
         .then(function (response) {
           if (response) {
             toast.success("Problem Sucessfully Assigned");
+            setTimeout(() => router.reload(), 1000);
+          }
+        })
+        .catch((error) => {
+          if (error.response) {
+            toast.error(
+              `${error.response.data.message} (Code: ${error.response.status})`
+            );
+          } else if (error.request) {
+            toast.error(`Request: ${error.request}`);
+          } else {
+            toast.error(`Message: ${error.message}`);
+          }
+        });
+    } else {
+      toast.error("Team Member sebagai Investigator belum dipilih");
+    }
+  };
+
+  const makeReAssign = async (data, event) => {
+    event.preventDefault();
+    let dataReAssign = {};
+    Object.assign(dataReAssign, {
+      updatedBy: user.id,
+      assignedTo: parseInt(event.target.assignedTo.value),
+    });
+    if (dataReAssign.assignedTo) {
+      setSpinner(true);
+      axios
+        .put(
+          `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/reassign/${idProblem}`,
+          dataReAssign,
+          {
+            headers: { Authorization: `Bearer ${user.accessToken}` },
+          }
+        )
+        .then(function (response) {
+          if (response) {
+            toast.success("Team Member Investigator berhasil di Update");
             setTimeout(() => router.reload(), 1000);
           }
         })
@@ -337,11 +383,23 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
     axios
       .get(`${process.env.NEXT_PUBLIC_API_PROBMAN}/source/all`)
       .then((response) => {
-        const data = response.data.data.map((d) => ({
-          value: d.id,
-          label: d.label,
-        }));
-        setSourceOptions(data);
+        if (problem.incidents.length > 0) {
+          const data = response.data.data.map((d) => ({
+            value: d.id,
+            label: d.label,
+          }));
+          setSourceOptions(data);
+        } else {
+          const data = response.data.data
+            .filter((value) => {
+              return !value.label.startsWith("Incident");
+            })
+            .map((d) => ({
+              value: d.id,
+              label: d.label,
+            }));
+          setSourceOptions(data);
+        }
       })
       .catch((err) => toast.error(`Type ${err}`));
   }, []);
@@ -1068,20 +1126,87 @@ function ProblemDetail({ user, problem, idProblem, steps }) {
                 {/* Reporter */}
                 <div className="bg-white shadow sm:rounded-lg mt-3">
                   <div className="space-y-4 px-4 py-5 sm:px-6">
-                    <h2 className="text-sm font-medium text-gray-900">
-                      Assigned To
-                    </h2>
+                    <div className="flex items-center">
+                      <h2 className="my-0 text-sm font-medium text-gray-900">
+                        Assigned To
+                      </h2>
+                      {/* Beginning of Kondisional reassign untuk TL */}
+                      {ProblemHelper.checkTLAES(user) &&
+                      problem.problemStatus.id !== 4 &&
+                      problem.assigned_to !== null ? (
+                        <span className="text-yellow-600 text-sm ml-auto mr-0">
+                          <ButtonCircle
+                            action={() => {
+                              {
+                                !reassignMode
+                                  ? setReassignMode(true)
+                                  : setReassignMode(false);
+                              }
+                            }}
+                            className="pl-3 pr-2 border-yellow-300 bg-yellow-100 hover:bg-yellow-50"
+                          >
+                            Re-Assign
+                            <PencilIcon
+                              className="ml-1 h-5 w-5"
+                              aria-hidden="true"
+                            />
+                          </ButtonCircle>
+                        </span>
+                      ) : null}
+                      {/* End of Kondisional reassign untuk TL */}
+                    </div>
+
+                    {reassignMode == true ? (
+                      <>
+                        <form onSubmit={handleSubmit(makeReAssign)}>
+                          <Controller
+                            name="assignedTo"
+                            control={control}
+                            defaultValue={problem.assigned_to.id}
+                            render={({ field }) => (
+                              <Select
+                                {...field}
+                                isClearable
+                                options={assignOptions}
+                                styles={styledReactSelect}
+                                className="block w-60 text-sm focus:ring-blue-500 focus:border-blue-500"
+                              />
+                            )}
+                          />
+                          <button
+                            type="submit"
+                            className={classNames(
+                              spinner
+                                ? "px-4 disabled:opacity-50 cursor-not-allowed"
+                                : null,
+                              "mt-4 w-60 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                            )}
+                            disabled={spinner}
+                          >
+                            {spinner && <Spinner />}
+                            Submit
+                          </button>
+                          {errors.assignedTo && (
+                            <p className="pt-2 text-sm text-red-600">
+                              {errors.assignedTo.message}
+                            </p>
+                          )}
+                        </form>
+                      </>
+                    ) : null}
 
                     {problem.assigned_to ? (
-                      <div className="flex items-center space-x-2">
-                        <UserCircleIcon
-                          className="h-6 w-6 text-gray-500"
-                          aria-hidden="true"
-                        />
-                        <span className="text-gray-600 text-sm">
-                          {problem.assigned_to.fullName}
-                        </span>
-                      </div>
+                      !reassignMode ? (
+                        <div className="flex items-center space-x-2">
+                          <UserCircleIcon
+                            className="h-6 w-6 text-gray-500"
+                            aria-hidden="true"
+                          />
+                          <span className="text-gray-600 text-sm">
+                            {problem.assigned_to.fullName}
+                          </span>
+                        </div>
+                      ) : null
                     ) : ProblemHelper.checkTLAES(user) ? (
                       <>
                         <form onSubmit={handleSubmit(makeAssign)}>
