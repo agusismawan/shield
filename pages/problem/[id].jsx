@@ -7,7 +7,7 @@ import withSession from "lib/session";
 import axios from "axios";
 import AsyncSelect from "react-select/async";
 import { useEffect, useState } from "react";
-import { StatusPill, SourcePill } from "components/problems/status-badge";
+import { StatusPill, SourcePill } from "components/problems/ProblemBadge";
 import { CardTitle } from "components/ui/card-title";
 import { Controller, useForm } from "react-hook-form";
 import Select, { components } from "react-select";
@@ -15,7 +15,7 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/router";
 import { ButtonCircle } from "components/ui/button/button-circle";
 import { Spinner } from "components/ui/spinner";
-import ModalRootCause from "components/problems/modal-rootcause";
+import ModalRootCause from "components/problems/ModalRootCause";
 import {
   styledReactSelect,
   styledReactSelectAdd,
@@ -28,7 +28,7 @@ import {
   UserCircleIcon,
 } from "@heroicons/react/solid";
 
-import * as ProblemHelper from "components/problems/problem-helper";
+import * as ProblemHelper from "components/problems/ProblemHelper";
 
 export const getServerSideProps = withSession(async function ({ req, params }) {
   const user = req.session.get("user");

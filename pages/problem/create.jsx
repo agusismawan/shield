@@ -1,11 +1,11 @@
 import Head from "next/head";
 import Layout from "../../components/layout";
-import PageHeader from "../../components/problems/page-header";
-import CreateForm from "../../components/problems/create-form";
+import PageHeader from "../../components/problems/ProblemHeader";
+import CreateForm from "components/problems/CreateForm";
 import withSession from "../../lib/session";
-import * as ProblemHelper from "../../components/problems/problem-helper";
+import * as ProblemHelper from "../../components/problems/ProblemHelper";
 
-function CreateNew({user}) {
+function CreateNew({ user }) {
   return (
     <>
       <Layout key="LayoutCreateNew" session={user}>

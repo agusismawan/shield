@@ -1,8 +1,8 @@
 import Head from "next/head";
 import Image from "next/image";
 import Layout from "../../components/layout";
-import PageHeader from "../../components/problems/page-header";
-import ProblemTables from "components/problems/problem-tables";
+import PageHeader from "../../components/problems/ProblemHeader";
+import ProblemTables from "components/problems/ProblemTables";
 import { EyeIcon } from "@heroicons/react/solid";
 import { useMemo } from "react";
 import { useForm } from "react-hook-form";
@@ -10,8 +10,8 @@ import format from "date-fns/format";
 import {
   PriorityArrow,
   SourcePill,
-} from "../../components/problems/status-badge";
-import { StatusPill } from "components/problems/status-badge";
+} from "../../components/problems/ProblemBadge";
+import { StatusPill } from "components/problems/ProblemBadge";
 import withSession from "../../lib/session";
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
@@ -73,9 +73,7 @@ export default function AssignList({ user, assign }) {
                 <PriorityArrow
                   value={props.row.original.priorityMatrix.mapping}
                 />
-                <SourcePill
-                  value={props.row.original.problemSource.label}
-                />
+                <SourcePill value={props.row.original.problemSource.label} />
               </div>
             </>
           );
@@ -145,7 +143,7 @@ export default function AssignList({ user, assign }) {
             <>
               {/* <form onSubmit={handleSubmit(hitUpdateAssign)}> */}
               <div style={{ textAlign: "-webkit-center" }}>
-              <a
+                <a
                   href={`/problem/${props.row.original.id}`}
                   className="bg-gray-100 text-gray-900"
                   target="_blank"

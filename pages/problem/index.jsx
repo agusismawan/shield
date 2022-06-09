@@ -2,19 +2,19 @@ import Link from "next/link";
 import Head from "next/head";
 import { useMemo } from "react";
 import Layout from "../../components/layout";
-import PageHeader from "../../components/problems/page-header";
+import PageHeader from "../../components/problems/ProblemHeader";
 import format from "date-fns/format";
-import ProblemTables from "components/problems/problem-tables";
+import ProblemTables from "components/problems/ProblemTables";
 import {
   PriorityArrow,
   SourcePill,
   StatusPill,
-} from "components/problems/status-badge";
+} from "components/problems/ProblemBadge";
 import withSession from "../../lib/session";
 import { PlusSmIcon, BanIcon, EyeIcon } from "@heroicons/react/outline";
 import { PrimaryAnchorButton } from "components/ui/button/primary-anchor-button";
 import { SecondaryAnchorButton } from "components/ui/button";
-import * as ProblemHelper from "components/problems/problem-helper";
+import * as ProblemHelper from "components/problems/ProblemHelper";
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
   const user = req.session.get("user");
