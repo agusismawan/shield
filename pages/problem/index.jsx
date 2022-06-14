@@ -125,7 +125,8 @@ export default function TaskList({ user, data }) {
               <div className="text-xs text-gray-500">
                 {format(
                   new Date(props.row.original.createdAt),
-                  "d LLLL yyyy hh:mm"
+                  "d LLLL yyyy HH:mm",
+                  "id-ID"
                 )}
               </div>
             </>

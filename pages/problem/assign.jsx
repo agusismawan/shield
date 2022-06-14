@@ -105,7 +105,8 @@ export default function AssignList({ user, assign }) {
               <div className="text-xs text-gray-500">
                 {format(
                   new Date(props.row.original.createdAt),
-                  "d LLLL yyyy hh:mm"
+                  "d LLLL yyyy HH:mm",
+                  "id-ID"
                 )}
               </div>
             </>
