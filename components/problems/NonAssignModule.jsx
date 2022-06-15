@@ -1,6 +1,6 @@
 import { Fragment, useRef, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { BadgeCheckIcon } from "@heroicons/react/outline";
+import { InformationCircleIcon } from "@heroicons/react/outline";
 import { useForm } from "react-hook-form";
 import { Spinner } from "components/ui/spinner";
 import { toast } from "react-toastify";
@@ -11,7 +11,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-const NonAssignModule = ({ option }) => {
+const NonAssignModule = ({ problem, user, option }) => {
   const [open, setOpen] = useState(false);
   const [spinner, setSpinner] = useState(false);
   const cancelButtonRef = useRef(null);
@@ -22,14 +22,66 @@ const NonAssignModule = ({ option }) => {
     formState: { errors },
   } = useForm();
 
+  const AssignToAnother = async (data) => {
+    let dataAssignAnother = {};
+    let conditionAssign;
+    if (option == "opa") {
+      // Pastiin di DB Existing nya
+      conditionAssign = 142;
+    } else if (option == "agile") {
+      // Pastiin di DB Existing nya
+      conditionAssign = 143;
+    }
+    Object.assign(dataAssignAnother, {
+      updatedBy: user.id,
+      assignedTo: conditionAssign,
+      additional: data.additional,
+      option: option.toUpperCase(),
+    });
+    if (dataAssignAnother.assignedTo) {
+      setSpinner(false);
+      axios
+        .put(
+          `${process.env.NEXT_PUBLIC_API_PROBMAN}/incident/assignanother/${problem.id}`,
+          dataAssignAnother,
+          {
+            headers: { Authorization: `Bearer ${user.accessToken}` },
+          }
+        )
+        .then(function (response) {
+          if (response) {
+            toast.success(
+              `Team ${option.toUpperCase()} Sebagai Investigator Berhasil Dipilih`
+            );
+            setTimeout(() => router.reload(), 1000);
+          }
+        })
+        .catch((error) => {
+          if (error.response) {
+            toast.error(
+              `${error.response.data.message} (Code: ${error.response.status})`
+            );
+          } else if (error.request) {
+            toast.error(`Request: ${error.request}`);
+          } else {
+            toast.error(`Message: ${error.message}`);
+          }
+        });
+    } else {
+      toast.error("Investigator Belum Dipilih");
+    }
+  };
+
   return (
     <>
       {option == "opa" ? (
         <button
           style={{ width: "33%" }}
           type="button"
-          class="inline-flex justify-center py-2 px-2 border border-yellow-500 shadow-sm text-sm font-normal rounded-md text-yellow-500 bg-transparent hover:bg-yellow-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          disabled
+          class="inline-flex justify-center py-2 px-2 border border-yellow-500 shadow-sm text-sm font-normal rounded-md text-yellow-500 bg-transparent hover:bg-yellow-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-300"
+          onClick={() => {
+            setOpen(true);
+          }}
         >
           OPA Team
         </button>
@@ -38,8 +90,10 @@ const NonAssignModule = ({ option }) => {
         <button
           style={{ width: "33%" }}
           type="button"
-          class="inline-flex justify-center py-2 px-2 border border-gray-500 shadow-sm text-sm font-normal rounded-md text-gray-500 bg-transparent hover:bg-gray-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          disabled
+          class="inline-flex justify-center py-2 px-2 border border-gray-500 shadow-sm text-sm font-normal rounded-md text-gray-500 bg-transparent hover:bg-gray-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
+          onClick={() => {
+            setOpen(true);
+          }}
         >
           Agile Team
         </button>
@@ -87,12 +141,12 @@ const NonAssignModule = ({ option }) => {
                 className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
                 style={{ maxWidth: 46 + `rem` }}
               >
-                {/* <form onSubmit={handleSubmit(makeRootCause)}>
+                <form onSubmit={handleSubmit(AssignToAnother)}>
                   <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     <div className="sm:flex sm:items-start">
-                      <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
-                        <BadgeCheckIcon
-                          className="h-6 w-6 text-blue-600"
+                      <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 sm:mx-0 sm:h-10 sm:w-10">
+                        <InformationCircleIcon
+                          className="h-6 w-6 text-yellow-600"
                           aria-hidden="true"
                         />
                       </div>
@@ -101,21 +155,10 @@ const NonAssignModule = ({ option }) => {
                           as="h3"
                           className="text-lg leading-6 font-medium text-gray-900"
                         >
-                          Insert Known Error Record
+                          Insert Additional Proposed Enhancement
                         </Dialog.Title>
 
                         <div className="grid grid-cols-1 sm:grid-cols-1">
-                          <div className="sm:col-span-1 py-2">
-                            <dt className="text-sm font-medium text-gray-500">
-                              Problem Number
-                            </dt>
-                            <dd className="mt-1 text-sm text-gray-900">
-                              {problem.problemNumber
-                                ? problem.problemNumber
-                                : "Not defined yet"}
-                            </dd>
-                          </div>
-
                           <div className="sm:col-span-1 py-2">
                             <dt className="text-sm font-medium text-gray-500">
                               Problem Name
@@ -127,54 +170,15 @@ const NonAssignModule = ({ option }) => {
                             </dd>
                           </div>
 
-                          <div className="text-sm text-gray-500 py-2">
-                            <i>
-                              <b>
-                                Please input some information below based on the
-                                PAR document that has been approved.
-                              </b>
-                              <br />
-                              If there is some image/chart/table, please
-                              summarize it.
-                            </i>
-                          </div>
-
-                          {problem.followUp.label.includes("CM") ? (
-                            <div className="sm:col-span-1 py-2">
-                              <dt className="text-sm font-medium text-gray-500">
-                                Change Management Document
-                              </dt>
-                              <textarea
-                                required
-                                id="changeManagement"
-                                name="changeManagement"
-                                {...register("changeManagement", {
-                                  required: "This is required!",
-                                })}
-                                rows={1}
-                                style={{
-                                  resize: "none",
-                                }}
-                                className={classNames(
-                                  errors.changeManagament
-                                    ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
-                                    : "focus:ring-blue-500 focus:border-blue-500",
-                                  "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
-                                )}
-                                placeholder="Confluence Link"
-                              />
-                            </div>
-                          ) : null}
-
                           <div className="sm:col-span-1 py-2">
                             <dt className="text-sm font-medium text-gray-500">
-                              Description
+                              Additional Information
                             </dt>
                             <textarea
                               required
-                              id="description"
-                              name="description"
-                              {...register("description", {
+                              id="additional"
+                              name="additional"
+                              {...register("additional", {
                                 required: "This is required!",
                                 minLength: {
                                   value: 10,
@@ -187,156 +191,16 @@ const NonAssignModule = ({ option }) => {
                                 resize: "none",
                               }}
                               className={classNames(
-                                errors.description
+                                errors.additional
                                   ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
                                   : "focus:ring-blue-500 focus:border-blue-500",
                                 "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
                               )}
-                              placeholder="Description"
+                              placeholder={`Tolong tambahkan alasan kenapa problem ini diberikan kepada ${option.toUpperCase()}`}
                             />
-                            {errors.description && (
+                            {errors.additional && (
                               <p className="mt-1 text-sm text-red-600">
-                                {errors.description.message}
-                              </p>
-                            )}
-                          </div>
-
-                          <div className="sm:col-span-1 py-2">
-                            <dt className="text-sm font-medium text-gray-500">
-                              Impacted System
-                            </dt>
-                            <textarea
-                              required
-                              id="impactSystem"
-                              name="impactSystem"
-                              {...register("impactSystem", {
-                                required: "This is required!",
-                                minLength: {
-                                  value: 10,
-                                  message:
-                                    "Please lengthen this text to 10 characters or more.",
-                                },
-                              })}
-                              rows={3}
-                              style={{
-                                resize: "none",
-                              }}
-                              className={classNames(
-                                errors.impactSystem
-                                  ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
-                                  : "focus:ring-blue-500 focus:border-blue-500",
-                                "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
-                              )}
-                              placeholder="Impacted System"
-                            />
-                            {errors.impactSystem && (
-                              <p className="mt-1 text-sm text-red-600">
-                                {errors.impactSystem.message}
-                              </p>
-                            )}
-                          </div>
-
-                          <div className="sm:col-span-1 py-2">
-                            <dt className="text-sm font-medium text-gray-500">
-                              Root Cause
-                            </dt>
-                            <textarea
-                              required
-                              id="rootCause"
-                              name="rootCause"
-                              {...register("rootCause", {
-                                required: "This is required!",
-                                minLength: {
-                                  value: 10,
-                                  message:
-                                    "Please lengthen this text to 10 characters or more.",
-                                },
-                              })}
-                              rows={3}
-                              style={{
-                                resize: "none",
-                              }}
-                              className={classNames(
-                                errors.rootCause
-                                  ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
-                                  : "focus:ring-blue-500 focus:border-blue-500",
-                                "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
-                              )}
-                              placeholder="Root Cause"
-                            />
-                            {errors.rootCause && (
-                              <p className="mt-1 text-sm text-red-600">
-                                {errors.rootCause.message}
-                              </p>
-                            )}
-                          </div>
-
-                          <div className="sm:col-span-1 py-2">
-                            <dt className="text-sm font-medium text-gray-500">
-                              Resolution
-                            </dt>
-                            <textarea
-                              required
-                              id="resolution"
-                              name="resolution"
-                              {...register("resolution", {
-                                required: "This is required!",
-                                minLength: {
-                                  value: 10,
-                                  message:
-                                    "Please lengthen this text to 10 characters or more.",
-                                },
-                              })}
-                              rows={3}
-                              style={{
-                                resize: "none",
-                              }}
-                              className={classNames(
-                                errors.resolution
-                                  ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
-                                  : "focus:ring-blue-500 focus:border-blue-500",
-                                "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
-                              )}
-                              placeholder="Resolution"
-                            />
-                            {errors.resolution && (
-                              <p className="mt-1 text-sm text-red-600">
-                                {errors.resolution.message}
-                              </p>
-                            )}
-                          </div>
-
-                          <div className="sm:col-span-1 py-2">
-                            <dt className="text-sm font-medium text-gray-500">
-                              Lesson Learned
-                            </dt>
-                            <textarea
-                              required
-                              id="lessonLearned"
-                              name="lessonLearned"
-                              {...register("lessonLearned", {
-                                required: "This is required!",
-                                minLength: {
-                                  value: 10,
-                                  message:
-                                    "Please lengthen this text to 10 characters or more.",
-                                },
-                              })}
-                              rows={3}
-                              style={{
-                                resize: "none",
-                              }}
-                              className={classNames(
-                                errors.lessonLearned
-                                  ? "border-red-300 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 "
-                                  : "focus:ring-blue-500 focus:border-blue-500",
-                                "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
-                              )}
-                              placeholder="Lesson Learned"
-                            />
-                            {errors.lessonLearned && (
-                              <p className="mt-1 text-sm text-red-600">
-                                {errors.lessonLearned.message}
+                                {errors.additional.message}
                               </p>
                             )}
                           </div>
@@ -351,7 +215,7 @@ const NonAssignModule = ({ option }) => {
                       className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
                       onClick={() => setOpen(false)}
                     >
-                      Not sure
+                      Cancel
                     </button>
                     <button
                       type="submit"
@@ -365,10 +229,10 @@ const NonAssignModule = ({ option }) => {
                       disabled={spinner}
                     >
                       {spinner && <Spinner />}
-                      Yes, Done
+                      Submit
                     </button>
                   </div>
-                </form> */}
+                </form>
               </div>
             </Transition.Child>
           </div>
