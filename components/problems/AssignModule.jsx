@@ -157,20 +157,22 @@ const AssignModule = ({ problem, user, idProblem }) => {
         {/* End of Kondisional reassign untuk TL */}
       </div>
 
-      <div class="flex flex-cols-3 gap-2 items-center">
-        <button
-          style={{ width: "33%" }}
-          type="button"
-          class="inline-flex justify-center py-2 px-2 border border-rose-500 shadow-sm text-sm font-normal rounded-md text-rose-500 bg-transparent hover:bg-rose-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-300"
-          onClick={() => {
-            !toAES ? setToAES(true) : setToAES(false);
-          }}
-        >
-          AES Member
-        </button>
-        <NonAssignModule problem={problem} user={user} option="opa" />
-        <NonAssignModule problem={problem} user={user} option="agile" />
-      </div>
+      {ProblemHelper.checkTLAES(user) ? (
+        <div class="flex flex-cols-3 gap-2 items-center">
+          <button
+            style={{ width: "33%" }}
+            type="button"
+            class="inline-flex justify-center py-2 px-2 border border-rose-500 shadow-sm text-sm font-normal rounded-md text-rose-500 bg-transparent hover:bg-rose-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-300"
+            onClick={() => {
+              !toAES ? setToAES(true) : setToAES(false);
+            }}
+          >
+            AES Member
+          </button>
+          <NonAssignModule problem={problem} user={user} option="opa" />
+          <NonAssignModule problem={problem} user={user} option="agile" />
+        </div>
+      ) : null}
 
       {reassignMode == true ? (
         <>
