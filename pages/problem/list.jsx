@@ -2,9 +2,9 @@ import { Input } from "antd";
 import Link from "next/link";
 import Head from "next/head";
 import Layout from "../../components/layout";
-import PageHeader from "../../components/problems/page-header";
-import CardHeader from "../../components/problems/card-header";
-import ProblemTables from "components/problems/problem-tables";
+import PageHeader from "../../components/problems/ProblemHeader";
+import ProblemStats from "components/problems/ProblemStats";
+import ProblemTables from "components/problems/ProblemTables";
 import { EyeIcon } from "@heroicons/react/solid";
 import { useEffect, useState, useMemo, useRef } from "react";
 import format from "date-fns/format";
@@ -13,7 +13,7 @@ import {
   PriorityArrow,
   SourcePill,
   StatusPill,
-} from "../../components/problems/status-badge";
+} from "../../components/problems/ProblemBadge";
 import axios from "axios";
 import { useAsyncDebounce } from "react-table";
 import withSession from "../../lib/session";
@@ -250,7 +250,8 @@ export default function ProblemList({ user, problems, countAssign }) {
               <div className="text-xs text-gray-500">
                 {format(
                   new Date(props.row.original.createdAt),
-                  "d LLLL yyyy hh:mm"
+                  "d LLLL yyyy HH:mm",
+                  "id-ID"
                 )}
               </div>
             </>
@@ -389,7 +390,7 @@ export default function ProblemList({ user, problems, countAssign }) {
           {/* Cards */}
           <div className="px-4 sm:px-6 lg:px-8">
             <ul className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 xl:grid-cols-4 mt-3">
-              <CardHeader
+              <ProblemStats
                 id="1"
                 bgColor="bg-red-400"
                 initials={<DocumentAddIcon className="w-6 h-6" />}
@@ -400,7 +401,7 @@ export default function ProblemList({ user, problems, countAssign }) {
                   ).length
                 } Draft | ${countAssign} Unassigned`}
               />
-              <CardHeader
+              <ProblemStats
                 id="2"
                 bgColor="bg-gray-400"
                 initials={<PuzzleIcon className="w-6 h-6" />}
@@ -411,7 +412,7 @@ export default function ProblemList({ user, problems, countAssign }) {
                   ).length
                 } Waiting for Review`}
               />
-              <CardHeader
+              <ProblemStats
                 id="3"
                 bgColor="bg-blue-400"
                 initials={<SparklesIcon className="w-6 h-6" />}
@@ -422,7 +423,7 @@ export default function ProblemList({ user, problems, countAssign }) {
                   ).length
                 } Ongoing at JIRA`}
               />
-              <CardHeader
+              <ProblemStats
                 id="4"
                 bgColor="bg-green-400"
                 initials={<BadgeCheckIcon className="w-6 h-6" />}
