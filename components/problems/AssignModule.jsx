@@ -157,7 +157,7 @@ const AssignModule = ({ problem, user, idProblem }) => {
         {/* End of Kondisional reassign untuk TL */}
       </div>
 
-      {ProblemHelper.checkTLAES(user) ? (
+      {ProblemHelper.checkTLAES(user) && problem.assigned_to == null ? (
         <div class="flex flex-cols-3 gap-2 items-center">
           <button
             style={{ width: "33%" }}
