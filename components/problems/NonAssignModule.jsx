@@ -27,10 +27,10 @@ const NonAssignModule = ({ problem, user, option }) => {
     let conditionAssign;
     if (option == "opa") {
       // Pastiin di DB Existing nya
-      conditionAssign = 142;
+      conditionAssign = process.env.ASSIGN_OPA;
     } else if (option == "agile") {
       // Pastiin di DB Existing nya
-      conditionAssign = 143;
+      conditionAssign = process.env.ASSIGN_OPA;
     }
     Object.assign(dataAssignAnother, {
       updatedBy: user.id,
