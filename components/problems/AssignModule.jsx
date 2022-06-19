@@ -38,6 +38,7 @@ const AssignModule = ({ problem, user, idProblem }) => {
   // Get data User
   const [assignOptions, setAssignOptions] = useState([]);
   useEffect(() => {
+    console.log(process.env)
     axios
       .get(`${process.env.NEXT_PUBLIC_API_PROBMAN}/user/assigned/aes`)
       .then((response) => {

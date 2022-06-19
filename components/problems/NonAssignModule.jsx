@@ -23,6 +23,7 @@ const NonAssignModule = ({ problem, user, option }) => {
   } = useForm();
 
   const AssignToAnother = async (data) => {
+    console.log(process.env)
     let dataAssignAnother = {};
     let conditionAssign;
     if (option == "opa") {
@@ -38,38 +39,39 @@ const NonAssignModule = ({ problem, user, option }) => {
       additional: data.additional,
       option: option.toUpperCase(),
     });
-    if (dataAssignAnother.assignedTo) {
-      setSpinner(false);
-      axios
-        .put(
-          `${process.env.NEXT_PUBLIC_API_PROBMAN}/incident/assignanother/${problem.id}`,
-          dataAssignAnother,
-          {
-            headers: { Authorization: `Bearer ${user.accessToken}` },
-          }
-        )
-        .then(function (response) {
-          if (response) {
-            toast.success(
-              `Team ${option.toUpperCase()} Sebagai Investigator Berhasil Dipilih`
-            );
-            setTimeout(() => router.reload(), 1000);
-          }
-        })
-        .catch((error) => {
-          if (error.response) {
-            toast.error(
-              `${error.response.data.message} (Code: ${error.response.status})`
-            );
-          } else if (error.request) {
-            toast.error(`Request: ${error.request}`);
-          } else {
-            toast.error(`Message: ${error.message}`);
-          }
-        });
-    } else {
-      toast.error("Investigator Belum Dipilih");
-    }
+    console.log(dataAssignAnother)
+    // if (dataAssignAnother.assignedTo) {
+    //   setSpinner(false);
+    //   axios
+    //     .put(
+    //       `${process.env.NEXT_PUBLIC_API_PROBMAN}/incident/assignanother/${problem.id}`,
+    //       dataAssignAnother,
+    //       {
+    //         headers: { Authorization: `Bearer ${user.accessToken}` },
+    //       }
+    //     )
+    //     .then(function (response) {
+    //       if (response) {
+    //         toast.success(
+    //           `Team ${option.toUpperCase()} Sebagai Investigator Berhasil Dipilih`
+    //         );
+    //         setTimeout(() => router.reload(), 1000);
+    //       }
+    //     })
+    //     .catch((error) => {
+    //       if (error.response) {
+    //         toast.error(
+    //           `${error.response.data.message} (Code: ${error.response.status})`
+    //         );
+    //       } else if (error.request) {
+    //         toast.error(`Request: ${error.request}`);
+    //       } else {
+    //         toast.error(`Message: ${error.message}`);
+    //       }
+    //     });
+    // } else {
+    //   toast.error("Investigator Belum Dipilih");
+    // }
   };
 
   return (
