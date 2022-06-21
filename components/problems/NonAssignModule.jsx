@@ -23,15 +23,14 @@ const NonAssignModule = ({ problem, user, option }) => {
   } = useForm();
 
   const AssignToAnother = async (data) => {
-    console.log(process.env)
     let dataAssignAnother = {};
     let conditionAssign;
     if (option == "opa") {
       // Pastiin di DB Existing nya
-      conditionAssign = process.env.ASSIGN_OPA;
+      conditionAssign = parseInt(process.env.NEXT_PUBLIC_ASSIGN_OPA);
     } else if (option == "agile") {
       // Pastiin di DB Existing nya
-      conditionAssign = process.env.ASSIGN_OPA;
+      conditionAssign = parseInt(process.env.NEXT_PUBLIC_ASSIGN_AGILE);
     }
     Object.assign(dataAssignAnother, {
       updatedBy: user.id,
@@ -39,39 +38,38 @@ const NonAssignModule = ({ problem, user, option }) => {
       additional: data.additional,
       option: option.toUpperCase(),
     });
-    console.log(dataAssignAnother)
-    // if (dataAssignAnother.assignedTo) {
-    //   setSpinner(false);
-    //   axios
-    //     .put(
-    //       `${process.env.NEXT_PUBLIC_API_PROBMAN}/incident/assignanother/${problem.id}`,
-    //       dataAssignAnother,
-    //       {
-    //         headers: { Authorization: `Bearer ${user.accessToken}` },
-    //       }
-    //     )
-    //     .then(function (response) {
-    //       if (response) {
-    //         toast.success(
-    //           `Team ${option.toUpperCase()} Sebagai Investigator Berhasil Dipilih`
-    //         );
-    //         setTimeout(() => router.reload(), 1000);
-    //       }
-    //     })
-    //     .catch((error) => {
-    //       if (error.response) {
-    //         toast.error(
-    //           `${error.response.data.message} (Code: ${error.response.status})`
-    //         );
-    //       } else if (error.request) {
-    //         toast.error(`Request: ${error.request}`);
-    //       } else {
-    //         toast.error(`Message: ${error.message}`);
-    //       }
-    //     });
-    // } else {
-    //   toast.error("Investigator Belum Dipilih");
-    // }
+    if (dataAssignAnother.assignedTo) {
+      setSpinner(false);
+      axios
+        .put(
+          `${process.env.NEXT_PUBLIC_API_PROBMAN}/incident/assignanother/${problem.id}`,
+          dataAssignAnother,
+          {
+            headers: { Authorization: `Bearer ${user.accessToken}` },
+          }
+        )
+        .then(function (response) {
+          if (response) {
+            toast.success(
+              `Team ${option.toUpperCase()} Sebagai Investigator Berhasil Dipilih`
+            );
+            setTimeout(() => router.reload(), 1000);
+          }
+        })
+        .catch((error) => {
+          if (error.response) {
+            toast.error(
+              `${error.response.data.message} (Code: ${error.response.status})`
+            );
+          } else if (error.request) {
+            toast.error(`Request: ${error.request}`);
+          } else {
+            toast.error(`Message: ${error.message}`);
+          }
+        });
+    } else {
+      toast.error("Investigator Belum Dipilih");
+    }
   };
 
   return (
@@ -157,7 +155,7 @@ const NonAssignModule = ({ problem, user, option }) => {
                           as="h3"
                           className="text-lg leading-6 font-medium text-gray-900"
                         >
-                          Insert Additional Proposed Enhancement
+                          Assign this problem to OPA/Agile
                         </Dialog.Title>
 
                         <div className="grid grid-cols-1 sm:grid-cols-1">
@@ -174,7 +172,7 @@ const NonAssignModule = ({ problem, user, option }) => {
 
                           <div className="sm:col-span-1 py-2">
                             <dt className="text-sm font-medium text-gray-500">
-                              Additional Information
+                              Notes
                             </dt>
                             <textarea
                               required
@@ -198,7 +196,7 @@ const NonAssignModule = ({ problem, user, option }) => {
                                   : "focus:ring-blue-500 focus:border-blue-500",
                                 "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
                               )}
-                              placeholder={`Tolong tambahkan alasan kenapa problem ini diberikan kepada ${option.toUpperCase()}`}
+                              placeholder={`Please add some reason why this problem is given to ${option.toUpperCase()}`}
                             />
                             {errors.additional && (
                               <p className="mt-1 text-sm text-red-600">
@@ -231,7 +229,7 @@ const NonAssignModule = ({ problem, user, option }) => {
                       disabled={spinner}
                     >
                       {spinner && <Spinner />}
-                      Submit
+                      Assign to {option.toUpperCase()}
                     </button>
                   </div>
                 </form>
