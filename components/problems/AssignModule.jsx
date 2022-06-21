@@ -133,7 +133,7 @@ const AssignModule = ({ problem, user, idProblem }) => {
   return (
     <>
       <div className="flex items-center">
-        <h2 className="my-0 text-sm font-medium text-gray-900">Assigned To</h2>
+        <h2 className="my-0 text-sm font-medium text-gray-900">Assignment</h2>
         {/* Beginning of Kondisional reassign untuk TL */}
         {ProblemHelper.checkTLAES(user) &&
         problem.problemStatus.id !== 4 &&
