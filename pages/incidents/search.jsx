@@ -69,6 +69,7 @@ export const getServerSideProps = withSession(async function ({ req, query }) {
     return {
       props: {
         user: user,
+        keyword: query.q,
         totalCount: data.paging.totalData,
         pageCount: Math.ceil(data.paging.totalData / data.paging.perPage),
         currentPage: data.paging.page,
@@ -137,6 +138,10 @@ function SearchIncident(props) {
   else {
     content = (
       <>
+        <h1 className="mb-3">
+          {props.totalCount} results about{" "}
+          <span className="font-semibold">{props.keyword}</span>
+        </h1>
         <ul className="divide-y divide-gray-200">
           {props.search !== 400 &&
             props.search.map((result) => (
@@ -147,7 +152,7 @@ function SearchIncident(props) {
                 <div className="flex justify-between space-x-3">
                   <div className="min-w-0 flex-1">
                     <Link href={`/incidents/${result.id}`}>
-                      <a href="#" className="block focus:outline-none">
+                      <a className="block focus:outline-none">
                         <span className="absolute inset-0" aria-hidden="true" />
                         <p className="text-sm font-bold text-gray-900">
                           {result.incidentName}
