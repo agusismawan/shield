@@ -11,6 +11,7 @@ import { PencilIcon, UserCircleIcon } from "@heroicons/react/solid";
 import { styledReactSelect } from "components/utils";
 
 import NonAssignModule from "./NonAssignModule";
+import RejectModule from "./RejectModule";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -155,6 +156,14 @@ const AssignModule = ({ problem, user, idProblem }) => {
           </span>
         ) : null}
         {/* End of Kondisional reassign untuk TL */}
+
+        {/* Beginning of Kondisional reject untuk TL */}
+        {ProblemHelper.checkTLAES(user) &&
+        problem.problemStatus.id === 1 &&
+        problem.assigned_to === null ? (
+          <RejectModule problem={problem} user={user} />
+        ) : null}
+        {/* End of Kondisional reject untuk TL */}
       </div>
 
       {ProblemHelper.checkTLAES(user) && problem.assigned_to == null ? (

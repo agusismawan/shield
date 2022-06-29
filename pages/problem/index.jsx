@@ -238,7 +238,7 @@ export default function TaskList({ user, data }) {
         <section>
           {/* Page title & actions */}
           <PageHeader title="My Task">
-            <Link href="/problem/create" passHref>
+            {/* <Link href="/problem/create" passHref>
               <SecondaryAnchorButton>
                 <PlusSmIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
                 New Problem
@@ -249,7 +249,7 @@ export default function TaskList({ user, data }) {
                 <EyeIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
                 All Problem List
               </PrimaryAnchorButton>
-            </Link>
+            </Link> */}
           </PageHeader>
 
           {/* Problem Tables on Going */}

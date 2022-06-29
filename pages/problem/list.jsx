@@ -368,13 +368,13 @@ export default function ProblemList({ user, problems, countAssign }) {
         <section>
           {/* Page title & actions */}
           <PageHeader title="Problem List">
-            <Link href="/problem/create" passHref>
+            {/* <Link href="/problem/create" passHref>
               <PrimaryAnchorButton>
                 <PlusSmIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
                 New Problem
               </PrimaryAnchorButton>
-            </Link>
-            <span className="relative inline-flex">
+            </Link> */}
+            {/* <span className="relative inline-flex">
               <Link href="/problem/assign" passHref>
                 <SecondaryAnchorButton>
                   {countAssign} :: Need Assign
@@ -384,7 +384,7 @@ export default function ProblemList({ user, problems, countAssign }) {
                   </span>
                 </SecondaryAnchorButton>
               </Link>
-            </span>
+            </span> */}
           </PageHeader>
 
           {/* Cards */}
