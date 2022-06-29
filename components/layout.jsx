@@ -17,7 +17,39 @@ import {
 const navigation = [
   { key: 1, name: "Dashboard", href: "/dashboard", icon: HomeIcon },
   { key: 2, name: "Incidents", href: "/incidents", icon: DocumentSearchIcon },
-  { key: 3, name: "Problems", href: "/problem", icon: FireIcon },
+  {
+    key: 3,
+    name: "Problems",
+    href: "/problem",
+    children: [
+      {
+        name: "Graph",
+        href: "#",
+        permission: "all",
+      },
+      {
+        name: "My Task",
+        href: "/problem",
+        permission: "member",
+      },
+      {
+        name: "Problem List",
+        href: "/problem/list",
+        permission: "all",
+      },
+      {
+        name: "Need Assign",
+        href: "/problem/assign",
+        permission: "all",
+      },
+      {
+        name: "Known Error",
+        href: "#",
+        permission: "all",
+      },
+    ],
+    icon: FireIcon,
+  },
   { key: 4, name: "Tickets", href: "/tickets", icon: ChatAlt2Icon },
 ];
 
