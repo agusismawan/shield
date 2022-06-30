@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/router";
 import axios from "axios";
 import { ButtonCircle } from "components/ui/button/button-circle";
-import { XIcon, BanIcon } from "@heroicons/react/solid";
+import { BanIcon } from "@heroicons/react/solid";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -38,7 +38,6 @@ const RejectModule = ({ problem, user }) => {
           }
         )
         .then(function (response) {
-          console.log(response)
           if (response) {
             toast.success(`Problem ${problem.problemName} berhasil ditolak`);
             setTimeout(() => router.reload(), 1000);
@@ -168,7 +167,7 @@ const RejectModule = ({ problem, user }) => {
                                   : "focus:ring-blue-500 focus:border-blue-500",
                                 "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
                               )}
-                                placeholder={`Please add some reason why this problem is rejected`}
+                              placeholder={`Please add some reason why this problem is rejected`}
                             />
                             {errors.additional && (
                               <p className="mt-1 text-sm text-red-600">
