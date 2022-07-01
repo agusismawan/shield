@@ -1,17 +1,18 @@
 import { Fragment, useRef, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { InformationCircleIcon } from "@heroicons/react/outline";
 import { useForm } from "react-hook-form";
 import { Spinner } from "components/ui/spinner";
 import { toast } from "react-toastify";
 import { useRouter } from "next/router";
 import axios from "axios";
+import { ButtonCircle } from "components/ui/button/button-circle";
+import { BanIcon } from "@heroicons/react/solid";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-const NonAssignModule = ({ problem, user, option }) => {
+const RejectModule = ({ problem, user }) => {
   const [open, setOpen] = useState(false);
   const [spinner, setSpinner] = useState(false);
   const cancelButtonRef = useRef(null);
@@ -22,37 +23,23 @@ const NonAssignModule = ({ problem, user, option }) => {
     formState: { errors },
   } = useForm();
 
-  const AssignToAnother = async (data) => {
-    let dataAssignAnother = {};
-    let conditionAssign;
-    if (option == "opa") {
-      // Pastiin di DB Existing nya
-      conditionAssign = parseInt(process.env.NEXT_PUBLIC_ASSIGN_OPA);
-    } else if (option == "agile") {
-      // Pastiin di DB Existing nya
-      conditionAssign = parseInt(process.env.NEXT_PUBLIC_ASSIGN_AGILE);
-    }
-    Object.assign(dataAssignAnother, {
+  const RejectProblem = async (data) => {
+    Object.assign(data, {
       updatedBy: user.id,
-      assignedTo: conditionAssign,
-      additional: data.additional,
-      option: option.toUpperCase(),
     });
-    if (dataAssignAnother.assignedTo) {
+    if (data.additional) {
       setSpinner(true);
       axios
         .put(
-          `${process.env.NEXT_PUBLIC_API_PROBMAN}/incident/assignanother/${problem.id}`,
-          dataAssignAnother,
+          `${process.env.NEXT_PUBLIC_API_PROBMAN}/incident/rejectprob/${problem.id}`,
+          data,
           {
             headers: { Authorization: `Bearer ${user.accessToken}` },
           }
         )
         .then(function (response) {
           if (response) {
-            toast.success(
-              `Team ${option.toUpperCase()} Sebagai Investigator Berhasil Dipilih`
-            );
+            toast.success(`Problem ${problem.problemName} berhasil ditolak`);
             setTimeout(() => router.reload(), 1000);
           }
         })
@@ -67,38 +54,22 @@ const NonAssignModule = ({ problem, user, option }) => {
             toast.error(`Message: ${error.message}`);
           }
         });
-    } else {
-      toast.error("Investigator Belum Dipilih");
     }
   };
 
   return (
     <>
-      {option == "opa" ? (
-        <button
-          style={{ width: "33%" }}
-          type="button"
-          class="inline-flex justify-center py-2 px-2 border border-yellow-500 shadow-sm text-sm font-normal rounded-md text-yellow-500 bg-transparent hover:bg-yellow-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-300"
-          onClick={() => {
+      <span className="text-red-600 text-sm ml-auto mr-0">
+        <ButtonCircle
+          action={() => {
             setOpen(true);
           }}
+          className="pl-3 pr-2 border-red-500 bg-red-300 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-300"
         >
-          OPA Team
-        </button>
-      ) : null}
-      {option == "agile" ? (
-        <button
-          style={{ width: "33%" }}
-          type="button"
-          class="inline-flex justify-center py-2 px-2 border border-gray-500 shadow-sm text-sm font-normal rounded-md text-gray-500 bg-transparent hover:bg-gray-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
-          onClick={() => {
-            setOpen(true);
-          }}
-        >
-          Agile Team
-        </button>
-      ) : null}
-
+          Reject
+          <BanIcon className="ml-1 h-5 w-5" aria-hidden="true" />
+        </ButtonCircle>
+      </span>
       <Transition.Root show={open} as={Fragment}>
         <Dialog
           as="div"
@@ -141,12 +112,12 @@ const NonAssignModule = ({ problem, user, option }) => {
                 className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
                 style={{ maxWidth: 46 + `rem` }}
               >
-                <form onSubmit={handleSubmit(AssignToAnother)}>
+                <form onSubmit={handleSubmit(RejectProblem)}>
                   <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     <div className="sm:flex sm:items-start">
-                      <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 sm:mx-0 sm:h-10 sm:w-10">
-                        <InformationCircleIcon
-                          className="h-6 w-6 text-yellow-600"
+                      <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                        <BanIcon
+                          className="h-6 w-6 text-red-600"
                           aria-hidden="true"
                         />
                       </div>
@@ -155,7 +126,7 @@ const NonAssignModule = ({ problem, user, option }) => {
                           as="h3"
                           className="text-lg leading-6 font-medium text-gray-900"
                         >
-                          Assign this problem to OPA/Agile
+                          Reject this Problem
                         </Dialog.Title>
 
                         <div className="grid grid-cols-1 sm:grid-cols-1">
@@ -196,7 +167,7 @@ const NonAssignModule = ({ problem, user, option }) => {
                                   : "focus:ring-blue-500 focus:border-blue-500",
                                 "shadow-sm mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
                               )}
-                              placeholder={`Please add some reason why this problem is given to ${option.toUpperCase()}`}
+                              placeholder={`Please add some reason why this problem is rejected`}
                             />
                             {errors.additional && (
                               <p className="mt-1 text-sm text-red-600">
@@ -229,7 +200,7 @@ const NonAssignModule = ({ problem, user, option }) => {
                       disabled={spinner}
                     >
                       {spinner && <Spinner />}
-                      Assign to {option.toUpperCase()}
+                      Reject
                     </button>
                   </div>
                 </form>
@@ -242,4 +213,4 @@ const NonAssignModule = ({ problem, user, option }) => {
   );
 };
 
-export default NonAssignModule;
+export default RejectModule;

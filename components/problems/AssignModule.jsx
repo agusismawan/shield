@@ -7,10 +7,11 @@ import * as ProblemHelper from "components/problems/ProblemHelper";
 import { Spinner } from "components/ui/spinner";
 import { ButtonCircle } from "components/ui/button/button-circle";
 import { toast } from "react-toastify";
-import { PencilIcon, UserCircleIcon } from "@heroicons/react/solid";
+import { PencilIcon, UserCircleIcon, BanIcon } from "@heroicons/react/solid";
 import { styledReactSelect } from "components/utils";
 
 import NonAssignModule from "./NonAssignModule";
+import RejectModule from "./RejectModule";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -137,7 +138,8 @@ const AssignModule = ({ problem, user, idProblem }) => {
         {/* Beginning of Kondisional reassign untuk TL */}
         {ProblemHelper.checkTLAES(user) &&
         problem.problemStatus.id !== 4 &&
-        problem.assigned_to !== null ? (
+        problem.assigned_to !== null &&
+        [...problem.incidents].shift().isProblem != "R" ? (
           <span className="text-yellow-600 text-sm ml-auto mr-0">
             <ButtonCircle
               action={() => {
@@ -155,9 +157,26 @@ const AssignModule = ({ problem, user, idProblem }) => {
           </span>
         ) : null}
         {/* End of Kondisional reassign untuk TL */}
+
+        {/* Beginning of Kondisional reject untuk TL */}
+        {ProblemHelper.checkTLAES(user) &&
+        problem.problemStatus.id !== 7 &&
+        problem.assigned_to === null ? (
+          <RejectModule problem={problem} user={user} />
+        ) : problem.problemStatus.id === 7 ? (
+          <span className="text-red-600 text-sm ml-auto mr-0">
+            <ButtonCircle className="pl-3 pr-2 border-red-500 bg-red-300 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-300">
+              Rejected
+              <BanIcon className="ml-1 h-5 w-5" aria-hidden="true" />
+            </ButtonCircle>
+          </span>
+        ) : null}
+        {/* End of Kondisional reject untuk TL */}
       </div>
 
-      {ProblemHelper.checkTLAES(user) && problem.assigned_to == null ? (
+      {ProblemHelper.checkTLAES(user) &&
+      problem.assigned_to == null &&
+      [...problem.incidents].shift().isProblem != "R" ? (
         <div class="flex flex-cols-3 gap-2 items-center">
           <button
             style={{ width: "33%" }}
