@@ -23,7 +23,7 @@ const navigation = [
     href: "/problem",
     children: [
       {
-        name: "Graph",
+        name: "Report",
         href: "#",
         permission: "all",
       },
@@ -33,7 +33,7 @@ const navigation = [
         permission: "member",
       },
       {
-        name: "Problem List",
+        name: "List",
         href: "/problem/list",
         permission: "all",
       },
