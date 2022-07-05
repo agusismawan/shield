@@ -241,11 +241,20 @@ export default function ProblemList({ user, problems, countAssign }) {
                   : "Multiple Incident"}{" "}
                 |
                 <text className="text-gray-600 hover:text-gray-900">
-                  {` ${props.row.original.problemNumber}`}
+                  {props.row.original.problemNumber != null
+                    ? ` ${props.row.original.problemNumber}`
+                    : " -"}
                 </text>
               </div>
               <div className="text-base text-gray-900 font-medium">
-                {props.row.original.problemName}
+                <a
+                  href={`/problem/${props.row.original.id}`}
+                  className="bg-gray-100 text-gray-900"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {props.row.original.problemName}
+                </a>
               </div>
               <div className="text-xs text-gray-500">
                 {format(
@@ -289,12 +298,12 @@ export default function ProblemList({ user, problems, countAssign }) {
         Cell: (props) => {
           return (
             <div className="text-sm text-gray-900">
-              {props.row.original.assigned_to ? (
+              {props.row.original.assigned_to && props.row.original.idStatus < 7 ? (
                 props.row.original.assigned_to.fullName
               ) : (
                 <>
                   <div className="inline-flex">
-                    Not Yet Assigned
+                    Rejected
                     <BanIcon className="pl-1 h-5 w-5" aria-hidden="true" />
                   </div>
                 </>
