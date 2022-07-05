@@ -60,7 +60,7 @@ const AssignModule = ({ problem, user, idProblem }) => {
       assignedTo: parseInt(event.target.assignedTo.value),
     });
     if (dataAssign.assignedTo) {
-      // setSpinner(true);
+      setSpinner(true);
       axios
         .put(
           `${process.env.NEXT_PUBLIC_API_PROBMAN}/incident/recprob/${idProblem}`,
@@ -177,11 +177,11 @@ const AssignModule = ({ problem, user, idProblem }) => {
       {ProblemHelper.checkTLAES(user) &&
       problem.assigned_to == null &&
       [...problem.incidents].shift().isProblem != "R" ? (
-        <div class="flex flex-cols-3 gap-2 items-center">
+        <div className="flex flex-cols-3 gap-2 items-center">
           <button
             style={{ width: "33%" }}
             type="button"
-            class="inline-flex justify-center py-2 px-2 border border-rose-500 shadow-sm text-sm font-normal rounded-md text-rose-500 bg-transparent hover:bg-rose-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-300"
+            className="inline-flex justify-center py-2 px-2 border border-rose-500 shadow-sm text-sm font-normal rounded-md text-rose-500 bg-transparent hover:bg-rose-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-300"
             onClick={() => {
               !toAES ? setToAES(true) : setToAES(false);
             }}
@@ -281,7 +281,7 @@ const AssignModule = ({ problem, user, idProblem }) => {
             </form>
           ) : null}
         </>
-      ) : (
+      ) : problem.problemStatus.id == 7 ? null : (
         "Not Yet Assigned"
       )}
     </>

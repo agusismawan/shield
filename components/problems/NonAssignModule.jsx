@@ -78,7 +78,7 @@ const NonAssignModule = ({ problem, user, option }) => {
         <button
           style={{ width: "33%" }}
           type="button"
-          class="inline-flex justify-center py-2 px-2 border border-yellow-500 shadow-sm text-sm font-normal rounded-md text-yellow-500 bg-transparent hover:bg-yellow-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-300"
+          className="inline-flex justify-center py-2 px-2 border border-yellow-500 shadow-sm text-sm font-normal rounded-md text-yellow-500 bg-transparent hover:bg-yellow-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-300"
           onClick={() => {
             setOpen(true);
           }}
@@ -90,7 +90,7 @@ const NonAssignModule = ({ problem, user, option }) => {
         <button
           style={{ width: "33%" }}
           type="button"
-          class="inline-flex justify-center py-2 px-2 border border-gray-500 shadow-sm text-sm font-normal rounded-md text-gray-500 bg-transparent hover:bg-gray-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
+          className="inline-flex justify-center py-2 px-2 border border-gray-500 shadow-sm text-sm font-normal rounded-md text-gray-500 bg-transparent hover:bg-gray-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
           onClick={() => {
             setOpen(true);
           }}
