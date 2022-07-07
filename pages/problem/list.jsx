@@ -5,7 +5,7 @@ import Layout from "../../components/layout";
 import PageHeader from "../../components/problems/ProblemHeader";
 import ProblemStats from "components/problems/ProblemStats";
 import ProblemTables from "components/problems/ProblemTables";
-import { EyeIcon } from "@heroicons/react/solid";
+import { EyeIcon } from "@heroicons/react/outline";
 import { useEffect, useState, useMemo, useRef } from "react";
 import format from "date-fns/format";
 import { toast } from "react-toastify";
@@ -250,7 +250,7 @@ export default function ProblemList({ user, problems, countAssign }) {
                 <a
                   href={`/problem/${props.row.original.id}`}
                   className="bg-gray-100 text-gray-900"
-                  target="_blank"
+                  target="_self"
                   rel="noreferrer"
                 >
                   {props.row.original.problemName}
@@ -298,7 +298,8 @@ export default function ProblemList({ user, problems, countAssign }) {
         Cell: (props) => {
           return (
             <div className="text-sm text-gray-900">
-              {props.row.original.assigned_to && props.row.original.idStatus < 7 ? (
+              {props.row.original.assigned_to &&
+              props.row.original.idStatus < 7 ? (
                 props.row.original.assigned_to.fullName
               ) : (
                 <>

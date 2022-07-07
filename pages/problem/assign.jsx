@@ -3,7 +3,7 @@ import Image from "next/image";
 import Layout from "../../components/layout";
 import PageHeader from "../../components/problems/ProblemHeader";
 import ProblemTables from "components/problems/ProblemTables";
-import { EyeIcon } from "@heroicons/react/solid";
+import { EyeIcon } from "@heroicons/react/outline";
 import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import format from "date-fns/format";
@@ -102,7 +102,14 @@ export default function AssignList({ user, assign }) {
                 </text>
               </div>
               <div className="text-base text-gray-900">
-                {props.row.original.problemName}
+                <a
+                  href={`/problem/${props.row.original.id}`}
+                  className="bg-gray-100 text-gray-900"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {props.row.original.problemName}
+                </a>
               </div>
               <div className="text-xs text-gray-500">
                 {format(
