@@ -120,7 +120,14 @@ export default function TaskList({ user, data }) {
                 </text>
               </div>
               <div className="text-base text-gray-900 font-medium">
-                {props.row.original.problemName}
+                <a
+                  href={`/problem/${props.row.original.id}`}
+                  className="bg-gray-100 text-gray-900"
+                  target="_self"
+                  rel="noreferrer"
+                >
+                  {props.row.original.problemName}
+                </a>
               </div>
               <div className="text-xs text-gray-500">
                 {format(
@@ -238,13 +245,17 @@ export default function TaskList({ user, data }) {
         <section>
           {/* Page title & actions */}
           <PageHeader title="My Task">
-            {/* <Link href="/problem/create" passHref>
-              <SecondaryAnchorButton>
+            <Link href="/problem/create" passHref>
+              {/* <SecondaryAnchorButton>
                 <PlusSmIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
                 New Problem
-              </SecondaryAnchorButton>
+              </SecondaryAnchorButton> */}
+              <PrimaryAnchorButton>
+                <PlusSmIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+                New Problem
+              </PrimaryAnchorButton>
             </Link>
-            <Link href="/problem/list" passHref>
+            {/* <Link href="/problem/list" passHref>
               <PrimaryAnchorButton>
                 <EyeIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
                 All Problem List
