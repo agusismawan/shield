@@ -18,6 +18,7 @@ const ProblemDetailPanel = ({ problem }) => {
                 href={problem.jiraProblem}
                 target="_blank"
                 rel="noopener noreferrer"
+                style={{ wordBreak: "break-word" }}
               >
                 {problem.jiraProblem}
               </a>
@@ -64,6 +65,7 @@ const ProblemDetailPanel = ({ problem }) => {
                   href={problem.followupCM}
                   target="_blank"
                   rel="noopener noreferrer"
+                  style={{ wordBreak: "break-word" }}
                 >
                   {problem.followupCM}
                 </a>
