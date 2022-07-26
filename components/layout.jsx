@@ -33,6 +33,11 @@ const navigation = [
         permission: "member",
       },
       {
+        name: "Search",
+        href: "/problem/search",
+        permission: "all",
+      },
+      {
         name: "List",
         href: "/problem/list",
         permission: "all",
