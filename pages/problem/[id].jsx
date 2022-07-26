@@ -308,7 +308,7 @@ function ProblemDetail({ user, problem, idProblem }) {
       })
       .catch((err) => toast.error(`Follow Up ${err}`));
   }, []);
-  console.log(problem.rootCauses.length)
+  
   return (
     <>
       <Layout key={`LayoutProblemDetail-${problem.id}`} session={user}>

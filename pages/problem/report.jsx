@@ -20,35 +20,51 @@ export const getServerSideProps = withSession(async function ({ req, res }) {
     };
   }
 
-  const getReport = await fetch(
-    `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/dashboard/report`,
+  const getPeriode = await fetch(
+    `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/dashboard/periode`,
     {
       headers: { Authorization: `Bearer ${user.accessToken}` },
     }
   );
 
   const getTop = await fetch(
-    `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/dashboard/get`,
+    `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/dashboard/toptenproblem`,
     {
       headers: { Authorization: `Bearer ${user.accessToken}` },
     }
   );
 
-  const reportData = await getReport.json();
-  const topData = await getTop.json();
+  const getType = await fetch(
+    `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/dashboard/toptenimpacted`,
+    {
+      headers: { Authorization: `Bearer ${user.accessToken}` },
+    }
+  );
 
-  if (reportData.status === 200 && topData.status === 200) {
+  const periodeData = await getPeriode.json();
+  const topData = await getTop.json();
+  const typeData = await getType.json();
+
+  if (periodeData.status === 200 && topData.status === 200) {
     return {
       props: {
         user: user,
-        data: { report: reportData.data, top: topData.data },
+        data: {
+          periode: periodeData.data,
+          top: topData.data,
+          type: typeData.data.slice(0,5),
+        },
       },
     };
-  } else if (reportData.status === 202 && topData.status === 202) {
+  } else if (periodeData.status === 202 && topData.status === 202) {
     return {
       props: {
         user: user,
-        data: { report: reportData.data, top: topData.data },
+        data: {
+          periode: periodeData.data,
+          top: topData.data,
+          type: typeData.data.slice(0,5),
+        },
       },
     };
   } else {
@@ -66,16 +82,23 @@ export default function Report({ user, data }) {
   const { handleSubmit } = useForm();
   const lblChartYTD = [];
   const lblChartTop = [];
+  const lblChartType = [];
 
-  data.report.map((getLabel) => {
+  data.periode.map((getLabel) => {
     if (getLabel.hasOwnProperty("TotalProblemPerPeriode")) {
-      lblChartYTD.push(getLabel.DatePeriode);
+      lblChartYTD.push(getLabel.DateStringPeriode);
     }
   });
 
   data.top.map((getLabel) => {
     if (getLabel.app.subName != "Others") {
       lblChartTop.push(getLabel.app.name);
+    }
+  });
+
+  data.type.map((getLabel) => {
+    if (getLabel.hasOwnProperty("TotalTypeImpacted")) {
+      lblChartType.push(getLabel.paramType.type);
     }
   });
 
@@ -94,13 +117,13 @@ export default function Report({ user, data }) {
     datasets: [
       {
         label: "Total Problem Year to Date",
-        data: data.report.map((d) => d.TotalProblemPerPeriode),
+        data: data.periode.map((d) => d.TotalProblemPerPeriode),
         backgroundColor: palette("tol-dv", lblChartYTD.length).map(function (
           hex
         ) {
           return "#" + hex;
         }),
-        borderColor: "#000000",
+        borderColor: "#afafaf8c",
         tension: 0.2,
       },
     ],
@@ -110,9 +133,24 @@ export default function Report({ user, data }) {
     labels: lblChartTop,
     datasets: [
       {
-        label: "Top Ten Impacted Apps Year to Date",
+        label: `Top Ten Impacted Apps Year to Date`,
         data: data.top.map((d) => d.TotalProblemPerApp),
         backgroundColor: palette("tol-dv", lblChartTop.length).map(function (
+          hex
+        ) {
+          return "#" + hex;
+        }),
+      },
+    ],
+  };
+
+  const initialChartDataType = {
+    labels: lblChartType,
+    datasets: [
+      {
+        label: `Top ${lblChartType.length} Problems Impacted Type`,
+        data: data.type.map((d) => d.TotalTypeImpacted),
+        backgroundColor: palette("tol-dv", lblChartType.length).map(function (
           hex
         ) {
           return "#" + hex;
@@ -126,6 +164,9 @@ export default function Report({ user, data }) {
 
   const [chartDataTop, setChartDataTop] = useState(initialChartDataTop);
   const [handlerChartTypeTop, sethandlerChartTypeTop] = useState("bar");
+
+  const [chartDataType, setChartDataType] = useState(initialChartDataType);
+  const [handlerChartTypeType, sethandlerChartTypeType] = useState("pie");
 
   // SKIP DULU DARI SINI. SKIP DULU DARI SINI. SKIP DULU DARI SINI.
   const [Filter, setFilter] = useState(false);
@@ -167,8 +208,9 @@ export default function Report({ user, data }) {
         </Head>
         <section>
           <PageHeader title="Report Problem"></PageHeader>
-          {/* Card Problem Year to Date */}
-          <div className="grid grid-cols-1 gap-x-4 gap-y-8 px-4 sm:px-6 lg:px-12 sm:grid-cols-2">
+
+          <div className="grid grid-cols-1 py-2 gap-x-4 gap-y-8 px-4 sm:px-6 lg:px-12 sm:grid-cols-2">
+            {/* Card Problem Year to Date */}
             <div className="sm:col-span-1">
               <div className="bg-white shadow sm:rounded-lg">
                 <div className="px-8 py-8">
@@ -221,6 +263,30 @@ export default function Report({ user, data }) {
                     chartData={chartDataTop}
                     title={"Top Ten Impacted Apps Year to Date"}
                     chartType={handlerChartTypeTop}
+                    onDisplay={false}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 py-2 gap-x-4 gap-y-8 px-4 sm:px-6 lg:px-12 sm:grid-cols-2">
+            {/* Card Problem Type Pie */}
+            <div className="sm:col-span-1">
+              <div className="bg-white shadow sm:rounded-lg">
+                <div className="px-8 py-8">
+                  <div id="formHitPeriod" name="formHitPeriod">
+                    <label
+                      htmlFor="StartPeriodOptions"
+                      className="block mb-1 text-lg text-center font-medium text-gray-700"
+                    >
+                      Top {lblChartType.length} Problems Impacted Type
+                    </label>
+                  </div>
+                  <ProblemChart
+                    chartData={chartDataType}
+                    title={`Top ${lblChartType.length} Problems Impacted Type`}
+                    chartType={handlerChartTypeType}
                     onDisplay={false}
                   />
                 </div>
