@@ -12,7 +12,6 @@ import {
   LineController,
   BarController,
 } from "chart.js";
-
 import { Chart } from "react-chartjs-2";
 
 ChartJS.register(
@@ -33,14 +32,20 @@ export const ShowChart = ({ chartData, title, chartType }) => {
   return (
     <div>
       <Chart
+        type={chartType}
         data={chartData}
         options={{
+          responsive: true,
           plugins: {
             title: { display: true, text: `${title}` },
-            legend: { display: true, position: "bottom" },
+            legend: { display: false, position: "bottom" },
+          },
+          scale: {
+            ticks: {
+              precision: 0,
+            },
           },
         }}
-        type={chartType}
       />
     </div>
   );

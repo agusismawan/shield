@@ -69,6 +69,7 @@ export const getServerSideProps = withSession(async function ({ req, query }) {
     return {
       props: {
         user: user,
+        keyword: query.q,
         totalCount: data.paging.totalData,
         pageCount: Math.ceil(data.paging.totalData / data.paging.perPage),
         currentPage: data.paging.page,
@@ -124,19 +125,13 @@ function SearchIncident(props) {
   };
 
   let content = null;
-  if (isLoading)
-    content = (
-      <>
-        <div className="relative mx-auto">
-          <div className="relative">
-            <Spin size="large" tip="Loading..." />
-          </div>
-        </div>
-      </>
-    );
-  else {
-    content = (
-      <>
+  content = (
+    <>
+      <Spin size="large" spinning={isLoading} tip="Loading...">
+        <h1 className="mb-3">
+          {props.totalCount} results about{" "}
+          <span className="font-semibold">{props.keyword}</span>
+        </h1>
         <ul className="divide-y divide-gray-200">
           {props.search !== 400 &&
             props.search.map((result) => (
@@ -147,7 +142,7 @@ function SearchIncident(props) {
                 <div className="flex justify-between space-x-3">
                   <div className="min-w-0 flex-1">
                     <Link href={`/incidents/${result.id}`}>
-                      <a href="#" className="block focus:outline-none">
+                      <a className="block focus:outline-none">
                         <span className="absolute inset-0" aria-hidden="true" />
                         <p className="text-sm font-bold text-gray-900">
                           {result.incidentName}
@@ -206,9 +201,9 @@ function SearchIncident(props) {
               </li>
             ))}
         </ul>
-      </>
-    );
-  }
+      </Spin>
+    </>
+  );
 
   return (
     <>

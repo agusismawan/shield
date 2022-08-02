@@ -14,6 +14,12 @@ const styledReactSelect = {
       boxShadow: "none",
     },
   }),
+
+  menu: (base) => ({
+    ...base,
+    fontSize: "0.875rem",
+    lineHeight: "1.25rem",
+  }),
 };
 
 const styledReactSelectAdd = {

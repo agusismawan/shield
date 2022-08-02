@@ -226,11 +226,12 @@ function IncidentList({ user, data }) {
           return (
             <div>
               <Link href={`/incidents/${props.row.original.id}`}>
-                <a className="text-blue-500 hover:text-blue-900">
+                {/* <a className="text-blue-500 hover:text-blue-900"> */}
+                <a className="no-underline hover:underline visited:text-purple-600">
                   {props.value}
                 </a>
               </Link>
-              <p className="flex items-center mt-1 text-xs text-gray-500">
+              <p className="flex items-center mt-1 text-xs text-gray-500 ">
                 {props.row.original.incidentNumber
                   ? `${props.row.original.incidentNumber}`
                   : ""}
