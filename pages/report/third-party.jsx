@@ -20,7 +20,6 @@ import { Spinner } from "components/ui/spinner";
 import { classNames } from "components/utils";
 import { Spin } from "antd";
 import { useReactToPrint } from "react-to-print";
-import Pdf from "./pdf";
 
 export const getServerSideProps = withSession(async function ({ req, res }) {
   const user = req.session.get("user");
