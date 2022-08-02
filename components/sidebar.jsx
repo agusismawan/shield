@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { classNames } from "./utils";
+import { classNames, DisclosureDefault, DisclosureOpen } from "./utils";
 import { Fragment } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import { SelectorIcon, UserCircleIcon } from "@heroicons/react/solid";
@@ -123,30 +123,48 @@ export default function Sidebar({ navigation, router, session, action }) {
             {/* Navigation */}
             <nav className="p-4 px-3 mt-6 border-t border-gray-200">
               <div className="space-y-1">
-                {navigation.map((item) => (
-                  <Link key={item.key} href={item.href}>
-                    <a
-                      className={classNames(
-                        router.pathname.includes(item.href)
-                          ? "bg-gray-100 text-gray-900"
-                          : "text-gray-600 hover:text-gray-900 hover:bg-gray-50",
-                        "group flex items-center px-2 py-2 text-sm font-medium rounded-md"
-                      )}
-                      aria-current={item.current ? "page" : undefined}
-                    >
-                      <item.icon
+                {navigation.map((item) =>
+                  !item.children ? (
+                    <Link key={item.key} href={item.href}>
+                      <a
                         className={classNames(
                           router.pathname.includes(item.href)
-                            ? "text-gray-500"
-                            : "text-gray-400 group-hover:text-gray-500",
-                          "mr-3 flex-shrink-0 h-6 w-6"
+                            ? "bg-gray-100 text-gray-900"
+                            : "text-gray-600 hover:text-gray-900 hover:bg-gray-50",
+                          "group flex items-center px-2 py-2 text-sm font-medium rounded-md"
                         )}
-                        aria-hidden="true"
-                      />
-                      {item.name}
-                    </a>
-                  </Link>
-                ))}
+                        aria-current={item.current ? "page" : undefined}
+                      >
+                        <item.icon
+                          className={classNames(
+                            router.pathname.includes(item.href)
+                              ? "text-gray-500"
+                              : "text-gray-400 group-hover:text-gray-500",
+                            "mr-3 flex-shrink-0 h-6 w-6"
+                          )}
+                          aria-hidden="true"
+                        />
+                        {item.name}
+                      </a>
+                    </Link>
+                  ) : (
+                    <>
+                      {router.pathname.includes(item.href) ? (
+                        <DisclosureOpen
+                          item={item}
+                          router={router}
+                          session={session}
+                        />
+                      ) : (
+                        <DisclosureDefault
+                          item={item}
+                          router={router}
+                          session={session}
+                        />
+                      )}
+                    </>
+                  )
+                )}
               </div>
             </nav>
           </div>
