@@ -5,7 +5,7 @@ import Layout from "../../components/layout";
 import PageHeader from "../../components/problems/ProblemHeader";
 import ProblemStats from "components/problems/ProblemStats";
 import ProblemTables from "components/problems/ProblemTables";
-import { EyeIcon } from "@heroicons/react/solid";
+import { EyeIcon } from "@heroicons/react/outline";
 import { useEffect, useState, useMemo, useRef } from "react";
 import format from "date-fns/format";
 import { toast } from "react-toastify";
@@ -241,11 +241,20 @@ export default function ProblemList({ user, problems, countAssign }) {
                   : "Multiple Incident"}{" "}
                 |
                 <text className="text-gray-600 hover:text-gray-900">
-                  {` ${props.row.original.problemNumber}`}
+                  {props.row.original.problemNumber != null
+                    ? ` ${props.row.original.problemNumber}`
+                    : " -"}
                 </text>
               </div>
               <div className="text-base text-gray-900 font-medium">
-                {props.row.original.problemName}
+                <a
+                  href={`/problem/${props.row.original.id}`}
+                  className="bg-gray-100 text-gray-900"
+                  target="_self"
+                  rel="noreferrer"
+                >
+                  {props.row.original.problemName}
+                </a>
               </div>
               <div className="text-xs text-gray-500">
                 {format(
@@ -289,12 +298,13 @@ export default function ProblemList({ user, problems, countAssign }) {
         Cell: (props) => {
           return (
             <div className="text-sm text-gray-900">
-              {props.row.original.assigned_to ? (
+              {props.row.original.assigned_to &&
+              props.row.original.idStatus < 7 ? (
                 props.row.original.assigned_to.fullName
               ) : (
                 <>
                   <div className="inline-flex">
-                    Not Yet Assigned
+                    Rejected
                     <BanIcon className="pl-1 h-5 w-5" aria-hidden="true" />
                   </div>
                 </>
@@ -368,13 +378,13 @@ export default function ProblemList({ user, problems, countAssign }) {
         <section>
           {/* Page title & actions */}
           <PageHeader title="Problem List">
-            <Link href="/problem/create" passHref>
+            {/* <Link href="/problem/create" passHref>
               <PrimaryAnchorButton>
                 <PlusSmIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
                 New Problem
               </PrimaryAnchorButton>
-            </Link>
-            <span className="relative inline-flex">
+            </Link> */}
+            {/* <span className="relative inline-flex">
               <Link href="/problem/assign" passHref>
                 <SecondaryAnchorButton>
                   {countAssign} :: Need Assign
@@ -384,7 +394,7 @@ export default function ProblemList({ user, problems, countAssign }) {
                   </span>
                 </SecondaryAnchorButton>
               </Link>
-            </span>
+            </span> */}
           </PageHeader>
 
           {/* Cards */}

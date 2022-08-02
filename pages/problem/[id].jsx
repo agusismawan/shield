@@ -637,41 +637,43 @@ function ProblemDetail({ user, problem, idProblem }) {
                           }
                           subtitle={<ProblemSubDetail problem={problem} />}
                         >
-                          <nav
-                            className="flex items-center justify-left"
-                            aria-label="Progress"
-                          >
-                            <p className="text-sm font-medium">
-                              {`Progress ${problem.problemStatus.id} of 4`}
-                            </p>
-                            <StepProgress problem={problem} />
-                            <div className="px-4 flex ml-3 mb-4">
-                              {problem.assigned_to ? (
-                                user.username ===
-                                problem.assigned_to.userName ? (
-                                  problem.problemStatus.id !== 4 ? (
-                                    <ButtonCircle
-                                      action={() => {
-                                        setEditMode(true);
-                                      }}
-                                      className="border-gray-300 text-gray-700 bg-gray-100 hover:bg-gray-50"
-                                    >
-                                      <PencilIcon
-                                        className="h-5 w-5"
-                                        aria-hidden="true"
-                                      />
-                                    </ButtonCircle>
+                          {problem.problemStatus.id <= 4 ? (
+                            <nav
+                              className="flex items-center justify-left"
+                              aria-label="Progress"
+                            >
+                              <p className="text-sm font-medium">
+                                {`Progress ${problem.problemStatus.id} of 4`}
+                              </p>
+                              <StepProgress problem={problem} />
+                              <div className="px-4 flex ml-3 mb-4">
+                                {problem.assigned_to ? (
+                                  user.username ===
+                                  problem.assigned_to.userName ? (
+                                    problem.problemStatus.id !== 4 ? (
+                                      <ButtonCircle
+                                        action={() => {
+                                          setEditMode(true);
+                                        }}
+                                        className="border-gray-300 text-gray-700 bg-gray-100 hover:bg-gray-50"
+                                      >
+                                        <PencilIcon
+                                          className="h-5 w-5"
+                                          aria-hidden="true"
+                                        />
+                                      </ButtonCircle>
+                                    ) : (
+                                      ""
+                                    )
                                   ) : (
                                     ""
                                   )
                                 ) : (
                                   ""
-                                )
-                              ) : (
-                                ""
-                              )}
-                            </div>
-                          </nav>
+                                )}
+                              </div>
+                            </nav>
+                          ) : null}
                         </CardTitle>
                         <ProblemDetailPanel problem={problem} />
                       </>
@@ -696,7 +698,11 @@ function ProblemDetail({ user, problem, idProblem }) {
                 <div className="bg-white shadow sm:rounded-lg mt-3">
                   <div className="space-y-4 px-4 py-5 sm:px-6">
                     {/* Divide Component Conditional for Assign */}
-                    <AssignModule problem={problem} user={user} idProblem={idProblem} />
+                    <AssignModule
+                      problem={problem}
+                      user={user}
+                      idProblem={idProblem}
+                    />
 
                     {problem.updated_by !== null ? (
                       <div className="flex items-center space-x-2">
