@@ -125,19 +125,9 @@ function SearchIncident(props) {
   };
 
   let content = null;
-  if (isLoading)
-    content = (
-      <>
-        <div className="relative mx-auto">
-          <div className="relative">
-            <Spin size="large" tip="Loading..." />
-          </div>
-        </div>
-      </>
-    );
-  else {
-    content = (
-      <>
+  content = (
+    <>
+      <Spin size="large" spinning={isLoading} tip="Loading...">
         <h1 className="mb-3">
           {props.totalCount} results about{" "}
           <span className="font-semibold">{props.keyword}</span>
@@ -211,9 +201,9 @@ function SearchIncident(props) {
               </li>
             ))}
         </ul>
-      </>
-    );
-  }
+      </Spin>
+    </>
+  );
 
   return (
     <>
