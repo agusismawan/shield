@@ -496,6 +496,7 @@ function addIncident({ user }) {
                               options={impactOptions}
                               styles={styledReactSelect}
                               className="text-sm focus:ring-blue-500 focus:border-blue-500"
+                              menuPlacement="auto"
                             />
                           )}
                         />

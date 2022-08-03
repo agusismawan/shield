@@ -28,6 +28,7 @@ import {
   ClockIcon,
 } from "@heroicons/react/solid";
 import { message } from "antd";
+import { data } from "autoprefixer";
 
 export const getServerSideProps = withSession(async function ({ req, params }) {
   const user = req.session.get("user");
@@ -176,6 +177,7 @@ function IncidentDetail({ user, incident }) {
     handleSubmit,
     control,
     reset,
+    resetField,
     setValue,
     getValues,
     formState: { errors, isSubmitting },
@@ -183,21 +185,21 @@ function IncidentDetail({ user, incident }) {
     defaultValues: {
       idIncidentType: incident.data.paramIncidentType
         ? {
-          label: incident.data.paramIncidentType.incidentType,
-          value: incident.data.paramIncidentType.id,
-        }
+            label: incident.data.paramIncidentType.incidentType,
+            value: incident.data.paramIncidentType.id,
+          }
         : false,
       idUrgency: incident.data.paramUrgency
         ? {
-          label: incident.data.paramUrgency.urgency,
-          value: incident.data.paramUrgency.id,
-        }
+            label: incident.data.paramUrgency.urgency,
+            value: incident.data.paramUrgency.id,
+          }
         : false,
       idImpact: incident.data.paramImpact
         ? {
-          label: incident.data.paramImpact.impact,
-          value: incident.data.paramImpact.id,
-        }
+            label: incident.data.paramImpact.impact,
+            value: incident.data.paramImpact.id,
+          }
         : false,
       logStartTime: incident.data.logStartTime
         ? parseISO(incident.data.logStartTime, new Date())
@@ -210,9 +212,9 @@ function IncidentDetail({ user, incident }) {
         : false,
       idProblemType: incident.data.idProblemType
         ? {
-          label: incident.data.paramProblemType.problemType,
-          value: incident.data.paramProblemType.id,
-        }
+            label: incident.data.paramProblemType.problemType,
+            value: incident.data.paramProblemType.id,
+          }
         : false,
     },
   });
@@ -285,8 +287,25 @@ function IncidentDetail({ user, incident }) {
         setEnhancement(true);
       }
     }
+  };
 
-    console.log(enhancement);
+  const [isOnGoing, setIsOngoing] = useState(
+    incident.data.endTime === null ? true : false
+  );
+
+  // Handle Incident Still on Going - by Agus
+  const handleStillOngoing = (e) => {
+    const checked = e.target.checked;
+
+    if (checked === true) {
+      console.log("Oncek");
+      setValue("endTime", null);
+      unregister("endTime");
+      setIsOngoing(true);
+    } else {
+      console.log("Not Cek");
+      setIsOngoing(false);
+    }
   };
 
   // Handle Problem Detail Info
@@ -297,7 +316,10 @@ function IncidentDetail({ user, incident }) {
       idIncidentType: data.idIncidentType.value,
       startTime: format(new Date(data.startTime), "yyyy-MM-dd HH:mm"),
       logStartTime: format(new Date(data.logStartTime), "yyyy-MM-dd HH:mm"),
-      endTime: format(new Date(data.endTime), "yyyy-MM-dd HH:mm"),
+      endTime:
+        isOnGoing === true
+          ? null
+          : format(new Date(data.endTime), "yyyy-MM-dd HH:mm"),
       idUrgency: data.idUrgency.value,
       idImpact: data.idImpact.value,
       isProblem: enhancement === true ? "W" : "N",
@@ -331,7 +353,7 @@ function IncidentDetail({ user, incident }) {
         toast.error(`Failed to update: ${error.response.data.message}`);
       });
 
-    //console.log(data);
+    console.log(data);
   };
 
   return (
@@ -393,8 +415,8 @@ function IncidentDetail({ user, incident }) {
                                 selectedStatus == "Open"
                                   ? "bg-red-500"
                                   : selectedStatus == "Investigate"
-                                    ? "bg-blue-500"
-                                    : "bg-green-500",
+                                  ? "bg-blue-500"
+                                  : "bg-green-500",
                                 "relative inline-flex items-center py-2 pl-3 pr-4 border border-transparent rounded-l-md shadow-sm text-white"
                               )}
                             >
@@ -427,8 +449,8 @@ function IncidentDetail({ user, incident }) {
                                 selectedStatus == "Open"
                                   ? "bg-red-500 hover:bg-red-600"
                                   : selectedStatus == "Investigate"
-                                    ? "bg-blue-500 hover:bg-blue-600"
-                                    : "bg-green-500 hover:bg-green-600",
+                                  ? "bg-blue-500 hover:bg-blue-600"
+                                  : "bg-green-500 hover:bg-green-600",
                                 "relative inline-flex items-center p-2 rounded-l-none rounded-r-md text-sm font-medium text-white focus:outline-none focus:z-10 focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-blue-500"
                               )}
                             >
@@ -526,17 +548,19 @@ function IncidentDetail({ user, incident }) {
                       <div className="bg-white shadow sm:rounded-lg">
                         <CardTitle
                           title={`Incident Report ${incident.data.incidentNumber}`}
-                          subtitle={`Priority ${incident.data.paramPriorityMatrix
+                          subtitle={`Priority ${
+                            incident.data.paramPriorityMatrix
                               ? incident.data.paramPriorityMatrix.mapping
                               : "not defined yet"
-                            }, ${incident.data.resolvedIntervals
+                          }, ${
+                            incident.data.resolvedIntervals
                               ? `duration ${incident.data.resolvedIntervals} minutes`
                               : `started ${format(
-                                new Date(incident.data.startTime),
-                                "dd MMMM yyyy HH:mm",
-                                "id-ID"
-                              )}`
-                            }`}
+                                  new Date(incident.data.startTime),
+                                  "dd MMMM yyyy HH:mm",
+                                  "id-ID"
+                                )}`
+                          }`}
                         >
                           <div className="flex px-4">
                             <ButtonCircle
@@ -692,13 +716,18 @@ function IncidentDetail({ user, incident }) {
                             </label>
                             <Controller
                               name="endTime"
-                              control={control}
                               rules={{
-                                required: "This is required!",
-                                validate: handleDatetime,
+                                required:
+                                  isOnGoing === true
+                                    ? false
+                                    : "This is required",
+                                validate:
+                                  isOnGoing === true ? false : handleDatetime,
                               }}
+                              control={control}
                               render={({ field }) => (
                                 <DatePicker
+                                  disabled={isOnGoing === true ? true : false}
                                   allowClear
                                   placeholder="Thank God the incident is over"
                                   showTime={{ format: "HH:mm" }}
@@ -728,6 +757,36 @@ function IncidentDetail({ user, incident }) {
                               </p>
                             )}
                           </div>
+
+                          {incident.data.endTime === null && (
+                            <div className="sm:col-span-1">
+                              <label
+                                htmlFor="end-time"
+                                className="block mb-8 text-sm font-medium text-gray-900"
+                              ></label>
+                              <div className="relative flex items-start">
+                                <div className="flex items-center h-5">
+                                  <input
+                                    id="comments"
+                                    aria-describedby="comments-description"
+                                    name="comments"
+                                    type="checkbox"
+                                    className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                                    onChange={handleStillOngoing}
+                                    checked={isOnGoing}
+                                  />
+                                </div>
+                                <div className="ml-3 text-sm">
+                                  <label
+                                    htmlFor="comments"
+                                    className="font-medium text-gray-700"
+                                  >
+                                    Incident Still Ongoing
+                                  </label>
+                                </div>
+                              </div>
+                            </div>
+                          )}
 
                           <div className="sm:col-span-2">
                             <label
@@ -1066,10 +1125,10 @@ function IncidentDetail({ user, incident }) {
                           incident.data.resolvedIntervals
                             ? `Duration ${incident.data.resolvedIntervals} minutes`
                             : `Started ${format(
-                              new Date(incident.data.startTime),
-                              "dd MMMM yyyy HH:mm",
-                              "id-ID"
-                            )}`
+                                new Date(incident.data.startTime),
+                                "dd MMMM yyyy HH:mm",
+                                "id-ID"
+                              )}`
                         }
                       >
                         <div className="flex px-4">
@@ -1277,10 +1336,10 @@ function IncidentDetail({ user, incident }) {
                         From{" "}
                         {incident.data.logStartTime
                           ? format(
-                            new Date(incident.data.logStartTime),
-                            "dd MMMM yyyy HH:mm",
-                            "id-ID"
-                          )
+                              new Date(incident.data.logStartTime),
+                              "dd MMMM yyyy HH:mm",
+                              "id-ID"
+                            )
                           : "-"}{" "}
                       </span>
                     </div>
@@ -1289,10 +1348,10 @@ function IncidentDetail({ user, incident }) {
                         Until{" "}
                         {incident.data.endTime
                           ? format(
-                            new Date(incident.data.endTime),
-                            "dd MMMM yyyy HH:mm",
-                            "id-ID"
-                          )
+                              new Date(incident.data.endTime),
+                              "dd MMMM yyyy HH:mm",
+                              "id-ID"
+                            )
                           : "(not recovered yet)"}{" "}
                       </span>
                     </div>
@@ -1318,15 +1377,15 @@ function IncidentDetail({ user, incident }) {
                           Last updated on{" "}
                           {incident.data.updatedAt
                             ? format(
-                              new Date(incident.data.updatedAt),
-                              "dd MMM yyyy HH:mm",
-                              "id-ID"
-                            )
+                                new Date(incident.data.updatedAt),
+                                "dd MMM yyyy HH:mm",
+                                "id-ID"
+                              )
                             : format(
-                              new Date(incident.data.createdAt),
-                              "dd MMM yyyy HH:mm",
-                              "id-ID"
-                            )}{" "}
+                                new Date(incident.data.createdAt),
+                                "dd MMM yyyy HH:mm",
+                                "id-ID"
+                              )}{" "}
                           <br />
                           by{" "}
                           {incident.data.paramUpdatedBy
@@ -1357,7 +1416,7 @@ function IncidentDetail({ user, incident }) {
                           {incident.data.problemDetail.paramAssignedTo === null
                             ? "-"
                             : incident.data.problemDetail.paramAssignedTo
-                              .fullname}
+                                .fullname}
                         </div>
 
                         {/* Detail Type dan Status */}
@@ -1403,9 +1462,11 @@ function IncidentDetail({ user, incident }) {
                                 />
                               </div>
                               <div className="ml-3.5 text-sm font-medium text-gray-600">
-                                {incident.data.problemDetail.paramFollowUpPlan.followUpPlan === "Not yet"
+                                {incident.data.problemDetail.paramFollowUpPlan
+                                  .followUpPlan === "Not yet"
                                   ? "None"
-                                  : incident.data.problemDetail.paramFollowUpPlan.followUpPlan}
+                                  : incident.data.problemDetail
+                                      .paramFollowUpPlan.followUpPlan}
                                 {/* ? incident.data.problemDetail.paramFollowUpPlan.followUpPlan
                                   : "None"} */}
                               </div>
@@ -1430,7 +1491,7 @@ function IncidentDetail({ user, incident }) {
                               </div>
                               <div className="ml-3.5 text-sm font-medium">
                                 {incident.data.problemDetail.jiraProblem ===
-                                  null ? (
+                                null ? (
                                   <span className="text-white">None</span>
                                 ) : (
                                   <a
@@ -1458,7 +1519,7 @@ function IncidentDetail({ user, incident }) {
                               </div>
                               <div className="ml-3.5 text-sm font-medium">
                                 {incident.data.problemDetail.followUpCM ===
-                                  null ? (
+                                null ? (
                                   <span className="text-white">None</span>
                                 ) : (
                                   <a
