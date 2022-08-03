@@ -24,6 +24,7 @@ export const getServerSideProps = withSession(async function ({ req, query }) {
     };
   }
 
+  let res, getSearch;
   let url = new URL(
     `${process.env.NEXT_PUBLIC_API_PROBMAN}/problem/matching/search`
   );
@@ -35,45 +36,70 @@ export const getServerSideProps = withSession(async function ({ req, query }) {
     } else if (paramLength === 2) {
       if (query.q && query.perPage) {
         url.searchParams.append("q", query.q);
-        url.searchParams.append("page", 1);
+        // url.searchParams.append("page", page);
         url.searchParams.append("perPage", query.perPage);
       } else if (query.q && query.page) {
         url.searchParams.append("q", query.q);
-        url.searchParams.append("page", 1);
+        url.searchParams.append("page", query.page);
       }
     } else if (paramLength === 3) {
       if (query.q && query.page && query.perPage) {
         url.searchParams.append("q", query.q);
-        url.searchParams.append("page", 1);
+        url.searchParams.append("page", query.page);
         url.searchParams.append("perPage", query.perPage);
       }
     } else {
-      return false;
+      return true;
     }
   }
 
-  const res = await fetch(url.toString(), {
+  // jika ada query param nya
+  res = await fetch(url.toString(), {
     headers: { Authorization: `Bearer ${user.accessToken}` },
   });
-  const data = await res.json();
+  getSearch = await res.json();
 
-  if (data) {
+  if (res.status === 200) {
     return {
       props: {
         user: user,
-        data: data,
+        search: getSearch,
+      },
+    };
+  } else if (res.status === 201) {
+    return {
+      props: {
+        user: user,
+        search: getSearch,
+      },
+    };
+  } else if (res.status === 202) {
+    return {
+      props: {
+        user: user,
+        search: getSearch,
       },
     };
   }
 });
 
-const ProblemSearch = ({ data, user }) => {
+const ProblemSearch = ({ user, search }) => {
   const [isLoading, setLoading] = useState(false);
   const [selectedPage, setSelectedPage] = useState("");
   const startLoading = () => setLoading(true);
   const stopLoading = () => setLoading(false);
   const router = useRouter();
   const PER_PAGE = 5;
+
+  useEffect(() => {
+    router.events.on("routeChangeStart", startLoading);
+    router.events.on("routeChangeComplete", stopLoading);
+
+    return () => {
+      router.events.off("routeChangeStart", startLoading);
+      router.events.off("routeChangeComplete", stopLoading);
+    };
+  }, []);
 
   // Handle on enter search
   const onSearch = (e) => {
@@ -83,7 +109,20 @@ const ProblemSearch = ({ data, user }) => {
       const currentPath = router.pathname;
       router.push({
         pathname: currentPath,
-        query: { q: keyword, perPage: PER_PAGE },
+        query: { q: keyword, page: 1, perPage: PER_PAGE },
+      });
+    }
+  };
+
+  const paginationHandler = (page) => {
+    const currentPath = router.pathname;
+    const currentQuery = { ...router.query };
+    currentQuery.page = page.selected + 1;
+    setSelectedPage(currentQuery.page);
+    if (currentQuery.hasOwnProperty("q")) {
+      router.push({
+        pathname: currentPath,
+        query: currentQuery,
       });
     }
   };
@@ -92,10 +131,15 @@ const ProblemSearch = ({ data, user }) => {
   if (isLoading)
     content = (
       <>
-        <div className="relative mx-auto">
-          <div className="relative">
-            <Spin size="large" tip="Loading..." />
-          </div>
+        <div
+          style={{
+            marginTop: "10vh",
+            marginBottom: "10vh",
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          <Spin size="large" tip="Loading..." />
         </div>
       </>
     );
@@ -103,79 +147,83 @@ const ProblemSearch = ({ data, user }) => {
     content = (
       <>
         <ul className="divide-y divide-gray-200">
-          {data.data.rows.map((result) => (
-            <li
-              key={result.idproblem}
-              className="relative bg-white sm:rounded-lg py-5 px-4 hover:bg-gray-50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-500"
-            >
-              <div className="flex justify-between space-x-3">
-                <div className="min-w-0 flex-1">
-                  <Link href={`/incidents/${result.idproblem}`}>
-                    <a href="#" className="block focus:outline-none">
-                      <span className="absolute inset-0" aria-hidden="true" />
-                      <p className="text-sm font-bold text-gray-900">
-                        {result.incidentName == null
-                          ? "Masih Kosong"
-                          : result.incidentName}
-                      </p>
-                      <div className="mt-1 flex space-x-4">
-                        <p className="flex items-center text-sm text-gray-500 truncate">
-                          <CodeIcon
-                            className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-700"
-                            aria-hidden="true"
-                          />{" "}
-                          {result.problemApp}
-                        </p>
-                        <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                          {result.paramIncidentType
-                            ? result.paramIncidentType.incidentType
-                            : "Gaada Incident Type"}
-                        </p>
-                        <p
-                          className={classNames(
-                            result.incidentStatus === "Open"
-                              ? "bg-red-100 text-red-800"
-                              : "bg-green-100 text-green-800",
-                            "px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-                          )}
-                        >
-                          {result.incidentStatus == null
-                            ? "Dia Null"
-                            : result.incidentStatus}
-                        </p>
-                      </div>
-                    </a>
-                  </Link>
-                </div>
-                <time
-                  dateTime={result.problemCreatedAt}
-                  className="flex-shrink-0 whitespace-nowrap text-sm text-gray-500"
+          {/* Ini kalau ketemu */}
+          {search && search.data.count > 0
+            ? search.data.rows.map((result) => (
+                <li
+                  key={result.idproblem}
+                  className="relative bg-white sm:rounded-lg my-5 py-5 px-4 hover:bg-gray-50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-500"
                 >
-                  {result.problemCreatedAt}
-                </time>
-              </div>
-              <div className="mt-4">
-                <p className="line-clamp-2 text-sm text-gray-600 truncate">
-                  Impacted System :{" "}
-                  {result.problemImpactedSystem != null
-                    ? result.problemImpactedSystem
-                    : "Dia Null"}
-                </p>
-                <p className="line-clamp-2 text-sm text-gray-600 truncate">
-                  Root Cause :{" "}
-                  {result.problemRootCause != null
-                    ? result.problemRootCause
-                    : "Dia Null"}
-                </p>
-                <p className="line-clamp-2 text-sm text-gray-600 truncate">
-                  Action :{" "}
-                  {result.problemResolution != null
-                    ? result.problemResolution
-                    : "Dia Null"}
-                </p>
-              </div>
-            </li>
-          ))}
+                  <div className="flex justify-between space-x-3">
+                    <div className="min-w-0 flex-1">
+                      <Link href={`/problem/${result.idproblem}`}>
+                        <a href="#" className="block focus:outline-none">
+                          <span
+                            className="absolute inset-0"
+                            aria-hidden="true"
+                          />
+                          <p className="text-sm font-bold text-gray-900">
+                            [{result.problemNumber}] {result.problemName}
+                          </p>
+                          <div className="mt-1 flex space-x-4">
+                            <p className="flex items-center text-sm text-gray-500 truncate">
+                              <CodeIcon
+                                className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-700"
+                                aria-hidden="true"
+                              />{" "}
+                              {result.problemApp}
+                            </p>
+                            <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                              {result.problemType
+                                ? result.problemType
+                                : "Not Defined Problem Type"}
+                            </p>
+                            <p
+                              className={classNames(
+                                result.problemStatus === "Done"
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-red-100 text-red-800",
+                                "px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                              )}
+                            >
+                              {result.problemStatus == null
+                                ? "Problem Status Not Defined"
+                                : result.problemStatus}
+                            </p>
+                          </div>
+                        </a>
+                      </Link>
+                    </div>
+                    <time
+                      dateTime={result.problemCreatedAt}
+                      className="flex-shrink-0 whitespace-nowrap text-sm text-gray-500"
+                    >
+                      {result.problemCreatedAt}
+                    </time>
+                  </div>
+                  <div className="mt-4">
+                    <p className="line-clamp-2 text-sm text-gray-600 truncate">
+                      Impacted System :{" "}
+                      {result.problemImpactedSystem != null
+                        ? result.problemImpactedSystem
+                        : "Not Defined Yet/Recorded"}
+                    </p>
+                    <p className="line-clamp-2 text-sm text-gray-600 truncate">
+                      Root Cause :{" "}
+                      {result.problemRootCause != null
+                        ? result.problemRootCause
+                        : "Not Defined Yet/Recorded"}
+                    </p>
+                    <p className="line-clamp-2 text-sm text-gray-600 truncate">
+                      Action :{" "}
+                      {result.problemResolution != null
+                        ? result.problemResolution
+                        : "Not Defined Yet/Recorded"}
+                    </p>
+                  </div>
+                </li>
+              ))
+            : null}
         </ul>
       </>
     );
@@ -188,36 +236,6 @@ const ProblemSearch = ({ data, user }) => {
           <title>Problem Search</title>
         </Head>
         <div className="flex-1 flex flex-col overflow-hidden">
-          {/* <header className="w-full">
-            <div className="relative z-10 flex-shrink-0 h-16 bg-white border-b border-gray-200 shadow-sm flex">
-              <div className="flex-1 flex justify-between px-4 sm:px-6">
-                <div className="flex-1 flex">
-                  <form className="w-full flex md:ml-0" action="#" method="GET">
-                    <label htmlFor="search-field" className="sr-only">
-                      Search problem ticket
-                    </label>
-                    <div className="relative w-full text-gray-400 focus-within:text-gray-600">
-                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center">
-                        <SearchIcon
-                          className="flex-shrink-0 h-5 w-5"
-                          aria-hidden="true"
-                        />
-                      </div>
-                      <input
-                        name="search"
-                        id="search-field"
-                        className="hidden h-full w-full border-transparent py-2 pl-8 pr-3 text-base text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-0 focus:border-transparent focus:placeholder-gray-400 sm:block"
-                        placeholder="Search problem name, root cause &amp; action"
-                        type="search"
-                        onKeyPress={onSearch}
-                      />
-                    </div>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </header> */}
-
           <div className="mt-10 mb-5 max-w-full sm:px-6 lg:max-w-full lg:px-12">
             <div className="flex gap-x-2">
               <div className="flex-auto">
@@ -247,11 +265,11 @@ const ProblemSearch = ({ data, user }) => {
                 </form>
               </div>
             </div>
-            {/* Pengecekan untuk landing pa */}
-            {/* {props.search === 400 ? (
+
+            {search && search.status > 400 ? (
               <>
                 <Alert
-                  message="This page is specifically for searches related to problem name, root causes and actions of incidents. Please type a word related to these three things"
+                  message="This page is specifically for searches related to problem name, root causes and actions of problems. Please type a word related to these three things"
                   type="info"
                   showIcon
                   style={{ borderRadius: "0.375rem" }}
@@ -264,14 +282,14 @@ const ProblemSearch = ({ data, user }) => {
                       alt="Workcation"
                     />
                     <div className="-mt-12 mb-3 max-w-3xl mx-auto text-center">
-                      <Link href="/incidents" passHref>
-                        <Button>Back to incident menu</Button>
+                      <Link href="/problem" passHref>
+                        <Button>Back to Problem List</Button>
                       </Link>
                     </div>
                   </div>
                 </div>
               </>
-            ) : props.search !== 400 && props.search.length === 0 ? (
+            ) : search && search.status !== 400 && search.data.count === 0 ? (
               <div className="relative mx-auto">
                 <div className="relative">
                   <img
@@ -281,10 +299,10 @@ const ProblemSearch = ({ data, user }) => {
                   />
                   <div className="-mt-16 mb-3 max-w-3xl mx-auto text-center leading-9">
                     <p className="text-2xl font-bold text-gray-900">
-                      Oops, Incident not found
+                      Oops, Problems not found
                     </p>
                     <p className="mb-3">
-                      Try another keyword or back to incident menu
+                      Try another keyword or back to problem list
                     </p>
                     <Link
                       href={{
@@ -298,22 +316,28 @@ const ProblemSearch = ({ data, user }) => {
                 </div>
               </div>
             ) : (
-              <> */}
-            {content}
-            {/* <div className="mt-3 hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+              <>
+                {content}
+                <div className="mt-3 hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                   <div>
                     <p className="text-sm text-gray-700">
                       Showing{" "}
-                      <span className="font-medium">{props.currentPage}</span>{" "}
-                      to <span className="font-medium">{props.pageCount}</span>{" "}
-                      of <span className="font-medium">{props.totalCount}</span>{" "}
+                      <span className="font-medium">{search.paging.Page}</span>{" "}
+                      to{" "}
+                      <span className="font-medium">
+                        {search.paging.totalPages}
+                      </span>{" "}
+                      of{" "}
+                      <span className="font-medium">
+                        {search.paging.totalData}
+                      </span>{" "}
                       results
                     </p>
                   </div>
                   <div>
                     <ReactPaginate
-                      initialPage={props.currentPage - 1}
-                      pageCount={props.pageCount} //page count
+                      initialPage={search.paging.Page - 1}
+                      pageCount={search.paging.totalPages} //page count
                       previousLabel={"Prev"}
                       onPageChange={paginationHandler}
                       containerClassName={
@@ -337,9 +361,9 @@ const ProblemSearch = ({ data, user }) => {
                       }
                     />
                   </div>
-                </div> */}
-            {/* </>
-            )} */}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </Layout>
